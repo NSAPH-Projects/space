@@ -9,9 +9,11 @@ DOI = "doi:10.7910/DVN/SYNPBS"
 dataset = api.get_dataset(DOI)
 
 files_list = dataset.json()['data']['latestVersion']['files']
+user_path = "../"
 
 for file in files_list:
     filename = file["dataFile"]["filename"]
+    filename = user_path + filename
     file_id = file["dataFile"]["id"]
     print("File name {}, id {}".format(filename, file_id))
     response = data_api.get_datafile(file_id)
