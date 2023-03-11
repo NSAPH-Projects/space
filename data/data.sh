@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # run this script with
-# curl -sSL http://github.com/data.sh | bash
+# curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash
 
 user_scenario="$1" # user provided scenario
 user_seed="$2" # user provided seed
@@ -13,8 +13,8 @@ fi
 echo "$user_scenario" && echo "$user_seed" && echo "$user_path"
 mkdir temp ; cd temp
 
-curl -s https://raw.githubusercontent.com/atrisovic/space/master/data/requirements.txt -o requirements.txt
-curl -s https://raw.githubusercontent.com/atrisovic/space/master/data/data.py -o data.py
+curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/requirements.txt -o requirements.txt
+curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.py -o data.py
 
 # install requirements
 mkdir env ; python3 -m venv env/

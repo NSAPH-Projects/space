@@ -1,11 +1,11 @@
 from pyDataverse.api import NativeApi, DataAccessApi
 
-base_url = 'https://demo.dataverse.org/'
+base_url = 'https://dataverse.harvard.edu/'
 
 api = NativeApi(base_url)
 data_api = DataAccessApi(base_url)
 
-DOI = "doi:10.70122/FK2/1PZPYL"
+DOI = "doi:10.7910/DVN/SYNPBS"
 dataset = api.get_dataset(DOI)
 
 files_list = dataset.json()['data']['latestVersion']['files']
@@ -19,8 +19,8 @@ for file in files_list:
         f.write(response.content)
 
 import subprocess
-process = subprocess.Popen(
-     ['python', '-c', 'from generate import generate_cf; generate_cf()'])
+#process = subprocess.Popen(
+#     ['python', '-c', 'from generate import generate_cf; generate_cf()'])
 
-process.wait()
+#process.wait()
 print("Dataset generation completed.")
