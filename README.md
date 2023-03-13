@@ -1,14 +1,17 @@
-# SpaCE: The Spatial Confounding (Benchmarking) Environment
+# SpaCE
+SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal inference methods tackling spatial confounding.
 
 [![](<https://img.shields.io/badge/Dataverse-10.7910/DVN/SYNPBS-orange>)](https://www.doi.org/10.7910/DVN/SYNPBS)
 
 ## 🚀 Description
 
-**SpaCE**: The Spatial Confounding Environment is a benchmarking dataset for causal inference that incorporartes spatial confounding. The **SpaCE** datasets contain real confounder and exposure/treatment data inspired by environmental health studies. The synthetic outcome and counterfactual are generated according to recommended practices for causal evaluation by mimicking the real outcome data distribution learned with machine learning and neural network methods. Spatial confounding is achieved by masking influential confounders in the learned model. 
+**SpaCE**: The Spatial Confounding Environment loads benchmark datasets for causal inference that incorporartes spatial confounding. The **SpaCE** datasets contain real confounder and exposure/treatment data inspired by environmental health studies. The synthetic outcome and counterfactuals are generated for causal evaluation. They mimick real outcome data distributions learned with machine learning and neural network methods. Spatial confounding is achieved by masking influential confounders in the learned model. 
 
 ## 🛰️ Code and methods
 
-The code for source data processing and outcome modeling can be found in the `analysis` directory. The code for the **SpaCE** benchmarking data retrieval and sampling is in the `data` directory. The code benchmarking dataset with all confounders can be viewed on the Harvard Dataverse repository for transparency and reproducibility.
+The code for **SpaCE** data loaders is in the `space` directory. The **SpaCE** datasets are found in the [Harvard Dataverse repository](https://dataverse.harvard.edu/) for transparency and reproducibility.
+
+Code examples with outcome modeling can be found in the `examples` directory. 
 
 ## 🧑‍🚀 The API
 
@@ -29,21 +32,22 @@ The input parameters of the command above are:
 The command downloads the core data and uses it together with the user's input to generate a sample of the potential outcomes (factual and counterfactual) from the core data and the model predictions. The sampling mechanism is tuned to mimic the variability in the observed data.
 
 
-## 🔭 Data dictionary
+## 🔭 Attributes
 
-The data dictionary for the **SpaCE** benchmark data:
+ **SpaCE** benchmark data:
 
-| Variable           | Values            |
+| Atributes          |
+|--------------------|
+| treatment          |
+| covariates         |
+| synthetic_outcome  |
+| counterfactuals    |
+
+| Metadta            | Values            |
 |--------------------|-------------------|
-| treatment          |                   |
-| covariates         |                   |
-| synthetic_outcome  |                   |
-| models             | xgboost, nn_vcnet |
-| error_gp_kernel    |                   |
-| predictions        |                   |
-| counterfactuals    |                   |
-| spatial_smoothness |                   |
-| importance         |                   |
+| predictive_model   | xgboost, nn_vcnet |
+| error_model        |                   |
+
 
 ## 👽 Contact
 
