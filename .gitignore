@@ -1,9 +1,19 @@
+# Custom
+.dataset_downloads
+test.ipynb
+.DS_Store
+
+# VSCode
+.vscode/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
 # C extensions
+
 *.so
 
 # Distribution / packaging
@@ -127,3 +137,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
