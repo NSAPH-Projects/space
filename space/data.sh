@@ -1,26 +1,30 @@
 #!/bin/bash
 
 # run this script with
-# curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash
+# curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash -s PREDICTOR BINARY|CONT SEED PATH
 
-user_scenario="$1" # user provided scenario
-user_seed="$2" # user provided seed
+user_predictor="$1" # user provided scenario
+user_binary="$2"
+user_seed="$3" # user provided seed
 user_path=$PWD # user provided path
-if [ -n "$3" ]; then
-    user_path="$3"
+if [ -n "$4" ]; then
+    user_path="$4"
 fi
 
-echo "$user_scenario" && echo "$user_seed" && echo "$user_path"
-mkdir temp ; cd temp
+echo "$user_predictor" && echo "$user_seed" && echo "$user_path"
 
-curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/requirements.txt -o requirements.txt
-curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.py -o data.py
+mkdir .dataset_downloads
+cd .dataset_downloads
+
+curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/requirements.txt -o requirements.txt
+curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/datasets.py -o datasets.py
+curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/error_sampler.py -o error_sampler.py
 
 # install requirements
 mkdir env ; python3 -m venv env/
 source env/bin/activate && pip install -r requirements.txt
 
-python data.py $user_scenario $user_seed $user_path &
+python datasets.py $user_predictor $user_binary $user_seed $user_path &
 PID=$! # get get_data.py PID
 wait $PID
 
@@ -32,4 +36,4 @@ else
     echo "Python script failed with exit code $?."
 fi
 
-cd .. ; rm -rf temp
+cd .. ; rm -rf .dataset_downloads
