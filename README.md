@@ -18,7 +18,7 @@ Code examples with outcome modeling can be found in the `examples` directory.
 To retrieve and generate the data, run the command below in the Terminal: 
 
 ``` sh
-curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash -s NN|XGBOOST SEED PATH
+curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash -s NN|XGBOOST BINARY|CONT SEED PATH
 ```
 
 The input parameters of the command above are:
