@@ -20,11 +20,11 @@ curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/dataset
 curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/error_sampler.py -o error_sampler.py
 
 python datasets.py $user_predictor $user_binary $user_seed $user_path &
-mv counties.geojson $user_path/counties.geojson
-mv counties.graphml $user_path/counties.graphml
-
 PID=$! # get get_data.py PID
 wait $PID
+
+mv counties.geojson $user_path
+mv counties.graphml $user_path
 
 # Check the exit status of the Python script
 if [ $? -eq 0 ]; then
