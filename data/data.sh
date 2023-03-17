@@ -21,8 +21,9 @@ curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/dataset
 curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/error_sampler.py -o error_sampler.py
 
 # install requirements
-mkdir env ; python3 -m venv env/
-source env/bin/activate && pip install -r requirements.txt
+# require conda environment outside of bash instead
+#mkdir env ; python3 -m venv env/
+#source env/bin/activate && pip install -r requirements.txt
 
 python datasets.py $user_predictor $user_binary $user_seed $user_path &
 PID=$! # get get_data.py PID
