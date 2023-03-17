@@ -16,16 +16,13 @@ echo "$user_predictor" && echo "$user_seed" && echo "$user_path"
 mkdir .dataset_downloads
 cd .dataset_downloads
 
-curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/requirements.txt -o requirements.txt
 curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/datasets.py -o datasets.py
 curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/error_sampler.py -o error_sampler.py
 
-# install requirements
-# require conda environment outside of bash instead
-#mkdir env ; python3 -m venv env/
-#source env/bin/activate && pip install -r requirements.txt
-
 python datasets.py $user_predictor $user_binary $user_seed $user_path &
+mv counties.geojson $user_path/counties.geojson
+mv counties.graphml $user_path/counties.graphml
+
 PID=$! # get get_data.py PID
 wait $PID
 
