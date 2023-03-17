@@ -1,6 +1,6 @@
 channels:
   - conda-forge
-  - pytorch
+  # - pytorch
 dependencies:
   - python=3.10
   - numpy
@@ -8,7 +8,7 @@ dependencies:
   - matplotlib
   - seaborn
   - scikit-learn
-  - pytorch
-  - torchvision
-  - torchaudio
-  - black
+  # - pytorch
+  # - torchvision
+  # - torchaudio
+  # - black
