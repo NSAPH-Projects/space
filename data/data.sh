@@ -17,14 +17,20 @@ mkdir .dataset_downloads
 cd .dataset_downloads
 
 curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/datasets.py -o datasets.py
+curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/data/make_dataset.py -o make_dataset.py
 curl -s https://raw.githubusercontent.com/NSAPH-Projects/space/dev/space/error_sampler.py -o error_sampler.py
 
-python datasets.py $user_predictor $user_binary $user_seed $user_path &
+python make_dataset.py $user_predictor $user_binary $user_seed $user_path &
 PID=$! # get get_data.py PID
 wait $PID
 
-mv counties.geojson $user_path
-mv counties.graphml $user_path
+# if user path is not .dataset_downloads, move the data to the user path
+if [ "$user_path" != ".dataset_downloads" ]; then
+    mv counties.geojson $user_path
+    mv counties.graphml $user_path
+    cd ..
+    rm -rf .dataset_downloads
+fi
 
 # Check the exit status of the Python script
 if [ $? -eq 0 ]; then
@@ -33,5 +39,3 @@ if [ $? -eq 0 ]; then
 else
     echo "Python script failed with exit code $?."
 fi
-
-cd .. ; rm -rf .dataset_downloads
