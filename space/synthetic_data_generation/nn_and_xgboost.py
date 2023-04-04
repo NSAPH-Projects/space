@@ -75,6 +75,7 @@ if not os.path.exists("datasets/tl_2010_us_county10/tl_2010_us_county10.shp"):
 # Users should manually download these data from https://wonder.cdc.gov/controller/datarequest/D77
 # Using the options:
 #    (1) Group results by: county;
+#    (3) In demographics choose the options of >65 years old.
 #    (4) Year 2010.
 #    (7) ICD codes I00-I99, J00-J98
 #    (8) Send results to a file. 
