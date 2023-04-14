@@ -22,7 +22,8 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/NSAPH-Projects/space",
     license="MIT",
-    packages=find_packages(exclude=['tests*', 'scripts*', 'notebooks*']),
+    packages=find_packages(exclude=['tests*', 'scripts*', 'notebooks*'
+                                    'examples*']),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Science/Research",
