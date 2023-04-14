@@ -18,7 +18,11 @@ setup(
                   "fdominic@hsph.harvard.edu"),
     maintainer="Naeem Khoshnevis",
     maintainer_email = "nkhoshnevis@g.harvard.edu",
-    description="TBD",
+    description= ("spacebench offers benchmark datasets for causal inference, " 
+                  "incorporating real confounder and exposure data from "
+                  "environmental health studies. Synthetic outcomes are "
+                  "generated using machine learning, with spatial confounding "
+                  "introduced by masking key confounders."),
     long_description_content_type="text/markdown",
     url="https://github.com/NSAPH-Projects/space",
     license="MIT",
