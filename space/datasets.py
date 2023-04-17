@@ -90,7 +90,9 @@ class SpatialMetadata:
     error_type: str
     root: str = "."
     error_params: dict | None = (None,)
-    spatial_attributes: dict | None = None
+    variable_importance: dict | list | None = None
+    variable_smoothness: dict | list | None = None
+    variable_score: dict | list | None = None
 
     @classmethod
     def from_json(cls, json_path: str) -> "SpatialMetadata":
@@ -100,6 +102,15 @@ class SpatialMetadata:
 
         if meta["data_file"] is None:
             raise ValueError("data_file must be specified")
+        
+        vi = meta["variable_importance"]
+        vs = meta["variable_smoothness"]
+        if vi is not None and vs is not None:
+            # take min of vs and vi, case by list or dict
+            if isinstance(vi, list):
+                meta["variable_score"] = [min(vi[i], vs[i]) for i in range(len(vi))]
+            elif isinstance(vi, dict):
+                meta["variable_score"] = {k: min(vi[k], vs[k]) for k in vi.keys()}
 
         return cls(
             data_file=meta["data_file"],
@@ -113,6 +124,9 @@ class SpatialMetadata:
             error_type=meta["error_type"],
             error_params=meta["error_params"],
             root="/".join(json_path.split("/")[:-1]),
+            variable_importance=meta["variable_importance"],
+            variable_smoothness=meta["variable_smoothness"],
+            variable_score=meta["variable_score"],
         )
 
     @property
@@ -178,13 +192,33 @@ class DatasetGenerator:
         counterfactuals = self.predcf.copy()
         for c in counterfactuals.columns:
             counterfactuals[c] += res
+
         dataset = CausalDataset(
             treatment=self.treatment,
             covariates=self.covariates,
             outcome=outcome,
             counterfactuals=counterfactuals,
         )
+        self.mask(dataset)
         return dataset
+    
+    def mask(self, dataset: CausalDataset) -> CausalDataset:
+        score = self.metadata.variable_score
+        # if score is dict make list
+        
+        if isinstance(score, dict):
+            score = [score[c] for c in dataset.covariates.columns]
+        
+        # take indices of top 10 from score
+        top10 = np.argsort(score)[-10:]
+
+        # take a random index from top 10
+        masked = np.random.choice(top10)
+
+        # remove the column from data.covariates
+        dataset.covariates = dataset.covariates.drop(dataset.covariates.columns[masked], axis=1)
+
+        
 
 def get_dataset_metadata_and_path(predictor, binary, path):
     if "nn" in predictor:
@@ -204,26 +238,11 @@ def get_dataset_metadata_and_path(predictor, binary, path):
     return metadata_path, dataset_path
 
 if __name__ == "__main__":
-    args = sys.argv
-    user_predictor = args[1].lower()
-    user_binary = args[2].lower()
-    user_seed = int(sys.argv[3])
-    user_path = args[4]
-
-    # set random seed
-    err.set_random_seed(user_seed)
-
-    metadata_path, dataset_path = get_dataset_metadata_and_path(
-        user_predictor,
-        user_binary,
-        user_path
-    )
-
-    # download data
-    download_data()
+    # just an example for testing
+    metadata_path = ".dataset_downloads/medisynth-nn-continuous.json"
 
     generator = DatasetGenerator.from_json(metadata_path)
     dataset = generator.make_dataset()
 
-    dataset.save_dataset(dataset_path)
+    # dataset.save_dataset(dataset_path)
     print("Dataset sampling completed.")
