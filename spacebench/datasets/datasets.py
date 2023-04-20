@@ -6,8 +6,8 @@ import numpy as np
 import geopandas as gpd
 import pandas as pd
 from os.path import join as join_path
-from pyDataverse.api import NativeApi, DataAccessApi
 import error_sampler as err
+#import error_sampler as err
 
 
 def read_geodata(geodata_file: str) -> gpd.GeoDataFrame:
@@ -37,24 +37,6 @@ def _get_error_sampler_type(error_type: str) -> str:
     else:
         raise ValueError("error_type must be gp")
 
-
-def download_data():
-    """Downloads core data and dicts from Dataverse"""
-    base_url = 'https://dataverse.harvard.edu/'
-    api = NativeApi(base_url)
-    data_api = DataAccessApi(base_url)
-    DOI = "doi:10.7910/DVN/SYNPBS"
-    dataset = api.get_dataset(DOI)
-
-    files_list = dataset.json()['data']['latestVersion']['files']
-
-    for file in files_list:
-        filename = file["dataFile"]["filename"]
-        file_id = file["dataFile"]["id"]
-        print("File name {}, id {}".format(filename, file_id))
-        response = data_api.get_datafile(file_id)
-        with open(filename, "wb") as f:
-            f.write(response.content)
 
 @dataclass
 class CausalDataset:
@@ -218,49 +200,3 @@ class DatasetGenerator:
         # remove the column from data.covariates
         dataset.covariates = dataset.covariates.drop(dataset.covariates.columns[masked], axis=1)
 
-        
-
-def get_dataset_metadata_and_path(predictor, binary, path):
-    if "nn" in predictor:
-        predictor_ = "nn"
-    else:
-        predictor_ = "xgboost"
-    if "bin" in binary:
-        binary_ = "binary"
-    else:
-        binary_ = "continuous"
-
-    # get metadata path
-    metadata_template = "medisynth-{}-{}.json"
-    metadata_path = metadata_template.format(predictor_, binary_)
-    dataset_path = "{}/medisynth-{}-{}-sample.csv".format(
-        path, predictor_, binary_)
-    return metadata_path, dataset_path
-
-if __name__ == "__main__":
-    args = sys.argv
-    user_predictor = args[1].lower()
-    user_binary = args[2].lower()
-    user_seed = int(sys.argv[3])
-    user_path = args[4]
-
-    # set random seed
-    err.set_random_seed(user_seed)
-
-    metadata_path, dataset_path = get_dataset_metadata_and_path(
-        user_predictor,
-        user_binary,
-        user_path
-    )
-
-    # download data
-    download_data()
-
-    #
-    # metadata_path = ".dataset_downloads/medisynth-nn-continuous.json"
-
-    generator = DatasetGenerator.from_json(metadata_path)
-    dataset = generator.make_dataset()
-
-    # dataset.save_dataset(dataset_path)
-    print("Dataset sampling completed.")
