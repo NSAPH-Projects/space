@@ -43,7 +43,7 @@ class GPSampler(ErrorSampler):
         self.kernel = _make_kernel(error_params)
 
     def sample(
-        self, inputs: pd.DataFrame | np.ndarray | None = None
+        self, inputs: pd.DataFrame | np.ndarray
     ) -> pd.DataFrame | np.ndarray:
         """Samples error for a dataset"""
         gp = GaussianProcessRegressor(

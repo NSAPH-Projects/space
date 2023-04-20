@@ -7,7 +7,7 @@ import geopandas as gpd
 import pandas as pd
 from os.path import join as join_path
 from pyDataverse.api import NativeApi, DataAccessApi
-import error_sampler as err
+from . import error_sampler as err
 
 
 def read_geodata(geodata_file: str) -> gpd.GeoDataFrame:
@@ -40,13 +40,13 @@ def _get_error_sampler_type(error_type: str) -> str:
 
 def download_data():
     """Downloads core data and dicts from Dataverse"""
-    base_url = 'https://dataverse.harvard.edu/'
+    base_url = "https://dataverse.harvard.edu/"
     api = NativeApi(base_url)
     data_api = DataAccessApi(base_url)
     DOI = "doi:10.7910/DVN/SYNPBS"
     dataset = api.get_dataset(DOI)
 
-    files_list = dataset.json()['data']['latestVersion']['files']
+    files_list = dataset.json()["data"]["latestVersion"]["files"]
 
     for file in files_list:
         filename = file["dataFile"]["filename"]
@@ -56,22 +56,22 @@ def download_data():
         with open(filename, "wb") as f:
             f.write(response.content)
 
+
 @dataclass
 class CausalDataset:
     treatment: pd.DataFrame | np.ndarray
     covariates: pd.DataFrame | np.ndarray
     outcome: pd.DataFrame | np.ndarray
     counterfactuals: pd.DataFrame | np.ndarray
+    masked: pd.DataFrame | np.ndarray | None = None
 
     def save_dataset(self, path: str):
         df = pd.concat(
-            [self.treatment,
-             self.covariates,
-             self.outcome,
-             self.counterfactuals]
-            , axis=1
+            [self.treatment, self.covariates, self.outcome, self.counterfactuals],
+            axis=1,
         )
         df.to_csv(path, index=False)
+
 
 @dataclass
 class SpatialMetadata:
@@ -102,7 +102,7 @@ class SpatialMetadata:
 
         if meta["data_file"] is None:
             raise ValueError("data_file must be specified")
-        
+
         vi = meta["variable_importance"]
         vs = meta["variable_smoothness"]
         if vi is not None and vs is not None:
@@ -186,8 +186,13 @@ class DatasetGenerator:
         metadata = SpatialMetadata.from_json(json_path)
         return cls(metadata)
 
-    def make_dataset(self) -> CausalDataset:
-        res = self.error_sampler.sample(self.error_attrs)
+    def make_dataset(
+        self, spatial_confounding: bool = True, iid_noise: float | None = None
+    ) -> CausalDataset:
+        if iid_noise is None:
+            res = self.error_sampler.sample(self.error_attrs)
+        else:
+            res = np.random.normal(0, iid_noise, len(self.treatment))
         outcome = self.pred + res
         counterfactuals = self.predcf.copy()
         for c in counterfactuals.columns:
@@ -199,16 +204,17 @@ class DatasetGenerator:
             outcome=outcome,
             counterfactuals=counterfactuals,
         )
-        self.mask(dataset)
+        if spatial_confounding:
+            self.mask(dataset)
         return dataset
-    
+
     def mask(self, dataset: CausalDataset) -> CausalDataset:
         score = self.metadata.variable_score
         # if score is dict make list
-        
+
         if isinstance(score, dict):
             score = [score[c] for c in dataset.covariates.columns]
-        
+
         # take indices of top 10 from score
         top10 = np.argsort(score)[-10:]
 
@@ -216,9 +222,10 @@ class DatasetGenerator:
         masked = np.random.choice(top10)
 
         # remove the column from data.covariates
-        dataset.covariates = dataset.covariates.drop(dataset.covariates.columns[masked], axis=1)
+        masked_cols = dataset.covariates.columns.values[masked]
+        dataset.masked = dataset.covariates[masked_cols]
+        dataset.covariates = dataset.covariates.drop(masked_cols, axis=1)
 
-        
 
 def get_dataset_metadata_and_path(predictor, binary, path):
     if "nn" in predictor:
@@ -233,9 +240,9 @@ def get_dataset_metadata_and_path(predictor, binary, path):
     # get metadata path
     metadata_template = "medisynth-{}-{}.json"
     metadata_path = metadata_template.format(predictor_, binary_)
-    dataset_path = "{}/medisynth-{}-{}-sample.csv".format(
-        path, predictor_, binary_)
+    dataset_path = "{}/medisynth-{}-{}-sample.csv".format(path, predictor_, binary_)
     return metadata_path, dataset_path
+
 
 if __name__ == "__main__":
     args = sys.argv
@@ -248,9 +255,7 @@ if __name__ == "__main__":
     err.set_random_seed(user_seed)
 
     metadata_path, dataset_path = get_dataset_metadata_and_path(
-        user_predictor,
-        user_binary,
-        user_path
+        user_predictor, user_binary, user_path
     )
 
     # download data

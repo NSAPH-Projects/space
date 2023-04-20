@@ -20,7 +20,7 @@ import geopandas as gpd
 from xgboost import XGBRegressor, plot_importance
 import torch
 import torch.nn as nn
-from net import CausalNet
+from space.synthetic_data_generation.models import CausalNet
 import pytorch_lightning as pl
 from torch.utils.data import TensorDataset, DataLoader
 import networkx as nx
@@ -77,7 +77,7 @@ if not os.path.exists("datasets/tl_2010_us_county10/tl_2010_us_county10.shp"):
 #    (1) Group results by: county;
 #    (3) In demographics choose the options of >65 years old.
 #    (4) Year 2010.
-#    (7) ICD codes I00-I99, J00-J98
+#    (6) ICD codes I00-I99, J00-J98
 #    (8) Send results to a file. 
 # Click send and save the file to "./datasets/cdc.tsv".
 mort = pd.read_csv("./datasets/cdc.tsv", sep="\t", dtype={"County Code": "object"})
@@ -242,8 +242,15 @@ variable_importance = {c: v for c, v in zip(Z.columns, model.feature_importances
 # %%
 nplots = 100
 for i in range(nplots):
-    plt.plot(a_grid, mu_xgb_cf[i, :], c="gray", alpha=0.1)
-plt.scatter(A[:nplots], mu_xgb[:nplots], c="red", alpha=0.25)
+    lab = "Counterfactuals with confounders" if i == 0 else None
+    a = 0.5 if i == 0 else 0.1
+    plt.plot(a_grid, mu_xgb_cf[i, :], c="gray", alpha=a, label=lab)
+# plt.scatter(A[:nplots], mu_xgb[:nplots], c="red", alpha=0.25)
+sns.regplot(x=A[:nplots], y=mu_xgb[:nplots], label="Fitted effect without confounders")
+plt.xlabel("Air Pollution (PM 2.5)")
+plt.ylabel("Elder Mortality Rate (per 100,000)")
+plt.title("Example of confounding in Air Pollution and Elder Mortality")
+plt.legend()
 
 #%%
 plt.scatter(mu_xgb, y, alpha=0.1)
@@ -469,9 +476,9 @@ scaler_rx = StandardScaler()
 RX = pd.concat([L], axis=1)[mask]
 scaler_rx.fit(RX)
 RX = scaler_rx.transform(RX)
-kernel_ = ConstantKernel(constant_value=0.0001, constant_value_bounds=(1e-4, 1)) * RBF(length_scale=[0.1, 0.1], length_scale_bounds=(1e-4, 1.0))
+kernel_ = ConstantKernel(constant_value=10.0, constant_value_bounds=(1.0, 100.0)) * RBF(length_scale=[0.1, 0.1], length_scale_bounds=(0.01, 10.0))
 # kernel = ConstantKernel(constant_value=0.0001, constant_value_bounds=(1e-4, 10)) * RBF(length_scale=np.ones(RX.shape[1]), length_scale_bounds=(1e-2, 1.0))
-gp = GaussianProcessRegressor(kernel=kernel, alpha=0.01, optimizer='fmin_l_bfgs_b')
+gp = GaussianProcessRegressor(kernel=kernel_, alpha=0.01, optimizer='fmin_l_bfgs_b')
 gp.fit(RX, res)
 print("GP Kernel NN: ", gp.kernel_)
 
@@ -483,20 +490,27 @@ res_sim = gp1.sample_y(RX)[:, 0]
 kernel_nn = gp.kernel_.__dict__
 # #%%
 # plt.figure(figsize=(5, 4))
-# sns.histplot(y, label="Real data")
+# sns.histplot(y, lab
+# el="Real data")
 # sns.histplot(mu_nn + res_sim, label="Synthetic data")
 # plt.legend()
 
 #%%
 res_true_ = pd.Series(res, index=df.index[mask], name="residuals_nn_true")
+# counties.drop("residuals_nn_true", axis=1, inplace=True)
 counties = counties.merge(res_true_, left_on="GEOID10", right_index=True)
 counties.plot(column="residuals_nn_true", cmap="RdBu", vmin=-1, vmax=1)
 
 #%%
 res_sim_ = pd.Series(res_sim, index=df.index[mask], name="res_sim_nn_true")
+# counties.drop("res_sim_nn_true", axis=1, inplace=True)
 counties = counties.merge(res_sim_, left_on="GEOID10", right_index=True)
 counties.plot(column="res_sim_nn_true", cmap="RdBu", vmin=-1, vmax=1)
 
+#%%
+sns.histplot(res_true_, label="Real data")
+sns.histplot(res_sim_, label="Synthetic data")
+plt.legend()
 
 # %% save all files
 os.makedirs('outputs', exist_ok=True)
@@ -693,7 +707,8 @@ ix = np.random.choice(range(X.shape[0]), size=100)
 for i in range(nplots):
     lab = "Counterfactuals" if i == 0 else None
     plt.plot(a_grid, 0.5 * (mu_nn_cf + mu_xgb_cf)[ix[i], :], c="gray", alpha=0.25, label=lab)
-plt.scatter(A[ix[:nplots]], 0.5 * (mu_nn + mu_xgb)[ix[:nplots]], alpha=0.5, label="Synthetic observations")
+# plt.scatter(A[ix[:nplots]], 0.5 * (mu_nn + mu_xgb)[ix[:nplots]], alpha=0.5, label="Synthetic observations")
+sns.regplot(x=A[ix[:nplots]], y=0.5 * (mu_nn + mu_xgb)[ix[:nplots]], label="Synthetic observations")
 plt.legend(loc="best")
 plt.savefig("potential_outcomes.png", bbox_inches="tight")
 
