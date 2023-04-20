@@ -2,6 +2,10 @@
 .dataset_downloads
 test.ipynb
 .DS_Store
+**/lightning_logs/
+datasets/
+**/outputs/
+**/checkpoints/
 
 # VSCode
 .vscode/
