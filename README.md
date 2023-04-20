@@ -1,3 +1,6 @@
+
+_This project is swiftly evolving. Certain features may not yet be accessible._
+
 # SpaCE
 
 SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal inference methods tackling spatial confounding.
