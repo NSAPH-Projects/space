@@ -7,7 +7,9 @@ import geopandas as gpd
 import pandas as pd
 from os.path import join as join_path
 from pyDataverse.api import NativeApi, DataAccessApi
-import error_sampler as err
+
+
+import spacebench.datasets.error_sampler as err
 
 
 def read_geodata(geodata_file: str) -> gpd.GeoDataFrame:
