@@ -24,6 +24,9 @@ setup(
                   "generated using machine learning, with spatial confounding "
                   "introduced by masking key confounders."),
     long_description_content_type="text/markdown",
+    entry_points={
+        "console_scripts": ["spacebench=spacebench.api.cli:main"]
+    },
     url="https://github.com/NSAPH-Projects/space",
     license="MIT",
     packages=find_packages(exclude=['tests*', 'scripts*', 'notebooks*'
