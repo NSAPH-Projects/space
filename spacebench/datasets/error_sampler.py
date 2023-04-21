@@ -7,17 +7,19 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 import sklearn.gaussian_process.kernels as kernels
 from sklearn.gaussian_process.kernels import WhiteKernel
 
-RANDOM_SEED = 10
-
-def set_random_seed(user_seed):
-    global RANDOM_SEED
-    RANDOM_SEED = user_seed
 
 class ErrorSampler(ABC):
     """Base class for error samplers"""
 
     def __init__(self, sampler_type: str) -> None:
         self.sampler_type = sampler_type
+        self.random_state = 0
+        
+
+    @random_state.setter
+    def random_state(self, random_state):
+         self.random_state = random_state
+    
 
     @abstractmethod
     def sample(self) -> pd.DataFrame:
@@ -48,7 +50,7 @@ class GPSampler(ErrorSampler):
         """Samples error for a dataset"""
         gp = GaussianProcessRegressor(
             kernel=self.kernel + WhiteKernel(0.001),
-            random_state=RANDOM_SEED
+            random_state=self.random_state
         )
         return gp.sample_y(inputs)[:, 0]
 

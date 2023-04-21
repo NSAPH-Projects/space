@@ -134,7 +134,7 @@ class SpatialMetadata:
 class DatasetGenerator:
     """This class generates datasets"""
 
-    def __init__(self, metadata: SpatialMetadata):
+    def __init__(self, random_state, metadata: SpatialMetadata):
         self.metadata = metadata
 
         # read data and split into treatment, covariates, outcome, and counterfactual
