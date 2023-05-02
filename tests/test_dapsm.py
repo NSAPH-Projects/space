@@ -1,36 +1,24 @@
+import importlib
 from spacebench.algorithms import dapsm
+import numpy as np
 import pandas as pd
 
-
-toydata3 = pd.read_csv("tests/dapsm_toydata.csv")
-treated = toydata3[toydata3["Z"] == 1]
-control = toydata3[toydata3["Z"] == 0]
-toydata3.drop(toydata3.columns[[0, 1]], axis=1, inplace=True)
-
+df = pd.read_csv('tests/treated.csv')
+treated = df.values
+df = pd.read_csv('tests/control.csv')
+control = df.values
+df = pd.read_csv('tests/dist_mat.csv')
+dist_mat = df.values
+df = pd.read_csv('tests/ps_diff.csv')
+ps_diff = df.values
 
 # Trying out the dist_ps function
-daps = dapsm.dist_ps(
-    treated=treated,
-    control=control,
-    caliper=0.05,
-    coords_columns=[4, 5],  # distance = StandDist,
-    caliper_type="DAPS",  # 'PS'
-    matching_algorithm="optimal",
-)
+daps = dapsm.dist_ps(dist_mat, ps_diff, caliper=2, caliper_type='DAPS', distance=dapsm.StandDist,
+                     weight=0.8,
+                     matching_algorithm='optimal')
 
-
-dapsm.DAPSopt(
-    toydata3,
-    caliper=0.5,
-    caliper_type="DAPS",
-    matching_algorithm="optimal",
-    coords_cols=[3, 4],
-    cov_cols=[5, 6],
-    cutoff=0.5,
-    trt_col=0,
-    w_tol=0.01,
-    distance=dapsm.StandDist,
-    quiet=False,
-    coord_dist=False,
-    remove_unmatchables=False,
-)
+# Trying out the DAPSopt function
+dapsout = dapsm.DAPSopt(treated, control, dist_mat, ps_diff, caliper=1, caliper_type='DAPS', matching_algorithm='optimal',
+              cov_cols=[5, 6, 7, 8], cutoff=0.5,
+              w_tol=0.2, distance=dapsm.StandDist,
+              quiet=False)
