@@ -2,6 +2,7 @@
 API for uploading and downloading data from Dataverse.
 """
 import os
+import tempfile
 from pyDataverse.api import NativeApi, DataAccessApi
 
 
@@ -16,27 +17,26 @@ class DataverseAPI:
         self.api = NativeApi(base_url)
         self.data_api = DataAccessApi(base_url)
         self.dataset = self.api.get_dataset(DOI)
-        self.file_path = ""
-        self.data_core = ""
+        self.temp_dir = tempfile.gettempdir()
+        self.data_filename = ""
     
     @property
     def core_data_loc(self):
         """ Returns core data location. """
         return os.path.join(
-            self.file_path, 
-            self.data_core
+            self.temp_dir, 
+            self.data_filename
             )
-    
+
 
     def __get_filenames_from_arguments(self, predictor, type):
         """ Get filenames for download. """
 
-        json_filename = "medisynth-{}-{}.json".format(
+        self.data_filename = "medisynth-{}-{}".format(
             predictor, type)
-        csv_filename = "medisynth-{}-{}.csv".format(
-            predictor, type)
-        
-        self.data_core = json_filename
+
+        json_filename = self.data_filename + ".json"
+        csv_filename = self.data_filename + ".csv"
         
         filename_list = [
             "counties.geojson", 
@@ -63,27 +63,30 @@ class DataverseAPI:
                 self.files[filename] = file["dataFile"]["id"]
 
 
-    def download_data(self, predictor, type, output_path):
-        """Downloads core data and dicts from Dataverse"""
+    def download_data(self, predictor, type):
+        """ Downloads core data and dicts from Dataverse. """
     
         self.__get_filenames_from_arguments(
             predictor, type)
         self.__get_fileids_from_filenames()
 
-        if output_path:
-            self.file_path = output_path
-
         for filename in self.files:
-            response = self.data_api.get_datafile(
-                self.files[filename])
+            filename_temp_path = os.path.join(
+                self.temp_dir, filename
+            )
 
-            with open(
-                os.path.join(self.file_path, filename), 
-                "wb") as f:
-                f.write(response.content)
-            
-            print("File name {}, id {}".format(
-                filename, self.files[filename]))
+            if os.path.exists(filename_temp_path):
+                print(
+                    f'File {filename} already exists in the temporary directory.')
+            else:
+                response = self.data_api.get_datafile(
+                    self.files[filename])
+
+                with open(filename_temp_path, mode='wb') as temp_file:
+                    temp_file.write(response.content)
+                
+                print("Downloaded: file name {}, id {}".format(
+                    filename, self.files[filename]))
 
 
     def upload_data(self):
