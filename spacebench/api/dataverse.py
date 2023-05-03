@@ -63,6 +63,19 @@ class DataverseAPI:
                 self.files[filename] = file["dataFile"]["id"]
 
 
+    def remove_temp_files(self):
+        """ Removes temporary files. """
+
+        for filename in self.files:
+            file_path = os.path.join(
+                self.temp_dir, filename
+            )
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                print(
+                    f'{filename} removed from the temporary directory.')
+
+
     def download_data(self, predictor, type):
         """ Downloads core data and dicts from Dataverse. """
     

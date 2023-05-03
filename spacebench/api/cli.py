@@ -19,6 +19,8 @@ class SpacebenchClient:
         self.parser.add_argument("datatype", choices=['binary', 'continuous'],
                                  help='Type of data: binary or continuous')
         self.parser.add_argument("seed", type=int, help='Random seed')
+        self.parser.add_argument('--remove_temp_files', action='store_true', default=False,
+                    help='Remove temporary files (default: False)')
         self.parser.add_argument('--output_path', type=str, help='Path to save the data file')
 
 
@@ -50,6 +52,8 @@ class SpacebenchClient:
             args.datatype, 
             args.output_path
         )
+        if args.remove_temp_files:
+            dvapi.remove_temp_files()
 
 
 def main():
