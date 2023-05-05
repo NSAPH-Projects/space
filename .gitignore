@@ -5,6 +5,7 @@ test.ipynb
 
 # VSCode
 .vscode/
+.env
 
 
 # Byte-compiled / optimized / DLL files

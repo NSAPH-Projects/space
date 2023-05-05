@@ -1,115 +1,282 @@
-import pandas as pd
-import numpy as np
 import sys
+from typing import Literal
+from dataclasses import dataclass
+import warnings
+
+import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-def StandDist(x):
-    standx = (x - np.min(x))/(np.max(x) - np.min(x))
-    return(standx)    
+from ..datasets.datasets import CausalDataset
+from .classes import SpatialMethod
 
 
-# Modify dist_ps so it just takes in a distance matrix
-def dist_ps(dist_mat, ps_diff, caliper, caliper_type, distance = StandDist,
-            weight=0.8,
-            matching_algorithm='optimal'):
-    # This line is not needed if distances are already normalized between 0 and 1
-    stand_dist_mat = distance(dist_mat)
+@dataclass
+class DapsmMatches:
+    treated: np.ndarray = (np.empty(0, dtype=int),)
+    controls: np.ndarray = (np.empty(0, dtype=int),)
+    scores: np.ndarray = (np.empty(0, dtype=float),)
+    spatial_dists: np.ndarray = (np.empty(0, dtype=float),)
+    ps_dists: np.ndarray = (np.empty(0, dtype=float),)
+
+    def pairs(self):
+        return list(zip(self.treated, self.controls))
+
+    def is_empty(self):
+        return len(self.treated) == 0
+
+
+def dapsm_matching(
+    spatial_dists: np.ndarray,
+    ps_dists: np.ndarray,
+    weight: float = 0.8,
+    caliper: float = np.inf,
+    caliper_type: Literal["daps", "ps"] = "daps",
+    matching_algorithm: Literal["optimal", "greedy"] = "optimal",
+    warn: bool = True,
+):
+    """Spatially weighted matching.
+
+    # Arguments
+        distmat: matrix of distances between treated (rows) and controls (columns).
+        ps_dist: matrix of absolute differences in propensity scores
+                 between treated (rows) and controls (cols).
+        caliper: caliper for matching (minimum distance acceptable for a match to occur),
+                weighted by the standard deviation of the distances specified by caliper_type.
+        caliper_type: whether the caliper is set on the DAPS or on the PS.
+        weight: weight for the DAPS.
+        matching_algorithm: whether to use optimal or greedy matching.
+
+    # Returns
+        pairs: list of matched pairs.
+        match_diff: list of differences in DAPS between matched pairs.
+    """
+    # check inputs
+    assert (
+        spatial_dists.shape == ps_dists.shape
+    ), "distmat and ps_dist must have same shape"
+    assert 0 <= weight <= 1, "weight must be between 0 and 1"
+
+    # normalize distances in 0-1
+    wdist = (spatial_dists - np.min(spatial_dists)) / (
+        spatial_dists.max() - spatial_dists.min()
+    )
 
     # DAPS matrix
-    dapscore = (1-weight)*stand_dist_mat + weight*ps_diff
+    score = (1 - weight) * wdist + weight * ps_dists
 
-    # Creating the matrix we will use for matching, depending on
-    # whether the caliper is set on DAPS or on the PS.
-    if caliper_type == 'DAPS':
-        dapscore[dapscore > caliper * np.std(dapscore)] = sys.float_info.max
-    elif caliper_type == 'PS':
-        dapscore[ps_diff > caliper * np.std(ps_diff)] = sys.float_info.max
-
-    if matching_algorithm == 'greedy':
-        # TO DO
-        pass
-    else:  # optimal matching
-        trt_indices, con_indices = linear_sum_assignment(dapscore)
-
-        # TO DO: if no matches return
-        if len(trt_indices) == 0:
-            print('No matches found.')
-            return (None)
-        else:
-            pairs = list(zip(trt_indices, con_indices))
-            match_diff = [dapscore[trt][con] for trt, con in pairs]
-
-            # Drop matches that have dapscore inf.
-            pairs = [pair for pair, score in zip(
-                pairs, match_diff) if score != sys.float_info.max]
-            match_diff = [dapscore[trt][con] for trt, con in pairs]
-
-            distances = [dist_mat[trt][con] for trt, con in pairs]
-            prop_diff = [ps_diff[trt][con] for trt, con in pairs]
-            stand_distance = [stand_dist_mat[trt][con] for trt, con in pairs]
-
-            return pairs, match_diff, distances, prop_diff, stand_distance
-
-
-def WeightChoice(treated, control, dist_mat, ps_diff, caliper, caliper_type, cov_cols,
-                 cutoff, interval, matching_algorithm, distance=StandDist):
-    weight = np.mean(interval)
-    daps_out = dist_ps(dist_mat, ps_diff, caliper, caliper_type, distance,
-                       weight=weight,
-                       matching_algorithm=matching_algorithm)
-    pairs = daps_out[0]
-
-    if pairs:  # if matches exist in daps_out
-        #trt, cnt = pairs  # check this
-        trt = [pair[0] for pair in pairs]
-        cnt = [pair[1] for pair in pairs]
-        mean_trt = np.mean(treated[trt][:,cov_cols], axis=0)
-        mean_cnt = np.mean(control[cnt][:,cov_cols], axis=0)
-        sd_trt = np.std(treated[trt][:,cov_cols], axis=0)
-        stand_diff = (mean_trt - mean_cnt)/sd_trt
-
-    if not np.any(abs(stand_diff) > cutoff):  # if none is above cutoff
-        success = True
-        new_interval = [interval[0], weight]
+    # potential matches outside caliper are set to inf
+    # need to use float_info.max because np.inf raises an error in linear_sum_assignment
+    if caliper_type == "daps":
+        invalid = score > caliper * np.std(score)
+    elif caliper_type == "ps":
+        invalid = ps_dists > caliper * np.std(ps_dists)
     else:
-        success = False
-        new_interval = [weight, interval[1]]
-        print('No matched pairs for weight = ' +
-              str(weight) + '. Trying larger weight.')
-    return weight, new_interval, stand_diff, pairs, success
+        raise ValueError(caliper_type)
+
+    score[invalid] = sys.float_info.max
+
+    # find matches, keep only matches with finite score
+    if matching_algorithm == "optimal":
+        trt_indices, ctrl_indices = linear_sum_assignment(score)
+    else:
+        trt_indices = np.arange(score.shape[0])
+        ctrl_indices = np.argmin(score, axis=1)
+
+    if len(trt_indices) == 0:
+        if warn:
+            warnings.warn("No matches found.")
+        return DapsmMatches()
+
+    match_scores = score[trt_indices, ctrl_indices]
+
+    # drop matches that have dapscore inf.
+    valid_matched_ix = match_scores < sys.float_info.max
+
+    # return matches
+    matches = DapsmMatches(
+        treated=trt_indices[valid_matched_ix],
+        controls=ctrl_indices[valid_matched_ix],
+        scores=match_scores[valid_matched_ix],
+        spatial_dists=spatial_dists[
+            trt_indices[valid_matched_ix], ctrl_indices[valid_matched_ix]
+        ],
+        ps_dists=ps_dists[
+            trt_indices[valid_matched_ix], ctrl_indices[valid_matched_ix]
+        ],
+    )
+
+    return matches
 
 
-def DAPSopt(treated, control, dist_mat, ps_diff, caliper, caliper_type, matching_algorithm, cov_cols, cutoff=0.1,
-            w_tol=0.01, distance=StandDist,
-            quiet=False):
-    interval = [0, 1]
-    while (interval[1] - interval[0]) > w_tol/2:
-        if not quiet:
-            print(interval)
-        x = WeightChoice(treated=treated, control=control, dist_mat=dist_mat, ps_diff=ps_diff,
-                         caliper=caliper, caliper_type=caliper_type, cov_cols=cov_cols,
-                         cutoff=cutoff, interval=interval, matching_algorithm=matching_algorithm, distance=distance)
-        interval = x[1]
+def find_spatial_weight(
+    covars_treated: np.ndarray,
+    covars_controls: np.ndarray,
+    ps_dists: np.ndarray,
+    spatial_dists: np.ndarray,
+    search_values: np.ndarray = np.linspace(0.01, 0.99, 10),
+    balance_cutoff: float = 0.5,
+    **kwargs,
+):
+    """Find spatial weight for spatially weighted matching using binary search.
+    Pick the smallest weight that satisfied the cutoff.
 
-        success = x[4]
-        if success:
-            weight = x[0]
-            pairs = x[3]
-            stand_diff = x[2]
+    # Arguments
+        covars_treated: matrix of covariates of treated.
+        covars_controls: matrix of covariates of controls.
+        ps_dist: matrix of absolute differences in propensity scores
+        spatial_dists: matrix of distances between treated (rows) and controls (columns).
+        cutoff: maximum standardized difference in covariates between matched pairs.
+        search_values: values to search for the weight.
+        max_attempts: maximum number of attempts (recursion depth) to find a weight
+                      that satisfies the cutoff.
+        **kwargs: optiones to be passed to dapsm_matching.
 
-    if not success:
-        print('Standardized balance not achieved. Weight set to 1.')
-        weight = 1
-        daps_out = dist_ps(dist_mat=dist_mat, ps_diff=ps_diff, caliper=caliper, caliper_type=caliper_type, distance=distance,
-                           weight=weight,
-                           matching_algorithm=matching_algorithm)
-        pairs = daps_out[0]
+    # Returns
+        weight: spatial weight used in matching.
+        pairs: list of matched pairs.
+    """
+    # start recursion with middle of search interval
+    found_weight = None
+    found_matches = DapsmMatches()
 
-        trt = [pair[0] for pair in pairs]
-        cnt = [pair[1] for pair in pairs]
-        mean_trt = np.mean(treated[trt][:,cov_cols], axis=0)
-        mean_cnt = np.mean(control[cnt][:,cov_cols], axis=0)
-        sd_trt = np.std(treated[trt][:,cov_cols], axis=0)
-        stand_diff = (mean_trt - mean_cnt)/sd_trt
+    # go from lower to higher spatial weights until cutoff is satisfied
+    balances = []
+    for weight in search_values:
+        matches = dapsm_matching(
+            spatial_dists=spatial_dists,
+            ps_dists=ps_dists,
+            weight=weight,
+            warn=False,
+            **kwargs,
+        )
 
-    return weight, stand_diff, pairs
+        if not matches.is_empty():  # if matches exist in daps_out
+            mean_trt = covars_treated[matches.treated].mean(axis=0)
+            mean_ctrl = covars_controls[matches.controls].mean(axis=0)
+            sd_trt = covars_treated[matches.treated].std(axis=0)
+            std_diff = np.abs(mean_trt - mean_ctrl) / sd_trt
+            balances.append(std_diff.max())
+            if np.all(std_diff < balance_cutoff):
+                found_weight = weight
+                found_matches = matches
+                break
+        else:
+            balances.append(np.nan)
+
+    if found_weight is None:
+        raise ValueError("No weight found that satisfies the cutoff.")
+
+    return found_weight, found_matches, balances
+
+
+def dapsm(
+    outcome_treated: np.ndarray,
+    outcome_controls: np.ndarray,
+    covars_treated: np.ndarray,
+    covars_controls: np.ndarray,
+    ps_dists: np.ndarray,
+    spatial_dists: np.ndarray,
+    search_values: np.ndarray = np.linspace(0.01, 0.99, 10),
+    balance_cutoff: float = 0.5,
+):
+    """Implementation of the DAPS matching algorithm and estimation of the
+    average treatment effect on the treated (ATT).
+
+    # Arguments
+        outcome_treated: outcome variable of treated.
+        outcome_controls: outcome variable of controls.
+        covars_treated: matrix of covariates of treated.
+        covars_controls: matrix of covariates of controls.
+        ps_dist: matrix of absolute differences in propensity scores
+        spatial_dists: matrix of distances between treated (rows) and controls (columns).
+        cutoff: maximum standardized difference in covariates between matched pairs.
+        search_values: values to search for the weight.
+        max_attempts: maximum number of attempts (recursion depth) to find a weight
+                      that satisfies the cutoff.
+        **kwargs: optiones to be passed to dapsm_matching.
+
+    # Returns
+        att: average treatment effect on the treated.
+        weight: spatial weight used in matching.
+        pairs: list of matched pairs.
+    """
+
+    weight, matches, _ = find_spatial_weight(
+        covars_treated=covars_treated,
+        covars_controls=covars_controls,
+        ps_dists=ps_dists,
+        spatial_dists=spatial_dists,
+        search_values=search_values,
+        balance_cutoff=balance_cutoff,
+    )
+
+    # ATT estimation
+    att = (outcome_treated[matches.treated] - outcome_controls[matches.controls]).mean()
+
+    return att, weight, matches
+
+
+class DAPSm(SpatialMethod):
+    """Class for implementing the DAPS matching algorithm for use with causal datasets"""
+
+    def __init__(
+            self,
+            causal_dataset: CausalDataset,
+            ps_score: np.ndarray,
+            spatial_dists: np.ndarray | None = None,
+            spatial_dists_full: np.ndarray | None = None,
+            search_values: np.ndarray = np.linspace(0.01, 0.99, 10),
+            balance_cutoff: float = 0.5,
+             **kwargs
+        ):
+        """Initialize DAPSm class
+
+        # Arguments
+            causal_dataset: instance of CausalDataset class
+            ps_score: propensity score of each observation
+            spatial_dists: matrix of distances between treated (rows) and controls (columns).
+                           either spatial_dists or spatial_dists_full must be provided.
+            spatial_dists_full: matrix of distances between all observations.
+                                either spatial_dists or spatial_dists_full must be provided.
+            **kwargs: options to be passed to dapsm function
+        """
+        # validate args
+        if not isinstance(causal_dataset, CausalDataset):
+            raise ValueError("causal_dataset must be an instance of CausalDataset")
+        else:
+            assert causal_dataset.is_binary_treatment(), "treatment must be binary"
+        assert spatial_dists is not None or spatial_dists_full is not None, (
+            "either spatial_dists or spatial_dists_full must be provided"
+        )
+
+        tix = causal_dataset.treatment.astype(bool)
+        self.outcome_treated = causal_dataset.outcome[tix]
+        self.outcome_controls = causal_dataset.outcome[~tix]
+        self.covars_treated = causal_dataset.covariates[tix]
+        self.covars_controls = causal_dataset.covariates[~tix]
+        if spatial_dists is None:
+            self.spatial_dists = spatial_dists_full[tix][:, ~tix]
+        else:
+            self.spatial_dists = spatial_dists
+        self.ps_dists = np.abs(ps_score[tix, None] - ps_score[None, ~tix])
+        self.dapsm_kwargs = kwargs
+        self.search_values = search_values
+        self.balance_cutoff = balance_cutoff
+
+    def available_metrics(self):
+        return ["att"]
+    
+    def estimate(self, metric: str):
+        assert metric in self.available_metrics(), f"metric {metric} not available"
+        if metric == "att":
+            return dapsm(
+                outcome_treated=self.outcome_treated,
+                outcome_controls=self.outcome_controls,
+                covars_treated=self.covars_treated,
+                covars_controls=self.covars_controls,
+                ps_dists=self.ps_dists,
+                spatial_dists=self.spatial_dists,
+                search_values=self.search_values,
+                balance_cutoff=self.balance_cutoff,
+                **self.dapsm_kwargs,
+            )
