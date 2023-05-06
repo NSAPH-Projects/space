@@ -3,10 +3,10 @@
 import os
 import logging
 import argparse
+from pathlib import Path
 from spacebench.api.dataverse import DataverseAPI
 from spacebench.datasets.error_sampler import GPSampler
 from spacebench.datasets.datasets import DatasetGenerator
-from pathlib import Path
 
 
 class SpacebenchClient:
@@ -19,35 +19,51 @@ class SpacebenchClient:
             help='Increase verbosity level (e.g., -vv for debug level)')
         self.subparsers = self.parser.add_subparsers(
             dest='command', required=True, help='Subcommands')
-        
         self._configure_upload_parser()
         self._configure_list_parser()
         self._configure_download_parser()
-
 
     def _configure_upload_parser(self):
         parser_upload = self.subparsers.add_parser(
             'upload', 
             help='Upload a new data file to the collection.')
-        parser_upload.add_argument('file', type=str, 
-                                   help='Path to the data file to upload')
-        parser_upload.set_defaults(func=self.upload)
+        parser_upload.add_argument("--token", help="Set the authentication token")
+        upload_subparsers = parser_upload.add_subparsers(
+            dest='upload_command', required=True, help='Upload subcommands')
 
+        # Add new datafile 
+        parser_new = upload_subparsers.add_parser(
+            'datafile', help='Upload a new data file')
+        parser_new.add_argument(
+            'file_path', type=str, help='Path to the data file to upload')
+        parser_new.add_argument(
+            'description', type=str, help='Data file description')
+        parser_new.set_defaults(func=self.upload)
+
+        # Replace existing file
+        parser_replace = upload_subparsers.add_parser(
+            'replace', help='Replace an existing data file')
+        parser_replace.add_argument(
+            'file_id', type=str, help='ID of the data file to replace')
+        parser_replace.add_argument(
+            'file', type=str, help='Path to the new data file')
+        parser_replace.set_defaults(func=self.replace)
+
+        # Finalize
+        parser_finalize = upload_subparsers.add_parser(
+            'publish', help='Finalize upload and publish updated dataset')
+        parser_finalize.set_defaults(func=self.publish_uploaded_dataset)
 
     def _configure_list_parser(self):
         parser_list = self.subparsers.add_parser(
-            'list', help='List existing data files from the collection.'
-            )
-        parser_list.add_argument('--include_fileid', action='store_true', 
-                                     default=False, 
-                                     help='List data files with file ID.')
+            'list', help='List existing data files from the collection.')
+        parser_list.add_argument(
+            '--include_fileid', action='store_true', default=False, help='List data files with file ID.')
         parser_list.set_defaults(func=self.list_data_files)
 
-
     def _configure_download_parser(self):
-        # Download command
-        parser_download = self.subparsers.add_parser('download', help='Download a data file')
-        #parser_download.add_argument('file_id', type=str, help='ID of the data file to download')
+        parser_download = self.subparsers.add_parser(
+            'download', help='Download a data file')
         parser_download.set_defaults(func=self.download_and_generate_data)
         parser_download.add_argument("predictor", choices=['xgboost', 'nn'],
                                  help="The model predictor algorithms")
@@ -57,22 +73,34 @@ class SpacebenchClient:
         parser_download.add_argument('--remove_temp_files', action='store_true', 
                                      default=False, 
                                      help='Remove temporary files (default: False)')
-        parser_download.add_argument('--output_path', type=str, 
-                                 help='Path to save the data file')
-
-    def upload(self, args):
-        # logging.info(f"Uploading file: {args.file}")
-        # Implement the logic for uploading the file
-        pass
-
-    def list_data_files(self, args):
-        logging.info("Existing data files:")
-        print(self.dvapi.list_data_files(args.include_fileid))
+        parser_download.add_argument(
+            '--output_path', type=str, help='Path to save the data file')
 
     def _remove_temp_files(self):
         self.dvapi.remove_temp_files()
 
+    def upload(self, args):
+        """ Uploads data to the data collection. """
+        logging.info(
+            f"Uploading file: {args.file_path}")
+        self.dvapi.upload_data(
+            args.file_path, args.description, args.token)
+
+    def replace(self, args):
+        logging.info(
+            f"Replacing data file with ID {args.file_id} with file: {args.file}")
+        pass
+
+    def publish_uploaded_dataset(self, args):
+        self.dvapi.publish_dataset(args.token)
+
+    def list_data_files(self, args):
+        """ Lists all existing data files. """
+        logging.info("Existing data files:")
+        print(self.dvapi.list_data_files(args.include_fileid))
+
     def download_and_generate_data(self, args):
+        """ Downloads data core and generates samples. """
         target_dir = Path(args.output_path)
         if not target_dir.exists():
             print("The target directory doesn't exist")

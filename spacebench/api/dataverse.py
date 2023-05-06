@@ -3,31 +3,32 @@ API for uploading and downloading data from Dataverse.
 """
 import os
 import tempfile
+from pyDataverse.models import Datafile
 from pyDataverse.api import NativeApi, DataAccessApi
 
 
 class DataverseAPI:
 
-    def __init__(self, 
-                 base_url = 'https://dataverse.harvard.edu/',
-                 DOI = 'doi:10.7910/DVN/SYNPBS'
-                 ):
-        
-        self.files = {}
-        self.api = NativeApi(base_url)
-        self.data_api = DataAccessApi(base_url)
-        self.dataset = self.api.get_dataset(DOI)
+    def __init__(self):
+        self.base_url = 'https://dataverse.harvard.edu/'
+        self.pid = 'doi:10.7910/DVN/SYNPBS'
+        self.api = NativeApi(self.base_url)
+        self.data_api = DataAccessApi(self.base_url)
+        self.dataset = self.__get_dataset()
         self.temp_dir = tempfile.gettempdir()
+        self.files = {}
         self.data_filename = ""
     
     @property
     def core_data_loc(self):
         """ Returns core data location. """
         return os.path.join(
-            self.temp_dir, 
+            self.temp_dir,
             self.data_filename
             )
 
+    def __get_dataset(self):
+        return self.api.get_dataset(self.pid)
 
     def __get_filenames_from_arguments(self, predictor, type):
         """ Get filenames for download. """
@@ -49,7 +50,6 @@ class DataverseAPI:
             key: None for key in filename_list
             }
 
-
     def __get_fileids_from_filenames(self):
         """ Get fileid from filename for download. """
 
@@ -62,8 +62,7 @@ class DataverseAPI:
             if filename in self.files.keys():
                 self.files[filename] = file["dataFile"]["id"]
 
-
-    def list_data_files(self, include_fileid = False):
+    def list_data_files(self, include_fileid=False):
         """ Lists data files from Dataverse. """
 
         files_list = self.dataset.json()[
@@ -77,10 +76,8 @@ class DataverseAPI:
                 result.append(f"{file_name}\t{file_desc}\t{file_id}")
             else:
                 result.append(f"{file_name}\t{file_desc}")
-                
-
+        
         return "\n".join(result)
-
 
     def remove_temp_files(self):
         """ Removes temporary files. """
@@ -93,7 +90,6 @@ class DataverseAPI:
                 os.remove(file_path)
                 print(
                     f'{filename} removed from the temporary directory.')
-
 
     def download_data(self, predictor, type):
         """ Downloads core data and dicts from Dataverse. """
@@ -120,21 +116,31 @@ class DataverseAPI:
                 print("Downloaded: file name {}, id {}".format(
                     filename, self.files[filename]))
 
+    def publish_dataset(self, token):
+        """ Publish new dataset. """
+        api = NativeApi(self.base_url, token)
+        resp = api.publish_dataset(self.pid, release_type="major")
+        if resp.json()["status"] == "OK":
+           print("Dataset published.")
 
-    def upload_data(self):
+    def upload_data(self, file_path, description, token):
         """
         Upload data to the collection.
         """
-        # df = Datafile()
-        # df.set({
-        #     "pid" : args.doi,
-        #     "filename" : f,
-        #     "directoryLabel": root[5:],
-        #     "description" : \
-        #         "Uploaded with GitHub Action from {}.".format(
-        #         args.repo),
-        #     })
-        # resp = api.upload_datafile(
-        #     args.doi, join(root,f), df.json())
-        pass
+        api = NativeApi(self.base_url, token)
+        filename = os.path.basename(file_path)
+
+        dv_datafile = Datafile()
+        dv_datafile.set({
+            "pid": self.pid,
+            "filename": filename,
+            "description": description,
+            })
+        print("File basename: "+filename)
+        resp = api.upload_datafile(
+           self.pid, file_path, dv_datafile.json())
+        if resp.json()["status"] == "OK":
+            print("Dataset uploaded.")
+        print(resp)
+        
 
