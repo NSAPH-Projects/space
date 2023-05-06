@@ -63,6 +63,25 @@ class DataverseAPI:
                 self.files[filename] = file["dataFile"]["id"]
 
 
+    def list_data_files(self, include_fileid = False):
+        """ Lists data files from Dataverse. """
+
+        files_list = self.dataset.json()[
+            'data']['latestVersion']['files']
+        result = []
+        for file in files_list:
+            file_name = file["dataFile"]["filename"]
+            file_desc = "" #file["dataFile"]["description"]
+            file_id = file["dataFile"]["id"]
+            if include_fileid:
+                result.append(f"{file_name}\t{file_desc}\t{file_id}")
+            else:
+                result.append(f"{file_name}\t{file_desc}")
+                
+
+        return "\n".join(result)
+
+
     def remove_temp_files(self):
         """ Removes temporary files. """
 
@@ -106,5 +125,16 @@ class DataverseAPI:
         """
         Upload data to the collection.
         """
+        # df = Datafile()
+        # df.set({
+        #     "pid" : args.doi,
+        #     "filename" : f,
+        #     "directoryLabel": root[5:],
+        #     "description" : \
+        #         "Uploaded with GitHub Action from {}.".format(
+        #         args.repo),
+        #     })
+        # resp = api.upload_datafile(
+        #     args.doi, join(root,f), df.json())
         pass
 
