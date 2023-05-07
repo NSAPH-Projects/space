@@ -31,7 +31,7 @@ method = dapsm.DAPSm(
     spatial_dists_full=distmat_full,
     balance_cutoff=0.4,
 )
-att, weight, matches = method.estimate(metric="att")
+att, weight, matches = method.estimate(estimand="att")
 print("Estimated ATT:", att)
 print("True ATT:", np.mean(Y1 - Y0))
 print("Found weight:", weight)

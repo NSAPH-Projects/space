@@ -263,12 +263,13 @@ class DAPSm(SpatialMethod):
         self.search_values = search_values
         self.balance_cutoff = balance_cutoff
 
-    def available_metrics(self):
+    @classmethod
+    def estimands(cls):
         return ["att"]
     
-    def estimate(self, metric: str):
-        assert metric in self.available_metrics(), f"metric {metric} not available"
-        if metric == "att":
+    def estimate(self, estimand: str):
+        assert estimand in self.estimands(), f"estimand {estimand} not available; see the estimands method"
+        if estimand == "att":
             return dapsm(
                 outcome_treated=self.outcome_treated,
                 outcome_controls=self.outcome_controls,
