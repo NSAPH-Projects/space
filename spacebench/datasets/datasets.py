@@ -56,6 +56,10 @@ class CausalDataset:
         )
         df.to_csv(path, index=False)
 
+    def is_binary_treatment(self) -> bool:
+        """Returns true if treatment is binary"""
+        return self.counterfactuals.shape[1] == 2
+
 @dataclass
 class SpatialMetadata:
     """The purpose of this class is simply to validate a common
