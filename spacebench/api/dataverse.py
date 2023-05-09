@@ -2,6 +2,7 @@
 API for uploading and downloading data from Dataverse.
 """
 import os
+import json
 import tempfile
 from pyDataverse.models import Datafile
 from pyDataverse.api import NativeApi, DataAccessApi
@@ -141,6 +142,38 @@ class DataverseAPI:
            self.pid, file_path, dv_datafile.json())
         if resp.json()["status"] == "OK":
             print("Dataset uploaded.")
-        print(resp)
         
+    def replace(self, file, file_id, token):
+        """
+        Replaces file in the collection.
+        """
+        api = NativeApi(self.base_url, token)
+        filename = os.path.basename(file)
+
+        dv_files_list = self.dataset.json()[
+             'data']['latestVersion']['files']
+
+        # keep the description from previous file version
+        description = ""
+        for dvf in dv_files_list:
+            dv_file_id = dvf['dataFile']['id']
+            if str(dv_file_id) == file_id:
+                description = dvf['dataFile']['description']
+                break
+
+        json_dict = {
+            "description": description,
+            "forceReplace": True,
+            "filename": filename,
+            "label": filename
+        }
+
+        json_str = json.dumps(json_dict)
+        resp = api.replace_datafile(
+            file_id, file, json_str, is_filepid=False)
+        
+        if resp.json()["status"] == "ERROR": 
+            print(resp.content)
+            print("\n")
+
 

@@ -27,15 +27,16 @@ class SpacebenchClient:
         parser_upload = self.subparsers.add_parser(
             'upload', 
             help='Upload a new data file to the collection.')
-        parser_upload.add_argument("--token", help="Set the authentication token")
+        parser_upload.add_argument(
+            "--token", help="Set the authentication token")
         upload_subparsers = parser_upload.add_subparsers(
             dest='upload_command', required=True, help='Upload subcommands')
 
         # Add new datafile 
         parser_new = upload_subparsers.add_parser(
-            'datafile', help='Upload a new data file')
+            'add', help='Upload a new data file')
         parser_new.add_argument(
-            'file_path', type=str, help='Path to the data file to upload')
+            'file', type=str, help='Path to the data file to upload')
         parser_new.add_argument(
             'description', type=str, help='Data file description')
         parser_new.set_defaults(func=self.upload)
@@ -56,23 +57,28 @@ class SpacebenchClient:
 
     def _configure_list_parser(self):
         parser_list = self.subparsers.add_parser(
-            'list', help='List existing data files from the collection.')
+            'list', help='List existing data files from the collection')
         parser_list.add_argument(
-            '--include_fileid', action='store_true', default=False, help='List data files with file ID.')
+            '--include_fileid', action='store_true', default=False, 
+            help='List data files with file ID')
         parser_list.set_defaults(func=self.list_data_files)
 
     def _configure_download_parser(self):
         parser_download = self.subparsers.add_parser(
             'download', help='Download a data file')
-        parser_download.set_defaults(func=self.download_and_generate_data)
-        parser_download.add_argument("predictor", choices=['xgboost', 'nn'],
-                                 help="The model predictor algorithms")
-        parser_download.add_argument("datatype", choices=['binary', 'continuous'],
-                                 help='Type of data: binary or continuous')
-        parser_download.add_argument("seed", type=int, help='Random seed')
-        parser_download.add_argument('--remove_temp_files', action='store_true', 
-                                     default=False, 
-                                     help='Remove temporary files (default: False)')
+        parser_download.set_defaults(
+            func=self.download_and_generate_data)
+        parser_download.add_argument(
+            "predictor", choices=['xgboost', 'nn'],
+            help="The model predictor algorithms")
+        parser_download.add_argument(
+            "datatype", choices=['binary', 'continuous'],
+            help='Type of data: binary or continuous')
+        parser_download.add_argument(
+            "seed", type=int, help='Random seed')
+        parser_download.add_argument(
+            '--remove_temp_files', action='store_true', default=False,
+            help='Remove temporary files (default: False)')
         parser_download.add_argument(
             '--output_path', type=str, help='Path to save the data file')
 
@@ -81,15 +87,14 @@ class SpacebenchClient:
 
     def upload(self, args):
         """ Uploads data to the data collection. """
-        logging.info(
-            f"Uploading file: {args.file_path}")
+        logging.info(f"Uploading file: {args.file}")
         self.dvapi.upload_data(
-            args.file_path, args.description, args.token)
+            args.file, args.description, args.token)
 
     def replace(self, args):
         logging.info(
-            f"Replacing data file with ID {args.file_id} with file: {args.file}")
-        pass
+            f"Replacing datafile with ID {args.file_id} with file: {args.file}")
+        self.dvapi.replace(args.file, args.file_id, args.token)
 
     def publish_uploaded_dataset(self, args):
         self.dvapi.publish_dataset(args.token)
