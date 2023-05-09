@@ -1,13 +1,13 @@
 import sys
+import warnings
 from typing import Literal
 from dataclasses import dataclass
-import warnings
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from ..datasets.datasets import CausalDataset
-from .classes import SpatialMethod
+from spacebench.datasets.datasets import CausalDataset
+from spacebench.algorithms.classes import SpatialMethod
 
 
 @dataclass
@@ -36,20 +36,32 @@ def dapsm_matching(
 ):
     """Spatially weighted matching.
 
-    # Arguments
-        distmat: matrix of distances between treated (rows) and controls (columns).
-        ps_dist: matrix of absolute differences in propensity scores
-                 between treated (rows) and controls (cols).
-        caliper: caliper for matching (minimum distance acceptable for a match to occur),
-                weighted by the standard deviation of the distances specified by caliper_type.
-        caliper_type: whether the caliper is set on the DAPS or on the PS.
-        weight: weight for the DAPS.
-        matching_algorithm: whether to use optimal or greedy matching.
+    Arguments
+    ---------
+    distmat: np.ndarray 
+        A matrix of distances between treated (rows) and controls (columns).
+    ps_dist: np.ndarray
+        A matrix of absolute differences in propensity scores between treated 
+        (rows) and controls (cols).
+    caliper: float
+        A caliper for matching (minimum distance acceptable for a match 
+        to occur), weighted by the standard deviation of the distances 
+        specified by caliper_type.
+    caliper_type: str
+        Whether the caliper is set on the DAPS or on the PS.
+    weight: float
+        A weight for the DAPS.
+    matching_algorithm: str
+        Whether to use optimal or greedy matching.
 
-    # Returns
-        pairs: list of matched pairs.
-        match_diff: list of differences in DAPS between matched pairs.
+    Returns
+    -------
+        pairs: type?
+            A list of matched pairs.
+        match_diff: type?
+            A list of differences in DAPS between matched pairs.
     """
+
     # check inputs
     assert (
         spatial_dists.shape == ps_dists.shape
@@ -65,7 +77,8 @@ def dapsm_matching(
     score = (1 - weight) * wdist + weight * ps_dists
 
     # potential matches outside caliper are set to inf
-    # need to use float_info.max because np.inf raises an error in linear_sum_assignment
+    # need to use float_info.max because np.inf raises an error in 
+    # linear_sum_assignment
     if caliper_type == "daps":
         invalid = score > caliper * np.std(score)
     elif caliper_type == "ps":
@@ -120,20 +133,33 @@ def find_spatial_weight(
     """Find spatial weight for spatially weighted matching using binary search.
     Pick the smallest weight that satisfied the cutoff.
 
-    # Arguments
-        covars_treated: matrix of covariates of treated.
-        covars_controls: matrix of covariates of controls.
-        ps_dist: matrix of absolute differences in propensity scores
-        spatial_dists: matrix of distances between treated (rows) and controls (columns).
-        cutoff: maximum standardized difference in covariates between matched pairs.
-        search_values: values to search for the weight.
-        max_attempts: maximum number of attempts (recursion depth) to find a weight
-                      that satisfies the cutoff.
-        **kwargs: optiones to be passed to dapsm_matching.
+    Arguments
+    ---------
 
-    # Returns
-        weight: spatial weight used in matching.
-        pairs: list of matched pairs.
+    covars_treated: np.ndarray
+        A matrix of covariates of treated.
+    covars_controls: np.ndarray 
+        A matrix of covariates of controls.
+    ps_dist: np.ndarray
+        A matrix of absolute differences in propensity scores
+    spatial_dists: np.ndarray 
+        A matrix of distances between treated (rows) and controls (columns).
+    cutoff: type? 
+        A maximum standardized difference in covariates between matched pairs.
+    search_values: type? 
+        values to search for the weight.
+    max_attempts: type? 
+        maximum number of attempts (recursion depth) to find a weight
+        that satisfies the cutoff.
+    **kwargs: 
+        optiones to be passed to dapsm_matching.
+
+    Returns
+    -------
+        weight: type? 
+            A spatial weight used in matching.
+        pairs: list 
+            A list of matched pairs.
     """
     # start recursion with middle of search interval
     found_weight = None
@@ -182,20 +208,31 @@ def dapsm(
     """Implementation of the DAPS matching algorithm and estimation of the
     average treatment effect on the treated (ATT).
 
-    # Arguments
-        outcome_treated: outcome variable of treated.
-        outcome_controls: outcome variable of controls.
-        covars_treated: matrix of covariates of treated.
-        covars_controls: matrix of covariates of controls.
-        ps_dist: matrix of absolute differences in propensity scores
-        spatial_dists: matrix of distances between treated (rows) and controls (columns).
-        cutoff: maximum standardized difference in covariates between matched pairs.
-        search_values: values to search for the weight.
-        max_attempts: maximum number of attempts (recursion depth) to find a weight
-                      that satisfies the cutoff.
-        **kwargs: optiones to be passed to dapsm_matching.
-
-    # Returns
+    Arguments
+    ---------
+    outcome_treated: 
+        outcome variable of treated.
+    outcome_controls: 
+        outcome variable of controls.
+    covars_treated: 
+        matrix of covariates of treated.
+    covars_controls: 
+        matrix of covariates of controls.
+    ps_dist: 
+        matrix of absolute differences in propensity scores
+    spatial_dists: 
+        matrix of distances between treated (rows) and controls (columns).
+    cutoff: 
+        maximum standardized difference in covariates between matched pairs.
+    search_values: 
+        values to search for the weight.
+    max_attempts: 
+        maximum number of attempts (recursion depth) to find a weight
+        that satisfies the cutoff.
+    **kwargs: 
+        optiones to be passed to dapsm_matching.
+    Returns
+    -------
         att: average treatment effect on the treated.
         weight: spatial weight used in matching.
         pairs: list of matched pairs.
@@ -231,18 +268,25 @@ class DAPSm(SpatialMethod):
         ):
         """Initialize DAPSm class
 
-        # Arguments
-            causal_dataset: instance of CausalDataset class
-            ps_score: propensity score of each observation
-            spatial_dists: matrix of distances between treated (rows) and controls (columns).
-                           either spatial_dists or spatial_dists_full must be provided.
-            spatial_dists_full: matrix of distances between all observations.
-                                either spatial_dists or spatial_dists_full must be provided.
-            **kwargs: options to be passed to dapsm function
+        Arguments
+        ---------
+        causal_dataset: CaualDataset 
+            An instance of CausalDataset class
+        ps_score: np.ndarray 
+            An array of propensity score of each observation
+        spatial_dists: np.ndarray 
+            A matrix of distances between treated (rows) and controls (columns).
+            either spatial_dists or spatial_dists_full must be provided.
+        spatial_dists_full: np.ndarray 
+            A matrix of distances between all observations. Either spatial_dists 
+            or spatial_dists_full must be provided.
+        **kwargs: 
+            options to be passed to dapsm function
         """
         # validate args
         if not isinstance(causal_dataset, CausalDataset):
-            raise ValueError("causal_dataset must be an instance of CausalDataset")
+            raise ValueError("causal_dataset must be an instance" 
+                             "of CausalDataset")
         else:
             assert causal_dataset.is_binary_treatment(), "treatment must be binary"
         assert spatial_dists is not None or spatial_dists_full is not None, (
@@ -268,7 +312,8 @@ class DAPSm(SpatialMethod):
         return ["att"]
     
     def estimate(self, estimand: str):
-        assert estimand in self.estimands(), f"estimand {estimand} not available; see the estimands method"
+        assert estimand in self.estimands(), \
+            f"estimand {estimand} not available; see the estimands method"
         if estimand == "att":
             return dapsm(
                 outcome_treated=self.outcome_treated,
