@@ -11,6 +11,7 @@ from os.path import join as join_path
 import spacebench.datasets.error_sampler as err
 
 
+
 def read_geodata(geodata_file: str) -> gpd.GeoDataFrame:
     """Reads geodata from file"""
     ext = geodata_file.split(".")[-1]
