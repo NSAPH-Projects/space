@@ -46,4 +46,6 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     python_requires='>=3.7',
+    package_data={"spacebench": ["datasets/*.csv"]},
+    include_package_data=True,
 )
