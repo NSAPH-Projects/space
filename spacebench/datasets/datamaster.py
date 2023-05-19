@@ -28,6 +28,14 @@ class DataMaster:
             list[str]: A list of available datasets
         """
         return self.master.index.tolist()
+    
+    def list_collections(self) -> list[str]:
+        """Returns a list of available collections
+
+        Returns:
+            list[str]: A list of available collections
+        """
+        return self.collections["name"].tolist()
 
     def __getitem__(self, key: str) -> pd.Series:
         """Returns the row of the masterfile corresponding to the dataset"""

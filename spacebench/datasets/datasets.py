@@ -46,8 +46,11 @@ class CausalDataset:
     covariates: pd.DataFrame | np.ndarray
     outcome: pd.DataFrame | np.ndarray
     counterfactuals: pd.DataFrame | np.ndarray
+    graph: nx.Graph | None = None
+    geodata: gpd.GeoDataFrame | None = None
 
     def save_dataset(self, path: str):
+        # TODO: save spatial metadata or info to load the metadata (graph and geodata)
         df = pd.concat(
             [self.treatment,
              self.covariates,
@@ -156,6 +159,8 @@ class DatasetGenerator:
         # read geodata if given
         if self.metadata.geodata_path:
             self.geodata = read_geodata(self.metadata.geodata_path)
+        else:
+            self.geodata = None
 
         # read graph if given
         if self.metadata.graph_path:
@@ -164,6 +169,9 @@ class DatasetGenerator:
                 self.graph.nodes.values(), index=self.graph.nodes
             )
             self.error_attrs = error_attrs.loc[self.treatment.index]  # align
+        else:
+            self.graph = None
+            self.error_attrs = None
 
         # make error generator
         sampler_fun = getattr(err, _get_error_sampler_type(self.metadata.error_type))
@@ -186,6 +194,8 @@ class DatasetGenerator:
             covariates=self.covariates,
             outcome=outcome,
             counterfactuals=counterfactuals,
+            graph=self.graph,
+            geodata=self.geodata,
         )
         self.mask(dataset)
         return dataset
