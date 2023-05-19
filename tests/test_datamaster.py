@@ -6,8 +6,7 @@ from spacebench.datasets.datamaster import DataMaster
 
 
 class TestDataMaster(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def setUp(self) -> None:
         self.masterfile = DataMaster()
 
     def test_list_datasets(self):
