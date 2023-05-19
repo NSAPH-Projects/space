@@ -41,13 +41,16 @@ def _get_error_sampler_type(error_type: str) -> str:
 
 
 @dataclass
-class CausalDataset:
+class SpaceDataset:
     treatment: pd.DataFrame | np.ndarray
     covariates: pd.DataFrame | np.ndarray
     outcome: pd.DataFrame | np.ndarray
     counterfactuals: pd.DataFrame | np.ndarray
     graph: nx.Graph | None = None
     geodata: gpd.GeoDataFrame | None = None
+    info: dict | None = None  # must contain info about the difficultly, etc.
+
+    # TODO: use info correctly
 
     def save_dataset(self, path: str):
         # TODO: save spatial metadata or info to load the metadata (graph and geodata)
@@ -63,6 +66,7 @@ class CausalDataset:
     def is_binary_treatment(self) -> bool:
         """Returns true if treatment is binary"""
         return self.counterfactuals.shape[1] == 2
+
 
 @dataclass
 class SpatialMetadata:
@@ -182,14 +186,14 @@ class DatasetGenerator:
         metadata = SpatialMetadata.from_json(json_path)
         return cls(metadata)
 
-    def make_dataset(self) -> CausalDataset:
+    def make_dataset(self) -> SpaceDataset:
         res = self.error_sampler.sample(self.error_attrs)
         outcome = self.pred + res
         counterfactuals = self.predcf.copy()
         for c in counterfactuals.columns:
             counterfactuals[c] += res
 
-        dataset = CausalDataset(
+        dataset = SpaceDataset(
             treatment=self.treatment,
             covariates=self.covariates,
             outcome=outcome,
@@ -200,7 +204,7 @@ class DatasetGenerator:
         self.mask(dataset)
         return dataset
     
-    def mask(self, dataset: CausalDataset) -> CausalDataset:
+    def mask(self, dataset: SpaceDataset) -> SpaceDataset:
         score = self.metadata.variable_score
         # if score is dict make list
         

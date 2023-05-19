@@ -1,1 +1,1 @@
-from .datasets.datasets import CausalDataset
+from .datasets.datasets import SpaceDataset

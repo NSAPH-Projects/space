@@ -9,12 +9,12 @@ import geopandas as gpd
 from pyDataverse.api import NativeApi, DataAccessApi
 from spacebench.datasets.datamaster import DataMaster
 from spacebench.log import LOGGER
-from spacebench.datasets.datasets import SpatialMetadata, CausalDataset
+from spacebench.datasets.datasets import SpatialMetadata, SpaceDataset
 
 
 class SpaceEnv:
     """Main class for generating new datasets.
-    It is loosely based on the gym environment class."""
+    It is loosely based on the openai gym environment class."""
 
     def __init__(self, name: str, path: str = "downloads"):
         self.name = name
@@ -32,12 +32,13 @@ class SpaceEnv:
             filename = download_dataset(filename_or_url, path, self.info.source)
             self.data[k] = read_data(filename, k, path)
 
-    def make(self) -> CausalDataset:
-        # TODO: connnect this to the API to sample/and mask a dataset
-        # it must return the causal dataset using the DatasetGenerator.make_dataset method
+    def make(self) -> SpaceDataset:
+        # TODO: (michelle) connnect this to the API to sample/and mask a dataset
+        # it must return the causal dataset using the DatasetGenerator.make_dataset 
+        # currently defined in spacebench/datasets/datasets.py
         # it is possible that we don't need separate classes for datasetgenerator?
         # but maybe we can start like to reuse the code from the old version
-        # the function must return the CausalDataset which is a prototype.
+        # the function must return a SpaceDataset, which is a prototype.
         # in the future should be replaced in favor of a dataloader class
         # the causaldataset class MUST be extended to contain information about the complexity
         # of the dataset, the number of samples, the number of features, etc..
@@ -64,6 +65,7 @@ def download_dataset(
 
     if source == "dataverse":
         # This is a minimal API to download data from dataverse
+        # TODO: (michelle) merge with the current api in spacebench/api/dataverse.py
         base_url = "https://dataverse.harvard.edu/"
         doi = "doi:10.7910/DVN/SYNPBS"
         api = NativeApi(base_url)
