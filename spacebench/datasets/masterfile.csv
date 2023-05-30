@@ -1,5 +1,0 @@
-dataset,predictor,exposure-type,tasks,versions,collection,source,datasheet,data,metadata,graph,geodata
-medisynth-nn-binary,nn,binary,"ate,att,ite",,medisynth,dataverse,,medisynth-nn-binary.csv,medisynth-nn-binary.json,counties.graphml,counties.geojson
-medisynth-nn-continuous,nn,continuous,"erf,ite",,medisynth,dataverse,,medisynth-nn-continuous.csv,medisynth-nn-continuous.json,counties.graphml,counties.geojson
-medisynth-xgboost-binary,xgboost,binary,"ate,att,ite",,medisynth,dataverse,,medisynth-xgboost-binary.csv,medisynth-xgboost-binary.json,counties.graphml,counties.geojson
-medisynth-xgboost-continuous,xgboost,continuous,"erf,ite",,medisynth,dataverse,,medisynth-xgboost-continuous.csv,medisynth-xgboost-continuous.json,counties.graphml,counties.geojson
