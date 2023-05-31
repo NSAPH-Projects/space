@@ -1,12 +1,20 @@
 import unittest
 
-from spacebench.datasets.datasets import DatasetGenerator
+from spacebench import SpaceEnv, SpaceDataset, DataMaster
+
 
 class TestDataGenerator(unittest.TestCase):
-    def test_sample(self):
-        self.assertEqual(1, 1)
+    def setUp(self) -> None:
+        self.dataset_name = DataMaster().list_datasets()[0]
 
-
+    def test_create_env(self):
+        env = SpaceEnv(self.dataset_name)
+        assert isinstance(env, SpaceEnv)
+    
+    def test_create_dataset(self):
+        env = SpaceEnv(self.dataset_name)
+        dataset = env.make()
+        assert isinstance(dataset, SpaceDataset)
 
 
 if __name__ == "__main__":

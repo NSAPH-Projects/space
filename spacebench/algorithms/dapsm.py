@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from spacebench.datasets.datasets import CausalDataset
+from spacebench.env import SpaceDataset
 from spacebench.algorithms.classes import SpatialMethod
 
 
@@ -258,7 +258,7 @@ class DAPSm(SpatialMethod):
 
     def __init__(
             self,
-            causal_dataset: CausalDataset,
+            causal_dataset: SpaceDataset,
             ps_score: np.ndarray,
             spatial_dists: np.ndarray | None = None,
             spatial_dists_full: np.ndarray | None = None,
@@ -284,11 +284,11 @@ class DAPSm(SpatialMethod):
             options to be passed to dapsm function
         """
         # validate args
-        if not isinstance(causal_dataset, CausalDataset):
+        if not isinstance(causal_dataset, SpaceDataset):
             raise ValueError("causal_dataset must be an instance" 
                              "of CausalDataset")
         else:
-            assert causal_dataset.is_binary_treatment(), "treatment must be binary"
+            assert causal_dataset.has_binary_treatment(), "treatment must be binary"
         assert spatial_dists is not None or spatial_dists_full is not None, (
             "either spatial_dists or spatial_dists_full must be provided"
         )

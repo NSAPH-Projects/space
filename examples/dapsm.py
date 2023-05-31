@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 import spacebench.algorithms.dapsm as dapsm
-from spacebench import CausalDataset
+from spacebench import SpaceDataset
 
 #%%
 df = pd.read_csv("examples/data/dapsm_toydata.csv", index_col=0)
@@ -13,7 +13,7 @@ beta = np.ones(X.shape[1])
 Y0 = X @ beta
 Y1 = Y0 + 10
 Y = Y0 * (1 - A) + Y1 * A
-causal_dataset = CausalDataset(
+causal_dataset = SpaceDataset(
     treatment=A,
     covariates=X,
     outcome=Y,

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from spacebench.datasets.datamaster import DataMaster
+from spacebench.datamaster import DataMaster
 
 
 class TestDataMaster(unittest.TestCase):
