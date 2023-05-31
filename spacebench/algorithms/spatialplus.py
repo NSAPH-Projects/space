@@ -7,7 +7,8 @@ def spatial_plus(
         X: np.ndarray,
         Y: np.ndarray,
         coord: np.ndarray,
-        df: pd.DataFrame
+        df: pd.DataFrame,
+        binary_treatment: bool = False
         ):
     """Spatial plus algorithm.
 
@@ -16,7 +17,7 @@ def spatial_plus(
     X: np.ndarray 
         A vector of exposures (could be binary or continuous).
     Y: np.ndarray
-        A matrix of outcomes.
+        A vector of outcomes.
     coord: np.ndarray
         A 2 column matrix of coordinates (latitude and longitude).
     df: pd.DataFrame
@@ -34,7 +35,7 @@ def spatial_plus(
     covs = [col for col in df.columns if col not in ['Y', 'coord1', 'coord2', 'X']]
 
     bs = BSplines(coord, df=[10, 10], degree=[3, 3]) # df and deg inputs
-    if np.array_equal(X, X.astype(bool)): # binary exposure
+    if binary_treatment: # binary exposure
         formula = f"X ~ {' + '.join(covs)}"
         gam_bs = GLMGam.from_formula(formula=formula, data = df, smoother = bs, 
                         family=sm.families.Binomial())
