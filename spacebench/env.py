@@ -112,6 +112,10 @@ class SpaceEnv:
         with open(os.path.join(tgtdir, "metadata.yaml"), "r") as f:
             self.metadata = yaml.load(f, Loader=yaml.BaseLoader)
 
+        # TODO: this line fixes a previous bug and should be removed in the future
+        self.metadata["treatment_values"] = self.metadata["tretment_values"]
+        self.metadata.pop("tretment_values")
+
         # read graph
         self.graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
 
