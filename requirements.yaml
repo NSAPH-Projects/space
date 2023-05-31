@@ -9,6 +9,7 @@ dependencies:
   - matplotlib
   - seaborn
   - scikit-learn
+  - statsmodels
   - pip
   - pip:
     - attrs==22.2.0
