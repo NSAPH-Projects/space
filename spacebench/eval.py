@@ -6,8 +6,10 @@ from spacebench.env import SpaceEnv, SpaceDataset
 
 
 class DatasetEvaluator:
-    """Class for evaluating the performance of a causal inference method
-    in a specific SpaceDataset."""
+    """
+    Class for evaluating the performance of a causal inference method
+    in a specific SpaceDataset.
+    """
 
     def __init__(self, dataset: SpaceDataset) -> None:
         self.dataset = dataset
@@ -50,8 +52,10 @@ class DatasetEvaluator:
 
 
 class EnvEvaluator:
-    """Class for evaluating the performance of a causal inference method
-    in a specific SpaceEnv."""
+    """
+    Class for evaluating the performance of a causal inference method
+    in a specific SpaceEnv.
+    """
 
     def __init__(self, env: SpaceEnv) -> None:
         self.env = env
@@ -65,7 +69,9 @@ class EnvEvaluator:
         counterfactuals: np.ndarray | None = None,
         erf: np.ndarray | None = None,
     ) -> None:
-        """Add a dataset to the buffer"""
+        """
+        Add a dataset to the buffer.
+        """
         evaluator = DatasetEvaluator(dataset)
         metrics = evaluator.eval(
             ate=ate,
@@ -77,7 +83,9 @@ class EnvEvaluator:
             self.buffer[k].append(v)
 
     def summarize(self) -> dict[str, float]:
-        """Evaluate the error in causal prediction"""
+        """
+        Evaluate the error in causal prediction.
+        """
         if len(self.buffer) == 0:
             raise ValueError("Use add first")
 

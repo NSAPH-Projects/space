@@ -92,10 +92,14 @@
 <div class="viewcode-block" id="DataMaster"><a class="viewcode-back" href="../../modules.html#spacebench.datamaster.DataMaster">[docs]</a><span class="k">class</span> <span class="nc">DataMaster</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Class for managing the masterfile and collections metadata</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        masterfile (pd.DataFrame): dataframe with metadata about available datasets</span>
-<span class="sd">        collections (pd.DataFrame): dataframe with information about the collections</span>
-<span class="sd">                                    where the datasets are generated from</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    masterfile: pd.DataFrame </span>
+<span class="sd">        A dataframe with metadata about available datasets.</span>
+<span class="sd">    collections: pd.DataFrame</span>
+<span class="sd">        A dataframe with information about the collections</span>
+<span class="sd">        where the datasets are generated from.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -104,15 +108,31 @@
 
 
 <div class="viewcode-block" id="DataMaster.list_datasets"><a class="viewcode-back" href="../../modules.html#spacebench.datamaster.DataMaster.list_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">list_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Returns a list of available datasets</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of names of available datasets.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            list[str]: A list of available datasets</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            </span>
+<span class="sd">        list[str] </span>
+<span class="sd">            Names of all available datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> </div>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns the row of the masterfile corresponding to the dataset&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves the row corresponding to the provided dataset key from the masterfile.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The identifier for the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series or None</span>
+<span class="sd">            The corresponding dataset row if found, else None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">master</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
 </pre></div>
 
