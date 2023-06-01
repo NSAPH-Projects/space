@@ -152,6 +152,40 @@ class SpaceEnv:
             x: float(v) for x, v in self.metadata["spatial_scores"].items()
         }
 
+    def _check_scores(
+            self,
+            c: str, 
+            min_confounding: float, 
+            max_confounding: float, 
+            min_smoothness: float, 
+            max_smoothness: float) -> bool:
+        """
+        Check if given covariate's smoothness and confounding is within the given ranges.
+        
+        Parameters
+        ----------
+        c: str
+            Covariate to check.
+        min_confounding: float
+            Minimum confounding score.
+        max_confounding: float
+            Maximum confounding score.
+        min_smoothness: float
+            Minimum smoothness score.
+        max_smoothness: float
+            Maximum smoothness score.
+    
+        Returns
+        -------
+        bool
+            True if scores are within range, False otherwise.
+        """
+        smoothness = self.smoothness_score_dict[c]
+        confounding = self.confounding_score_dict[c]
+        return (min_confounding <= confounding <= max_confounding and 
+                min_smoothness <= smoothness <= max_smoothness)
+   
+
     def __masking_candidates(
         self,
         min_confounding: float = 0.0,
@@ -163,17 +197,16 @@ class SpaceEnv:
         Auxiliary method for finding a covariate that satisfies the requirements 
         for masking.
         """
-        candidates = []
-        for c in self.metadata["covariates"]:
-            smoothness = self.smoothness_score_dict[c]
-            confounding = self.confounding_score_dict[c]
-            if (
-                min_confounding <= confounding <= max_confounding
-                and min_smoothness <= smoothness <= max_smoothness
-            ):
-                candidates.append(c)
+        candidates = [c for c in self.metadata["covariates"] if 
+                      self._check_scores(c, 
+                                         min_confounding, 
+                                         max_confounding, 
+                                         min_smoothness, 
+                                         max_smoothness)]
+        
         if len(candidates) == 0:
-            raise ValueError("No covariate found with the specified requirements")
+            raise ValueError("No covariate found with the " 
+                             "specified requirements")
         return candidates
 
     def __gen__dataset__from__observed_and_missing(
@@ -315,12 +348,12 @@ class SpaceEnv:
         Generator[SpaceDataset]: Generator of SpaceDatasets
         """
         for c in self.metadata["covariates"]:
-            smoothness = self.smoothness_score_dict[c]
-            confounding = self.confounding_score_dict[c]
-            if (
-                min_confounding <= confounding <= max_confounding
-                and min_smoothness <= smoothness <= max_smoothness
-            ):
+            if self._check_scores(c, 
+                                  min_confounding, 
+                                  max_confounding, 
+                                  min_smoothness, 
+                                  max_smoothness):
+
                 yield self.make(missing=c)
 
 
