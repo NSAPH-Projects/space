@@ -3,6 +3,7 @@ from importlib import resources
 import pandas as pd
 
 import spacebench
+from spacebench.log import LOGGER
 
 
 class DataMaster:
@@ -19,9 +20,14 @@ class DataMaster:
     """
 
     def __init__(self):
-        with resources.open_text(spacebench, "masterfile.csv") as io:
-            self.master = pd.read_csv(io, index_col=0)
-
+        try:
+            with resources.open_text(spacebench, "masterfile.csv") as io:
+                self.master = pd.read_csv(io, index_col=0)
+        except FileNotFoundError:
+            LOGGER.error("Masterfile not found.")
+            raise FileNotFoundError(("The masterfile.csv is not present in the "
+                                     "expected directory. Please ensure the " 
+                                     "file is correctly placed."))
 
     def list_datasets(self) -> list[str]:
         """
@@ -49,4 +55,8 @@ class DataMaster:
         pd.Series or None
             The corresponding dataset row if found, else None.
         """
-        return self.master.loc[key]
+        try:
+            return self.master.loc[key]
+        except KeyError:
+            LOGGER.error(f"Dataset {key} not found in masterfile.")
+            return None
