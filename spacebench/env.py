@@ -1,22 +1,24 @@
 """Module for defining the SpaceEnvironment class"""
-from dataclasses import dataclass
 import os
 import zipfile
-import yaml
+from dataclasses import dataclass
 
+import yaml
 import numpy as np
+import scipy.sparse
 import pandas as pd
 import networkx as nx
-import scipy.sparse
 
-from spacebench.api.dataverse import DataverseAPI
-from spacebench.datamaster import DataMaster
 from spacebench.log import LOGGER
+from spacebench.datamaster import DataMaster
+from spacebench.api.dataverse import DataverseAPI
 
 
 @dataclass
 class SpaceDataset:
-    """Class for storing a spatial causal inference benchmark dataset"""
+    """
+    Class for storing a spatial causal inference benchmark dataset.
+    """
 
     treatment: np.ndarray
     covariates: np.ndarray
@@ -29,29 +31,40 @@ class SpaceDataset:
     coordinates: np.ndarray | None = None
 
     def has_binary_treatment(self) -> bool:
-        """Returns true if treatment is binary"""
+        """
+        Returns true if treatment is binary.
+        """
         return len(self.treatment_values) == 2
     
     def erf(self) -> np.ndarray:
-        """Returns the exposure-response function, also known 
-        in the literature as the average dose-response function
+        """
+        Returns the exposure-response function, also known 
+        in the literature as the average dose-response function.
         
-        Returns:
-            np.ndarray: The exposure-response function"""
+        Returns
+        -------
+        np.ndarray: The exposure-response function
+        """
+        
         return self.counterfactuals.mean(0)
 
     def adjacency_matrix(
         self, sparse: bool = False
     ) -> np.ndarray | scipy.sparse.csr_matrix:
-        """Returns the adjacency matrix of the graph
+        """
+        Returns the adjacency matrix of the graph.
 
-        Args:
-            sparse (bool, optional): If True, returns a sparse matrix
-                of type csr_matrix. Defaults to False.
+        Parameters
+        ----------
+        sparse: bool, optional (default is False)
+            If True, returns a sparse matrix of type csr_matrix. If False, 
+            returns a dense matrix.
 
-        Returns:
-            np.ndarray | scipy.sparse.csr_matrix: Adjacency matrix where
-                entry (i, j) is 1 if there is an edge between node i and node j.
+        Returns
+        -------
+        np.ndarray | scipy.sparse.csr_matrix 
+            Adjacency matrix where entry (i, j) is 1 if there is an edge 
+            between node i and node j.
         """
         n = len(self.treatment)
         if sparse:
