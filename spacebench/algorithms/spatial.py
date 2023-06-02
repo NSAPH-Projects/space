@@ -1,9 +1,9 @@
 import numpy as np
+import statsmodels.api as sm
 from statsmodels.gam.api import GLMGam, BSplines
 import pandas as pd
-import statsmodels.api as sm
 
-def spatial(
+def fit(
         X: np.ndarray,
         Y: np.ndarray,
         coord: np.ndarray,
@@ -25,8 +25,8 @@ def spatial(
 
     Returns
     -------
-        coef: float
-            The coefficient of the exposure in the outcome model.
+        fit_bs_y: statsmodels.gam.generalized_linear_model.GLMGamResultsWrapper
+            The fitted model.
     """
     # Make X and Y n x 1 matrices
     X = X.reshape(-1,1)
@@ -37,10 +37,10 @@ def spatial(
     formula = f"Y ~ X + {' + '.join(covs)}"
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs) # fit outcome model without penalty
-    res_bs = gam_bs.fit()
+    fit_bs_y = gam_bs.fit()
     alphay = gam_bs.select_penweight(criterion="gcv")[0] # select penalty
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
-    res_bs = gam_bs.fit()
-    coef = res_bs.params[1]
-    return(coef)
+    fit_bs_y = gam_bs.fit()
+    return(fit_bs_y)
+
