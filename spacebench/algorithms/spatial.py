@@ -1,7 +1,7 @@
 import numpy as np
-import statsmodels.api as sm
 from statsmodels.gam.api import GLMGam, BSplines
 import pandas as pd
+import statsmodels.api as sm
 
 def fit(
         X: np.ndarray,
@@ -33,12 +33,12 @@ def fit(
     Y = Y.reshape(-1,1)
     covs = [col for col in df.columns if col not in ['Y', 'coord1', 'coord2', 'X']]
 
-    bs = BSplines(coord, df=[10, 10], degree=[3, 3]) # df and deg inputs
+    bs = BSplines(coord, df=[5, 5], degree=[3, 3]) # df and deg inputs
     formula = f"Y ~ X + {' + '.join(covs)}"
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs) # fit outcome model without penalty
     fit_bs_y = gam_bs.fit()
-    alphay = gam_bs.select_penweight(criterion="gcv")[0] # select penalty
+    alphay = gam_bs.select_penweight(criterion="gcv", method = 'minimize')[0] # select penalty
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()

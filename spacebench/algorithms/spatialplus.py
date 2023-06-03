@@ -38,7 +38,7 @@ def fit(
     Y = Y.reshape(-1,1)
     covs = [col for col in df.columns if col not in ['Y', 'coord1', 'coord2', 'X']]
 
-    bs = BSplines(coord, df=[10, 10], degree=[3, 3]) # df and deg inputs
+    bs = BSplines(coord, df=[5, 5], degree=[3, 3]) # df and deg inputs
     if binary_treatment: # binary exposure
         formula = f"X ~ {' + '.join(covs)}"
         gam_bs = GLMGam.from_formula(formula=formula, data = df, smoother = bs, 
@@ -52,9 +52,10 @@ def fit(
         formula = f"X ~ {' + '.join(covs)}"
         gam_bs = GLMGam.from_formula(formula=formula, data = df, smoother = bs)
         fit_bs_x = gam_bs.fit() # fit model without penalty
-        alphax = gam_bs.select_penweight(criterion = "gcv")[0] # select penalty weight
+        alphax = gam_bs.select_penweight(criterion = "gcv", method = 'minimize')[0] # select penalty weight
         gam_bs = GLMGam.from_formula(formula=formula, data = df, smoother=bs, alpha=alphax)
 
+    #bs = BSplines(coord, df=[10, 10], degree=[3, 3]) # df and deg inputs
     fit_bs_x = gam_bs.fit()
     r_X = fit_bs_x.resid_response
     df['r_X'] = r_X # save residuals
@@ -62,7 +63,7 @@ def fit(
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs) # fit outcome model without penalty
     fit_bs_y = gam_bs.fit()
-    alphay = gam_bs.select_penweight(criterion="gcv")[0] # select penalty
+    alphay = gam_bs.select_penweight(criterion="gcv", method = 'minimize')[0] # select penalty
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
