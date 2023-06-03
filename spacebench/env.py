@@ -112,10 +112,6 @@ class SpaceEnv:
         with open(os.path.join(tgtdir, "metadata.yaml"), "r") as f:
             self.metadata = yaml.load(f, Loader=yaml.BaseLoader)
 
-        # TODO: this line fixes a previous bug and should be removed in the future
-        self.metadata["treatment_values"] = self.metadata["tretment_values"]
-        self.metadata.pop("tretment_values")
-
         # read graph
         self.graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
 
@@ -180,7 +176,7 @@ class SpaceEnv:
         # extract graph in usable format
         node2id = {n: i for i, n in enumerate(self.graph.nodes)}
         edge_list = [(node2id[e[0]], node2id[e[1]]) for e in self.graph.edges]
-        if self.config["data"]["has_coordinates"]:
+        if self.config["spaceenv"]["has_coordinates"]:
             coordinates = [
                 [float(xi) for xi in x.values()] for x in self.graph.nodes.values()
             ]
