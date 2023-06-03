@@ -6,6 +6,7 @@ from spacebench import (
     SpaceDataset,
     DatasetEvaluator,
 )
+import csv 
 
 def erf_spatial(dataset:SpaceDataset):
     """Helper function for parallelization notebook used to calculate the ERF and return errors for the spatial and spatialplus algorithms.
@@ -65,4 +66,8 @@ def erf_spatial(dataset:SpaceDataset):
     smoothness = dataset.smoothness_of_missing
     confounding = dataset.confounding_of_missing
 
+    # Write results to out.csv
+    with open('out.csv', 'a') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow([smoothness, confounding, erf_error_spatial, erf_error_spatialplus])
     return np.array([smoothness, confounding, erf_error_spatial, erf_error_spatialplus])
