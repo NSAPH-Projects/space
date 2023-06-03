@@ -49,3 +49,6 @@ torchvision==0.14.1
 urllib3==1.26.11
 xgboost==1.7.4
 statsmodels==0.14.0
+pytorch-lightning==2.0.2
+ipykernel==6.23.1
+multiprocess==0.70.14

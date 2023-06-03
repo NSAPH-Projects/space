@@ -10,6 +10,7 @@ dependencies:
   - seaborn
   - scikit-learn
   - statsmodels=0.14.0
+  - multiprocess
   - pip
   - ipykernel
   - pytorch-lightning
