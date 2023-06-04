@@ -9,7 +9,7 @@ from spacebench import (
 import csv 
 import os
 
-def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = ''):
+def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = '', filename:str = ''):
     """Helper function for parallelization notebook used to calculate the ERF and return errors for the spatial and spatialplus algorithms.
     
     Arguments
@@ -22,8 +22,12 @@ def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = ''):
     counterfactuals: np.ndarray
         A n x m matrix of counterfactuals, where n is the number of units and m is the number of treatment values.
     """
-    if os.path.exists('out.csv'):
-        results = pd.read_csv('out.csv', header=None)
+
+    if not os.path.exists(filename):
+        open(filename, 'w').close()
+
+    if os.path.exists(filename) and os.path.getsize(filename) > 0:
+        results = pd.read_csv(filename, header=None)
         results = results.set_index([0,1])
         if (envname, pid) in results.index:
             return
@@ -72,19 +76,19 @@ def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = ''):
     evaluator = DatasetEvaluator(dataset)
     erf_spatial = counterfactuals_spatial.mean(0)
     erf_spatialplus = counterfactuals_spatialplus.mean(0)
-    err_spatial = evaluator.eval(erf=erf_spatial, counterfactuals=counterfactuals_spatial)
-    err_spatialplus = evaluator.eval(erf=erf_spatialplus, counterfactuals=counterfactuals_spatialplus)
+    err_spatial = evaluator.eval(erf=erf_spatial)#, counterfactuals=counterfactuals_spatial)
+    err_spatialplus = evaluator.eval(erf=erf_spatialplus)#, counterfactuals=counterfactuals_spatialplus)
     erf_error_spatial = err_spatial["erf_av"]
     erf_error_spatialplus = err_spatialplus["erf_av"]
-    pehe_spatial = err_spatial["pehe_av"]
-    pehe_spatialplus = err_spatialplus["pehe_av"]
+    #pehe_spatial = err_spatial["pehe_av"]
+    #pehe_spatialplus = err_spatialplus["pehe_av"]
 
 
     smoothness = dataset.smoothness_of_missing
     confounding = dataset.confounding_of_missing
 
-    # Write results to out.csv
-    with open('out.csv', 'a') as csvfile:
+    # Write results to file
+    with open(filename, 'a') as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow([envname, pid, smoothness, confounding, erf_error_spatial, erf_error_spatialplus, pehe_spatial, pehe_spatialplus]) # can save # dataset as well
+        csvwriter.writerow([envname, pid, smoothness, confounding, erf_error_spatial, erf_error_spatialplus])#, pehe_spatial, pehe_spatialplus]) # can save # dataset as well
     return 
