@@ -7,8 +7,9 @@ from spacebench import (
     DatasetEvaluator,
 )
 import csv 
+import os
 
-def erf_spatial(dataset:SpaceDataset):
+def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = ''):
     """Helper function for parallelization notebook used to calculate the ERF and return errors for the spatial and spatialplus algorithms.
     
     Arguments
@@ -21,6 +22,12 @@ def erf_spatial(dataset:SpaceDataset):
     counterfactuals: np.ndarray
         A n x m matrix of counterfactuals, where n is the number of units and m is the number of treatment values.
     """
+    if os.path.exists('out.csv'):
+        results = pd.read_csv('out.csv', header=None)
+        results = results.set_index([0,1])
+        if (envname, pid) in results.index:
+            return
+    
     treatment = dataset.treatment[:, None]
     covariates = dataset.covariates
     # Scale covariates
@@ -49,19 +56,29 @@ def erf_spatial(dataset:SpaceDataset):
                     columns= covnames)
     xpred = fit_bs_x.predict(dfpred_x, coords)
     counterfactuals_spatialplus = []
-    for tval in tvals:
-        dfpred_y = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval)-xpred.values.reshape(-1,1))), 
+    for tval in tvals: # change this!! can do directly.
+        dfpred_y = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval)
+                                                 -xpred.values.reshape(-1,1))), 
                     columns= covnames + ['r_X'])
         counterfactuals_spatialplus.append(fit_bs_y.predict(dfpred_y, coords))
+        # Alternate method
+        #mu_cf = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval))), 
+                   # columns= covnames + ['r_X'])
+        # mu = pd.DataFrame(np.column_stack((covariates, xpred.values.reshape(-1,1))), 
+                   # columns= covnames + ['r_X'])   
+        #ycf = y + (mu_cf - mu)
     counterfactuals_spatialplus = np.stack(counterfactuals_spatialplus, axis=1)
 
     evaluator = DatasetEvaluator(dataset)
     erf_spatial = counterfactuals_spatial.mean(0)
     erf_spatialplus = counterfactuals_spatialplus.mean(0)
-    err_spatial = evaluator.eval(erf=erf_spatial)
-    err_spatialplus = evaluator.eval(erf=erf_spatialplus)
-    erf_error_spatial = np.square(err_spatial["erf_error"]).mean()
-    erf_error_spatialplus = np.square(err_spatialplus["erf_error"]).mean()
+    err_spatial = evaluator.eval(erf=erf_spatial, counterfactuals=counterfactuals_spatial)
+    err_spatialplus = evaluator.eval(erf=erf_spatialplus, counterfactuals=counterfactuals_spatialplus)
+    erf_error_spatial = err_spatial["erf_av"]
+    erf_error_spatialplus = err_spatialplus["erf_av"]
+    pehe_spatial = err_spatial["pehe_av"]
+    pehe_spatialplus = err_spatialplus["pehe_av"]
+
 
     smoothness = dataset.smoothness_of_missing
     confounding = dataset.confounding_of_missing
@@ -69,5 +86,5 @@ def erf_spatial(dataset:SpaceDataset):
     # Write results to out.csv
     with open('out.csv', 'a') as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow([smoothness, confounding, erf_error_spatial, erf_error_spatialplus])
-    return np.array([smoothness, confounding, erf_error_spatial, erf_error_spatialplus])
+        csvwriter.writerow([envname, pid, smoothness, confounding, erf_error_spatial, erf_error_spatialplus, pehe_spatial, pehe_spatialplus]) # can save # dataset as well
+    return 

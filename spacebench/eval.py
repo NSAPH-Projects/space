@@ -38,13 +38,13 @@ class DatasetEvaluator:
             errors["att_se"] = np.square(errors["att_error"])
 
         if counterfactuals is not None:
-            errors["pehe"] = ((counterfactuals - cf_true) ** 2).mean(0)
-            errors["pehe_mse"] = errors["pehe"].mean()
+            errors["pehe_curve"] = ((counterfactuals - cf_true) ** 2).mean(0)
+            errors["pehe_av"] = errors["pehe"].mean()
 
         if erf is not None:
             erf_true = self.dataset.erf()
             errors["erf_error"] = erf - erf_true
-            errors["erf_mse"] = np.square(errors["erf_error"]).mean()
+            errors["erf_av"] = np.square(errors["erf_error"]).mean()
 
         return errors
 
