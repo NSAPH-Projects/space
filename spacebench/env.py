@@ -27,9 +27,6 @@ class SpaceDataset:
     confounding_of_missing: float | None = None
     counterfactuals: np.ndarray | None = None
     coordinates: np.ndarray | None = None
-    treatment_name: str | None = None
-    covariates_names: list[str] | None = None
-    outcome_name: str | None = None
 
     def has_binary_treatment(self) -> bool:
         """Returns true if treatment is binary"""
@@ -202,9 +199,6 @@ class SpaceEnv:
             smoothness_of_missing=missing_smoothness,
             confounding_of_missing=missing_confounding,
             treatment_values=treatment_values,
-            treatment_name=self.metadata["treatment"],
-            covariates_names=observed,
-            outcome_name=self.metadata["predicted_outcome"],
         )
 
     def make_unmasked(self) -> SpaceDataset:
