@@ -10,6 +10,11 @@ class TestDataGenerator(unittest.TestCase):
     def test_create_env(self):
         env = SpaceEnv(self.dataset_name)
         assert isinstance(env, SpaceEnv)
+
+    def test_all_envs(self):
+        for dataset in DataMaster().list_datasets():
+            env = SpaceEnv(dataset)
+            assert isinstance(env, SpaceEnv)
     
     def test_create_dataset(self):
         env = SpaceEnv(self.dataset_name)
