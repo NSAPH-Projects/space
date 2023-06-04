@@ -9,3 +9,4 @@ county_educatn_election_cont,continuous
 county_phyactiv_lifexpcy_cont,continuous
 county_dmgrcs_election_disc,binary
 cdcsvi_nohsdp_poverty_cont,continuous
+cdcsvi_nohsdp_poverty_disc,binary
