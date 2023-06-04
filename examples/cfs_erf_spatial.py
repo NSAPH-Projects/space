@@ -101,6 +101,8 @@ def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = '', filename:st
                             pehe_spatial, 
                             pehe_spatialplus,
                             pehe_av_spatial,
-                            pehe_av_spatialplus
+                            pehe_av_spatialplus,
+                            treatment.mean(),
+                            outcome.mean()
                             ]) 
     return 
