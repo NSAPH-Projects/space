@@ -67,7 +67,7 @@ def fit(
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
-    return(fit_bs_x, fit_bs_y)
+    return(fit_bs_y.params[1]) 
 
 
 if __name__ == "__main__": # this is for testing

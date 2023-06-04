@@ -46,22 +46,22 @@ def erf_spatial(dataset:SpaceDataset, pid:int = 0, envname:str = '', filename:st
     tvals = dataset.treatment_values
 
     # Create spatial cfs
-    fit_bs_y = spatial.fit(treatment, outcome, coords, df)
+    beta = spatial.fit(treatment, outcome, coords, df)
     counterfactuals_spatial = []
     for tval in tvals:
-        dfpred_y = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval))), 
-                        columns= covnames + ['X'])
-        counterfactuals_spatial.append(fit_bs_y.predict(dfpred_y, coords))
+        #dfpred_y = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval))), 
+                        #columns= covnames + ['X'])
+        counterfactuals_spatial.append(outcome + beta*np.squeeze(tval-treatment, axis = -1))
     counterfactuals_spatial = np.stack(counterfactuals_spatial, axis=1)
 
 
-    fit_bs_y = spatialplus.fit(treatment, outcome, coords, df, binary_treatment=False)[1]
+    beta = spatialplus.fit(treatment, outcome, coords, df, binary_treatment=False)
     counterfactuals_spatialplus = []
     for tval in tvals: 
-        dfpred_y = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval)
-                                                 -treatment)),
-                    columns= covnames + ['r_X'])
-        counterfactuals_spatialplus.append(fit_bs_y.predict(dfpred_y, coords))
+        #dfpred_y = pd.DataFrame(np.column_stack((covariates, np.full_like(dataset.treatment[:, None], tval)
+                                                 #-treatment)),
+                    #columns= covnames + ['r_X'])
+        counterfactuals_spatialplus.append(outcome + beta*np.squeeze(tval-treatment, axis = -1))
     counterfactuals_spatialplus = np.stack(counterfactuals_spatialplus, axis=1)
 
     evaluator = DatasetEvaluator(dataset)
