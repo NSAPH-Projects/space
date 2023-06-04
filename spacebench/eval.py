@@ -39,7 +39,7 @@ class DatasetEvaluator:
 
         if counterfactuals is not None:
             errors["pehe_curve"] = ((counterfactuals - cf_true) ** 2).mean(0)
-            errors["pehe_av"] = errors["pehe"].mean()
+            errors["pehe_av"] = errors["pehe_curve"].mean()
 
         if erf is not None:
             erf_true = self.dataset.erf()
