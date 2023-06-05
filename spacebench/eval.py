@@ -25,13 +25,13 @@ class DatasetEvaluator:
         t = self.dataset.treatment
 
         if ate is not None:
-            assert self.is_binary(), "ATE only valid in binary"
+            assert self.dataset.has_binary_treatment(), "ATE only valid in binary"
             ate_true = (cf_true[:, 1] - cf_true[:, 0]).mean()
             errors["ate_error"] = ate - ate_true
             errors["ate_se"] = np.square(errors["ate_error"])
 
         if att is not None:
-            assert self.is_binary(), "ATT only valid in binary"
+            assert self.dataset.has_binary_treatment(), "ATT only valid in binary"
             assert np.min(t) == 0.0 and np.max(t) == 1.0
             att_true = (cf_true[t == 1, 1] - cf_true[t == 1, 0]).mean()
             errors["att_error"] = att - att_true
