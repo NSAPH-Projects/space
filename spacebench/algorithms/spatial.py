@@ -39,8 +39,10 @@ def fit(
                                 smoother=bs) # fit outcome model without penalty
     fit_bs_y = gam_bs.fit()
     alphay = gam_bs.select_penweight(criterion="gcv", method = 'minimize')[0] # select penalty
+    #print(alphay)
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
+    #print(fit_bs_y.summary())
     return(fit_bs_y.params[1])
 
