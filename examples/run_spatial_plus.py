@@ -2,18 +2,16 @@ import concurrent.futures
 import jsonlines
 import time
 import csv
-from spacebench.algorithms import spatial
+from spacebench.algorithms import spatialplus
 import numpy as np
 import pandas as pd
 from spacebench import (
     SpaceEnv,
-    SpaceDataset,
     DataMaster,
     DatasetEvaluator,
-    EnvEvaluator,
 )
 
-def run_spatial(dataset, binary_treatment):
+def run_spatial_plus(dataset, binary_treatment):
     treatment = dataset.treatment[:, None]
     covariates = dataset.covariates
     # Scale covariates
@@ -29,7 +27,11 @@ def run_spatial(dataset, binary_treatment):
     tvals = dataset.treatment_values
 
     # Create spatial cfs
-    beta_spatial = spatial.fit(treatment, outcome, coords, df)
+    beta_spatial = spatialplus.fit(treatment, 
+                                       outcome, 
+                                       coords, 
+                                       df, 
+                                       binary_treatment=binary_treatment)
 
     counterfactuals_spatial = []
     for tval in tvals:
@@ -38,20 +40,17 @@ def run_spatial(dataset, binary_treatment):
 
     evaluator = DatasetEvaluator(dataset)
 
-    if binary_treatment: # THERE SEEMS TO BE A PROBLEM HERE
-        err_spatial_eval = evaluator.eval(ate=beta_spatial, counterfactuals=counterfactuals_spatial)
+    if False: # binary_treatment:
+        err_spatial_eval = evaluator.eval(ate=beta_spatial)
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
         err_spatial_eval = evaluator.eval(
             erf=erf_spatial, counterfactuals=counterfactuals_spatial)
     
-    # this is because json cannot serialize numpy arrays
+    res = {}
     for key, value in err_spatial_eval.items():
         if isinstance(value, np.ndarray):
-            err_spatial_eval[key] = value.tolist()
-
-    res = {}
-    res.update(**err_spatial_eval)
+            res[key] = value.tolist()
     res["beta"] = beta_spatial
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
@@ -65,10 +64,10 @@ if __name__ == '__main__':
     datamaster = DataMaster()
     datasets = datamaster.master 
 
-    filename = 'results_spatial.jsonl'
+    filename = 'results_spatial_plus.csv'
 
     envs = datasets.index.values
-    envs = envs # REMOVE [:1] FOR THE FULL RUN
+    envs = envs #[:2] # REMOVE [:1] FOR THE FULL RUN
 
     # Clean the file
     with open(filename, 'w') as csvfile:
@@ -81,8 +80,8 @@ if __name__ == '__main__':
     
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = {executor.submit(
-                run_spatial, dataset, binary) for dataset in 
-                dataset_list # REMOVE [:1] FOR THE FULL RUN
+                run_spatial_plus, dataset, binary) for dataset in 
+                dataset_list #[:1] # REMOVE [:1] FOR THE FULL RUN
                 }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
@@ -94,4 +93,3 @@ if __name__ == '__main__':
     finish = time.perf_counter()
 
     print(f'Finished in {round(finish-start, 2)} second(s)')
-    
