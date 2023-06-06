@@ -27,26 +27,26 @@ class DatasetEvaluator:
         t = self.dataset.treatment
 
         if ate is not None:
-            assert self.is_binary(), "ATE only valid in binary"
+            assert self.dataset.has_binary_treatment(), "ATE only valid in binary"
             ate_true = (cf_true[:, 1] - cf_true[:, 0]).mean()
             errors["ate_error"] = ate - ate_true
             errors["ate_se"] = np.square(errors["ate_error"])
 
         if att is not None:
-            assert self.is_binary(), "ATT only valid in binary"
+            assert self.dataset.has_binary_treatment(), "ATT only valid in binary"
             assert np.min(t) == 0.0 and np.max(t) == 1.0
             att_true = (cf_true[t == 1, 1] - cf_true[t == 1, 0]).mean()
             errors["att_error"] = att - att_true
             errors["att_se"] = np.square(errors["att_error"])
 
         if counterfactuals is not None:
-            errors["pehe"] = ((counterfactuals - cf_true) ** 2).mean(0)
-            errors["pehe_mse"] = errors["pehe"].mean()
+            errors["pehe_curve"] = ((counterfactuals - cf_true) ** 2).mean(0)
+            errors["pehe_av"] = errors["pehe_curve"].mean()
 
         if erf is not None:
             erf_true = self.dataset.erf()
             errors["erf_error"] = erf - erf_true
-            errors["erf_mse"] = np.square(errors["erf_error"]).mean()
+            errors["erf_av"] = np.square(errors["erf_error"]).mean()
 
         return errors
 
