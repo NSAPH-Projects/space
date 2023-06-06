@@ -1,4 +1,4 @@
-dataset,exposure,collection
+dataset,treatment_type,collection
 healthd_dmgrcs_mortality_disc,binary,Air Pollution and Mortality
 cdcsvi_limteng_hburdic_cont,continuous,Social Vulnerability and Welfare
 climate_relhum_wfsmoke_cont,continuous,Heat Exposure and Wildfires
