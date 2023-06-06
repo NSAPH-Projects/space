@@ -1,7 +1,6 @@
 import concurrent.futures
 import jsonlines
 import time
-import csv
 from spacebench.algorithms import spatialplus
 import numpy as np
 import pandas as pd
@@ -10,6 +9,7 @@ from spacebench import (
     DataMaster,
     DatasetEvaluator,
 )
+
 
 def run_spatial_plus(dataset, binary_treatment):
     treatment = dataset.treatment[:, None]
@@ -21,32 +21,37 @@ def run_spatial_plus(dataset, binary_treatment):
 
     # Scale coordinates
     coords = (coords - coords.mean(axis=0)) / coords.std(axis=0)
-    covnames = ['cov' + str(i+1) for i in range(covariates.shape[1])]
-    df = pd.DataFrame(np.column_stack((coords, covariates, treatment, outcome)), 
-                    columns=['coord1', 'coord2'] + covnames + ['X', 'Y'])
+    covnames = ["cov" + str(i + 1) for i in range(covariates.shape[1])]
+    df = pd.DataFrame(
+        np.column_stack((coords, covariates, treatment, outcome)),
+        columns=["coord1", "coord2"] + covnames + ["X", "Y"],
+    )
     tvals = dataset.treatment_values
 
     # Create spatial cfs
-    beta_spatial = spatialplus.fit(treatment, 
-                                       outcome, 
-                                       coords, 
-                                       df, 
-                                       binary_treatment=binary_treatment)
+    beta_spatial = spatialplus.fit(
+        treatment, outcome, coords, df, binary_treatment=binary_treatment
+    )
 
     counterfactuals_spatial = []
     for tval in tvals:
-        counterfactuals_spatial.append(outcome + beta_spatial*np.squeeze(tval-treatment, axis = -1))
+        counterfactuals_spatial.append(
+            outcome + beta_spatial * np.squeeze(tval - treatment, axis=-1)
+        )
     counterfactuals_spatial = np.stack(counterfactuals_spatial, axis=1)
 
     evaluator = DatasetEvaluator(dataset)
 
-    if False: # binary_treatment:
-        err_spatial_eval = evaluator.eval(ate=beta_spatial)
+    if binary_treatment:
+        err_spatial_eval = evaluator.eval(
+            ate=beta_spatial, counterfactuals=counterfactuals_spatial
+        )
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
         err_spatial_eval = evaluator.eval(
-            erf=erf_spatial, counterfactuals=counterfactuals_spatial)
-    
+            erf=erf_spatial, counterfactuals=counterfactuals_spatial
+        )
+
     res = {}
     for key, value in err_spatial_eval.items():
         if isinstance(value, np.ndarray):
@@ -55,41 +60,41 @@ def run_spatial_plus(dataset, binary_treatment):
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
 
-    return res 
+    return res
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    datasets = datamaster.master 
+    datasets = datamaster.master
 
-    filename = 'results_spatial_plus.csv'
+    filename = "results_spatial_plus.csv"
 
     envs = datasets.index.values
-    envs = envs #[:2] # REMOVE [:1] FOR THE FULL RUN
+    envs = envs  # [:2] # REMOVE [:1] FOR THE FULL RUN
 
     # Clean the file
-    with open(filename, 'w') as csvfile:
+    with open(filename, "w") as csvfile:
         pass
 
     for envname in envs:
         env = SpaceEnv(envname, dir="downloads")
         dataset_list = list(env.make_all())
         binary = True if "disc" in envname else False
-    
+
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            futures = {executor.submit(
-                run_spatial_plus, dataset, binary) for dataset in 
-                dataset_list #[:1] # REMOVE [:1] FOR THE FULL RUN
-                }
+            futures = {
+                executor.submit(run_spatial_plus, dataset, binary)
+                for dataset in dataset_list  # [:1] # REMOVE [:1] FOR THE FULL RUN
+            }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
                 result = future.result()
-                with jsonlines.open(filename, mode='a') as writer:
+                with jsonlines.open(filename, mode="a") as writer:
                     result["envname"] = envname
                     writer.write(result)
 
     finish = time.perf_counter()
 
-    print(f'Finished in {round(finish-start, 2)} second(s)')
+    print(f"Finished in {round(finish-start, 2)} second(s)")
