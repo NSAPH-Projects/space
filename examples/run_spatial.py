@@ -38,20 +38,17 @@ def run_spatial(dataset, binary_treatment):
 
     evaluator = DatasetEvaluator(dataset)
 
-    if binary_treatment: # THERE SEEMS TO BE A PROBLEM HERE
-        err_spatial_eval = evaluator.eval(ate=beta_spatial, counterfactuals=counterfactuals_spatial)
+    if False: # binary_treatment: # THERE SEEMS TO BE A PROBLEM HERE
+        err_spatial_eval = evaluator.eval(ate=beta_spatial)
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
         err_spatial_eval = evaluator.eval(
             erf=erf_spatial, counterfactuals=counterfactuals_spatial)
     
-    # this is because json cannot serialize numpy arrays
+    res = {}
     for key, value in err_spatial_eval.items():
         if isinstance(value, np.ndarray):
-            err_spatial_eval[key] = value.tolist()
-
-    res = {}
-    res.update(**err_spatial_eval)
+            res[key] = value.tolist()
     res["beta"] = beta_spatial
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
@@ -65,10 +62,10 @@ if __name__ == '__main__':
     datamaster = DataMaster()
     datasets = datamaster.master 
 
-    filename = 'results_spatial.jsonl'
+    filename = 'results_spatial.csv'
 
     envs = datasets.index.values
-    envs = envs # REMOVE [:1] FOR THE FULL RUN
+    envs = envs[:1] # REMOVE [:1] FOR THE FULL RUN
 
     # Clean the file
     with open(filename, 'w') as csvfile:
@@ -82,7 +79,7 @@ if __name__ == '__main__':
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = {executor.submit(
                 run_spatial, dataset, binary) for dataset in 
-                dataset_list # REMOVE [:1] FOR THE FULL RUN
+                dataset_list[:1] # REMOVE [:1] FOR THE FULL RUN
                 }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
