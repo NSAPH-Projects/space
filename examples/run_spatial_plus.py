@@ -3,6 +3,7 @@ import os
 import jsonlines
 import time
 from spacebench.algorithms import spatial, spatialplus
+
 import numpy as np
 import argparse
 import pandas as pd
@@ -13,7 +14,6 @@ from spacebench import (
     DatasetEvaluator,
 )
 from typing import Literal
-
 
 def run_spatial_plus(
     dataset: SpaceDataset,
@@ -128,6 +128,7 @@ if __name__ == "__main__":
             futures = {
                 executor.submit(run_spatial_plus, dataset, binary, args.method)
                 for dataset in dataset_list  # REMOVE [:1] FOR THE FULL RUN
+
             }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
@@ -139,3 +140,4 @@ if __name__ == "__main__":
     finish = time.perf_counter()
 
     print(f"Finished in {round(finish-start, 2)} second(s)")
+
