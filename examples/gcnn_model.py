@@ -31,7 +31,7 @@ class GCN(pl.LightningModule):
         x, edge_index = data.x, self.edge_index
         x = self.conv1(x, edge_index)
         x = F.silu(x)
-        x = F.dropout(x, p=0.1, training=self.training)
+        x = F.dropout(x, p=0.0, training=self.training)
         
         x = self.conv2(x, edge_index)
 
@@ -60,7 +60,7 @@ class GCN(pl.LightningModule):
         return optimizer
 
 
-def run_gcn(dataset):
+def run_gcn(dataset, binary_treatment):
     # make train matrix
     treatment = dataset.treatment[:, None]
     covariates = dataset.covariates
@@ -76,7 +76,7 @@ def run_gcn(dataset):
     batch_size = features.shape[0]
 
     # Initialize the model and trainer
-    model = GCN(features.shape[1], torch.LongTensor(dataset.edges).T, hidden_channels=32, output_channels=1)
+    model = GCN(features.shape[1], torch.LongTensor(dataset.edges).T, hidden_channels=16, output_channels=1)
     trainer = pl.Trainer(accelerator="cpu", enable_checkpointing=False, logger=False) #gpus=1 if torch.cuda.is_available() else 0)
     
     train_loader = DataLoader([Data(x=torch.tensor(
@@ -105,14 +105,24 @@ def run_gcn(dataset):
         counterfactuals[:, i] = output_scaler.inverse_transform(counterfactuals[:, i])
 
     evaluator = DatasetEvaluator(dataset)
-    erf =counterfactuals.mean(0)
-    err_spatial_eval = evaluator.eval(
-            erf=erf, counterfactuals=np.squeeze(counterfactuals))
+
+    if binary_treatment: 
+        ate = (counterfactuals[:, 1] - counterfactuals[:, 0]).mean()
+        counterfactuals=np.squeeze(counterfactuals)
+        err_eval = evaluator.eval(ate=ate, counterfactuals=counterfactuals)
+    else:
+        erf = counterfactuals.mean(0)
+        counterfactuals=np.squeeze(counterfactuals)
+        err_eval = evaluator.eval(
+            erf=erf, counterfactuals=counterfactuals)
+
+    # this is because json cannot serialize numpy arrays
+    for key, value in err_eval.items():
+        if isinstance(value, np.ndarray):
+            err_eval[key] = value.tolist()
 
     res = {}
-    for key, value in err_spatial_eval.items():
-        if isinstance(value, np.ndarray):
-            res[key] = value.tolist()
+    res.update(**err_eval)
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
 
@@ -125,10 +135,10 @@ if __name__ == '__main__':
     datamaster = DataMaster()
     datasets = datamaster.master 
 
-    filename = 'results_gcn.csv'
+    filename = 'results_GCN.jsonl'
 
     envs = datasets.index.values
-    envs = envs[:1] # REMOVE [:1] FOR THE FULL RUN
+    envs = envs # FOR THE FULL RUN
 
     # Clean the file
     with open(filename, 'w') as csvfile:
@@ -138,9 +148,10 @@ if __name__ == '__main__':
         env = SpaceEnv(envname, dir="downloads")
         dataset_list = list(env.make_all())
     
+        binary = True if "disc" in envname else False
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = {executor.submit(
-                run_gcn, dataset) for dataset in 
+                run_gcn, dataset, binary) for dataset in 
                 dataset_list
                 }
             # As each future completes, write its result
