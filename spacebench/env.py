@@ -29,6 +29,7 @@ class SpaceDataset:
     confounding_of_missing: float | None = None
     counterfactuals: np.ndarray | None = None
     coordinates: np.ndarray | None = None
+    missing: str | None = None
 
     def has_binary_treatment(self) -> bool:
         """
@@ -256,6 +257,7 @@ class SpaceEnv:
             smoothness_of_missing=missing_smoothness,
             confounding_of_missing=missing_confounding,
             treatment_values=treatment_values,
+            missing=missing
         )
 
     def make_unmasked(self) -> SpaceDataset:
