@@ -1,7 +1,6 @@
 import concurrent.futures
 import jsonlines
 import time
-import csv
 from spacebench.algorithms import spatial
 import numpy as np
 import pandas as pd
@@ -38,7 +37,7 @@ def run_spatial(dataset, binary_treatment):
 
     evaluator = DatasetEvaluator(dataset)
 
-    if binary_treatment: # THERE SEEMS TO BE A PROBLEM HERE
+    if binary_treatment: 
         err_spatial_eval = evaluator.eval(ate=beta_spatial, counterfactuals=counterfactuals_spatial)
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
@@ -52,6 +51,7 @@ def run_spatial(dataset, binary_treatment):
 
     res = {}
     res.update(**err_spatial_eval)
+
     res["beta"] = beta_spatial
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     filename = 'results_spatial.csv'
 
     envs = datasets.index.values
-    envs = envs # REMOVE [:1] FOR THE FULL RUN
+    envs = envs # ADD [:1] FOR DEBUGGING
 
     # Clean the file
     with open(filename, 'w') as csvfile:
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = {executor.submit(
                 run_spatial, dataset, binary) for dataset in 
-                dataset_list # REMOVE [:1] FOR THE FULL RUN
+                dataset_list 
                 }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
