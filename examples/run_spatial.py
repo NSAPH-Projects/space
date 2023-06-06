@@ -65,7 +65,7 @@ if __name__ == '__main__':
     datamaster = DataMaster()
     datasets = datamaster.master 
 
-    filename = 'results_spatial.jsonl'
+    filename = 'results_spatial.csv'
 
     envs = datasets.index.values
     envs = envs # REMOVE [:1] FOR THE FULL RUN
@@ -92,5 +92,4 @@ if __name__ == '__main__':
                     writer.write(result)
 
     finish = time.perf_counter()
-
     print(f'Finished in {round(finish-start, 2)} second(s)')
