@@ -37,7 +37,7 @@ def run_spatial(dataset, binary_treatment):
 
     evaluator = DatasetEvaluator(dataset)
 
-    if binary_treatment: 
+    if binary_treatment: # THERE SEEMS TO BE A PROBLEM HERE
         err_spatial_eval = evaluator.eval(ate=beta_spatial, counterfactuals=counterfactuals_spatial)
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
@@ -69,6 +69,7 @@ if __name__ == '__main__':
 
     envs = datasets.index.values
     envs = envs # ADD [:1] FOR DEBUGGING
+
 
     # Clean the file
     with open(filename, 'w') as csvfile:
