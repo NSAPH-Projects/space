@@ -135,7 +135,7 @@ if __name__ == '__main__':
     datamaster = DataMaster()
     datasets = datamaster.master 
 
-    filename = 'results_GCN.jsonl'
+    filename = 'results/results_GCN.jsonl'
 
     envs = datasets.index.values
     envs = envs # FOR THE FULL RUN
