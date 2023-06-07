@@ -110,7 +110,7 @@ def run_pysal_reg(
 
     res = {}
     res.update(**err_eval)
-    res["beta"] = float(treatment_beta.tolist() * tscaler.scale_)
+    res["beta"] = float(treatment_beta[0] * tscaler.scale_)
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
 
