@@ -56,7 +56,7 @@ class GCN(pl.LightningModule):
         self.log('test_loss', loss)
 
     def configure_optimizers(self):
-        optimizer = Adam(self.parameters(), weight_decay=0.005, lr=0.001)
+        optimizer = Adam(self.parameters(), weight_decay=0.005, lr=0.003)
         return optimizer
 
 
@@ -89,6 +89,12 @@ def run_gcn(dataset, binary_treatment):
     tvals = dataset.treatment_values
     counterfactuals = []
 
+    residual= outcome - trainer.predict(model, train_loader)[0].cpu().numpy()
+
+    # residual= trainer.predict(model, train_loader)
+    # residual_array = np.stack(map(lambda x: x.numpy(), residual))
+    # residual_array = outcome-residual_array
+
     for tval in tvals:
         trainmat = np.hstack([covariates, np.full_like(treatment, tval)])
         trainmat = feats_scaler.transform(trainmat)
@@ -97,8 +103,13 @@ def run_gcn(dataset, binary_treatment):
             x=torch.tensor(trainmat,dtype=torch.float),
             edge_index=torch.LongTensor(dataset.edges).T)], batch_size=batch_size, shuffle=False, num_workers=0)
 
-        pred = trainer.predict(model, cfs_loader)
-        counterfactuals.append(pred[0])
+        cfspred = trainer.predict(model, cfs_loader)[0].cpu().numpy()+residual
+
+        # cfspred = trainer.predict(model, cfs_loader) 
+        # cfspred_array = np.stack(map(lambda x: x.numpy(), cfspred))
+        # cfspred_array = cfspred_array + residual_array
+
+        counterfactuals.append(cfspred) #cfspred_array[0])
         
     counterfactuals = np.stack(counterfactuals, axis=1)
     for i in range(counterfactuals.shape[1]):
@@ -128,8 +139,16 @@ def run_gcn(dataset, binary_treatment):
 
     return res 
 
+import os
+import argparse
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max_workers", type=int, default=1)
+    parser.add_argument("--overwrite", action="store_true", default=False)
+    args = parser.parse_args()
+
+    
     start = time.perf_counter()
 
     datamaster = DataMaster()
@@ -141,15 +160,39 @@ if __name__ == '__main__':
     envs = envs # FOR THE FULL RUN
 
     # Clean the file
-    with open(filename, 'w') as csvfile:
-        pass
+    if args.overwrite:
+        if os.path.exists(filename):
+            os.remove(filename)
 
     for envname in envs:
         env = SpaceEnv(envname, dir="downloads")
         dataset_list = list(env.make_all())
     
         binary = True if "disc" in envname else False
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+
+        # remove from the list the datasets that have been already computed
+        if os.path.exists(filename):
+            with jsonlines.open(filename) as reader:
+                results = list(reader)
+        else:
+            results = []
+
+        to_remove = []
+        for dataset in dataset_list:
+            spatial_score = dataset.smoothness_of_missing
+            confounding_score = dataset.confounding_of_missing
+            for result in results:
+                if (
+                    result["envname"] == envname
+                    and result["smoothness"] == spatial_score
+                    and result["confounding"] == confounding_score
+                ):
+                    to_remove.append(id(dataset))
+        dataset_list = [
+            dataset for dataset in dataset_list if id(dataset) not in to_remove
+        ]
+
+        with concurrent.futures.ProcessPoolExecutor(args.max_workers) as executor:
             futures = {executor.submit(
                 run_gcn, dataset, binary) for dataset in 
                 dataset_list
