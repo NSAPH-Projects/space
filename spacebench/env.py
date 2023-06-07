@@ -236,13 +236,10 @@ class SpaceEnv:
         # extract graph in usable format
         node2id = {n: i for i, n in enumerate(self.graph.nodes)}
         edge_list = [(node2id[e[0]], node2id[e[1]]) for e in self.graph.edges]
-        if self.config["spaceenv"]["has_coordinates"]:
-            coordinates = [
-                [float(xi) for xi in x.values()] for x in self.graph.nodes.values()
-            ]
-            coordinates = np.array(coordinates)
-        else:
-            coordinates = None
+        coordinates = []
+        for v in self.graph.nodes.values():
+            coordinates.append([float(x) for x in v.values()])
+        coordinates = np.array(coordinates)
 
         # treatment values, make sure they are float
         treatment_values = np.array(
