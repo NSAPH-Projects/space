@@ -1,5 +1,6 @@
 from importlib import resources
 
+import numpy as np
 import pandas as pd
 
 import spacebench
@@ -12,7 +13,7 @@ class DataMaster:
     Parameters
     ----------
 
-    masterfile: pd.DataFrame 
+    masterfile: pd.DataFrame
         A dataframe with metadata about available datasets.
     collections: pd.DataFrame
         A dataframe with information about the collections
@@ -25,26 +26,45 @@ class DataMaster:
                 self.master = pd.read_csv(io, index_col=0)
         except FileNotFoundError:
             LOGGER.error("Masterfile not found.")
-            raise FileNotFoundError(("The masterfile.csv is not present in the "
-                                     "expected directory. Please ensure the " 
-                                     "file is correctly placed."))
+            raise FileNotFoundError(
+                (
+                    "The masterfile.csv is not present in the "
+                    "expected directory. Please ensure the "
+                    "file is correctly placed."
+                )
+            )
 
-    def list_datasets(self) -> list[str]:
+    def list_datasets(
+        self, binary: bool | None = None, continuous: bool | None = None
+    ) -> list[str]:
         """
         Returns a list of names of available datasets.
 
+        Arguments
+            binary : bool, optional. If True, only binary datasets are returned.
+            continuous : bool, optional. If True, only continuous datasets are returned.
+
         Returns
-        -------
-            
-        list[str] 
-            Names of all available datasets.
+           list[str]:  Names of all available datasets.
         """
-        return self.master.index.tolist() 
+        master = self.master
+        index = np.zeros(master.shape[0], dtype=bool)
+        if binary is None and continuous is None:
+            return master.index.to_list()
+        
+        if binary is not None:
+            index[master.treatment_type == "binary"] = True
+
+        if continuous is not None:
+            index[master.treatment_type == "continuous"] = True
+        
+        return master.index[index].to_list()
+
 
     def __getitem__(self, key: str) -> pd.Series:
         """
         Retrieves the row corresponding to the provided dataset key from the masterfile.
-        
+
         Parameters
         ----------
         key : str

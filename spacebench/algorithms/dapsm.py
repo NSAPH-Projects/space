@@ -270,8 +270,8 @@ class DAPSm(SpatialMethod):
 
         Arguments
         ---------
-        causal_dataset: CaualDataset 
-            An instance of CausalDataset class
+        causal_dataset: SpaceDataset 
+            An instance of SpaceDataset class
         ps_score: np.ndarray 
             An array of propensity score of each observation
         spatial_dists: np.ndarray 
@@ -286,18 +286,26 @@ class DAPSm(SpatialMethod):
         # validate args
         if not isinstance(causal_dataset, SpaceDataset):
             raise ValueError("causal_dataset must be an instance" 
-                             "of CausalDataset")
+                             "of SpaceDataset")
         else:
             assert causal_dataset.has_binary_treatment(), "treatment must be binary"
         assert spatial_dists is not None or spatial_dists_full is not None, (
             "either spatial_dists or spatial_dists_full must be provided"
         )
+        treatment_values = causal_dataset.treatment_values
+        tix = causal_dataset.treatment == treatment_values[1]
+        self.tix = tix
 
-        tix = causal_dataset.treatment.astype(bool)
+        # standardize covariates
+        covars = causal_dataset.covariates.copy()
+        covars -= covars.mean(axis=0)
+        covars /= covars.std(axis=0)
+
         self.outcome_treated = causal_dataset.outcome[tix]
         self.outcome_controls = causal_dataset.outcome[~tix]
-        self.covars_treated = causal_dataset.covariates[tix]
-        self.covars_controls = causal_dataset.covariates[~tix]
+        self.covars_treated = covars[tix]
+        self.covars_controls = covars[~tix]
+
         if spatial_dists is None:
             self.spatial_dists = spatial_dists_full[tix][:, ~tix]
         else:
@@ -309,7 +317,7 @@ class DAPSm(SpatialMethod):
 
     @classmethod
     def estimands(cls):
-        return ["att"]
+        return ["att", "ate", "atc"]
     
     def estimate(self, estimand: str):
         assert estimand in self.estimands(), \
@@ -326,3 +334,20 @@ class DAPSm(SpatialMethod):
                 balance_cutoff=self.balance_cutoff,
                 **self.dapsm_kwargs,
             )
+        elif estimand == "atc":
+            return dapsm(
+                outcome_treated=self.outcome_controls,
+                outcome_controls=self.outcome_treated,
+                covars_treated=self.covars_controls,
+                covars_controls=self.covars_treated,
+                ps_dists=self.ps_dists.T,
+                spatial_dists=self.spatial_dists.T,
+                search_values=self.search_values,
+                balance_cutoff=self.balance_cutoff,
+                **self.dapsm_kwargs,
+            )
+        elif estimand == "ate":
+            att, _, _ = self.estimate("att")
+            atc, _, _ = self.estimate("atc")
+            w = np.mean(self.tix)
+            return w * att + (1 - w) * atc
