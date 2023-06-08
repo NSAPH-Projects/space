@@ -8,7 +8,8 @@ from spacebench.log import LOGGER
 
 
 class DataMaster:
-    """Class for managing the masterfile and collections metadata
+    """
+    Class for managing the masterfile and collections metadata
 
     Parameters
     ----------
@@ -42,7 +43,8 @@ class DataMaster:
 
         Arguments
             binary : bool, optional. If True, only binary datasets are returned.
-            continuous : bool, optional. If True, only continuous datasets are returned.
+            continuous : bool, optional. If True, only continuous datasets are 
+            returned.
 
         Returns
            list[str]:  Names of all available datasets.
@@ -63,7 +65,8 @@ class DataMaster:
 
     def __getitem__(self, key: str) -> pd.Series:
         """
-        Retrieves the row corresponding to the provided dataset key from the masterfile.
+        Retrieves the row corresponding to the provided dataset key from the 
+        masterfile.
 
         Parameters
         ----------
