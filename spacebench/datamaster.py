@@ -23,11 +23,11 @@ class DataMaster:
     Examples
     --------
 
-    >>> from spacebench import DataMaster
+    >>> from spacebench.datamaster import DataMaster
     >>> dm = DataMaster()
     >>> print(dm)
-      Available datasets (total: 11):
-      
+    Available datasets (total: 11):
+    <BLANKLINE>
       healthd_dmgrcs_mortality_disc
       cdcsvi_limteng_hburdic_cont
       climate_relhum_wfsmoke_cont
@@ -113,4 +113,4 @@ class DataMaster:
             datasets_str = '\n  '.join(datasets)
         
         return (f'Available datasets (total: '
-                f'{len(datasets)}): \n\n  {datasets_str}')  
+                f'{len(datasets)}):\n\n  {datasets_str}')  
