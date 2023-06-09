@@ -336,6 +336,7 @@ class SpaceEnv:
                 min_confounding, max_confounding, min_smoothness, max_smoothness
             )
             missing = np.random.choice(candidates)
+            LOGGER.debug(f"Missing covariate (selected at random): {missing}")
 
         observed = [c for c in self.metadata["covariates"] if c != missing]
         return self.__gen__dataset__from__observed_and_missing(missing, 
@@ -384,5 +385,6 @@ if __name__ == "__main__":
     envname = dm.list_datasets()[0]
     dir = "downloads"
     generator = SpaceEnv(envname, dir)
+    data = generator.make()
     datasets = [generator.make() for _ in range(10)]
     LOGGER.debug("ok")
