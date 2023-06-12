@@ -10,7 +10,7 @@ Users can view the list of available datasets by executing the command below:
 
     from spacebench.datasets import Datasets
     dm = Datasets()
-    dm.list_datasets()
+    dm.list_envs()
 
 
 Please be aware that these are only the names of the datasets. 
