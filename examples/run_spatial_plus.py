@@ -86,7 +86,7 @@ if __name__ == "__main__":
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    envs = datamaster.list_datasets()
+    envs = datamaster.list_envs()
 
     filename = f"results_{args.method}.jsonl"
 

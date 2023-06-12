@@ -121,7 +121,7 @@ class SpaceEnv:
         ----------
         
         name: str
-            Name of the dataset. See the DataMaster.list_datasets() method
+            Name of the dataset. See the DataMaster.list_envs() method
             for a list of available datasets.
         dir: str, optional
             Directory where the dataset is stored. Defaults to a temporary 
@@ -133,7 +133,7 @@ class SpaceEnv:
         self.dir = self.api.dir  # will be tmp if dir is None
 
         # check if dataset is available
-        if name not in self.datamaster.list_datasets():
+        if name not in self.datamaster.list_envs():
             raise ValueError(f"Dataset {name} not available")
 
         # download .zip detaset if necessary
@@ -382,7 +382,7 @@ if __name__ == "__main__":
     # small test
     # TODO: convert in unit test
     dm = DataMaster()
-    envname = dm.list_datasets()[0]
+    envname = dm.list_envs()[0]
     dir = "downloads"
     generator = SpaceEnv(envname, dir)
     data = generator.make()

@@ -9,13 +9,13 @@ class TestDataMaster(unittest.TestCase):
     def setUp(self) -> None:
         self.masterfile = DataMaster()
 
-    def test_list_datasets(self):
-        out = self.masterfile.list_datasets()
+    def test_list_envs(self):
+        out = self.masterfile.list_envs()
         assert isinstance(out, list), "Output should be a list."
         assert len(out) > 0, "Output should not be empty."
 
     def test_getitem(self):
-        datasets = self.masterfile.list_datasets()
+        datasets = self.masterfile.list_envs()
         out = self.masterfile[datasets[0]]
         assert isinstance(out, pd.Series), "Output should be a pandas Series."
 
