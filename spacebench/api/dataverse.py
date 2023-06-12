@@ -93,6 +93,9 @@ class DataverseAPI:
         else:
             response = self.data_api.get_datafile(fileid)
 
+            if not os.path.exists(self.dir):
+                os.makedirs(self.dir)
+
             with open(filename_temp_path, mode="wb") as temp_file:
                 temp_file.write(response.content)
 

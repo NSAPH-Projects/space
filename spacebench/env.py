@@ -83,6 +83,31 @@ class SpaceEnv:
     
     It holdss the data and metadata that is used to generate the datasets by 
     masking a covariate, which becomes a missing confounder.
+
+    Attributes
+    ----------
+
+    api: DataverseAPI
+        Dataverse API object.
+    config: dict
+        Dictionary with the configuration of the dataset.
+    counfound_score_dict: dict
+        Dictionary with the confounding scores of the covariates.
+    datamaster: DataMaster
+        DataMaster object.
+    dir: str
+        Directory where the dataset is stored.
+    graph: networkx.Graph
+        Graph of the dataset.
+    metadata: dict  
+        Dictionary with the metadata of the dataset.
+    name: str
+        Name of the dataset.
+    smoothness_score_dict: dict
+        Dictionary with the smoothness scores of the covariates.
+    synthetic_data: pd.DataFrame
+        Synthetic data of the dataset.
+    
     """
 
     def __init__(self, name: str, dir: str | None = None):
@@ -139,7 +164,8 @@ class SpaceEnv:
         self.graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
 
         # information about spatial complexity
-        # TODO: there is an inconsistency in the names confounding_score and spatial_scores
+        # TODO: there is an inconsistency in the names confounding_score and 
+        # spatial_scores
         # plural, singular
         self.confounding_score_dict = {
             x: float(v) for x, v in self.metadata["confounding_score"].items()
@@ -156,7 +182,8 @@ class SpaceEnv:
             min_smoothness: float, 
             max_smoothness: float) -> bool:
         """
-        Check if given covariate's smoothness and confounding is within the given ranges.
+        Check if given covariate's smoothness and confounding is within the 
+        given ranges.
         
         Parameters
         ----------
@@ -309,6 +336,7 @@ class SpaceEnv:
                 min_confounding, max_confounding, min_smoothness, max_smoothness
             )
             missing = np.random.choice(candidates)
+            LOGGER.debug(f"Missing covariate (selected at random): {missing}")
 
         observed = [c for c in self.metadata["covariates"] if c != missing]
         return self.__gen__dataset__from__observed_and_missing(missing, 
@@ -357,5 +385,6 @@ if __name__ == "__main__":
     envname = dm.list_datasets()[0]
     dir = "downloads"
     generator = SpaceEnv(envname, dir)
+    data = generator.make()
     datasets = [generator.make() for _ in range(10)]
     LOGGER.debug("ok")

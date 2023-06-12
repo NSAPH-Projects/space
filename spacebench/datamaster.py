@@ -8,7 +8,8 @@ from spacebench.log import LOGGER
 
 
 class DataMaster:
-    """Class for managing the masterfile and collections metadata
+    """
+    Class for managing the masterfile and collections metadata
 
     Parameters
     ----------
@@ -18,6 +19,27 @@ class DataMaster:
     collections: pd.DataFrame
         A dataframe with information about the collections
         where the datasets are generated from.
+
+    Examples
+    --------
+
+    >>> from spacebench.datamaster import DataMaster
+    >>> dm = DataMaster()
+    >>> print(dm)
+    Available datasets (total: 11):
+    <BLANKLINE>
+      healthd_dmgrcs_mortality_disc
+      cdcsvi_limteng_hburdic_cont
+      climate_relhum_wfsmoke_cont
+      climate_wfsmoke_minrty_disc
+      healthd_hhinco_mortality_cont
+      ...
+      county_educatn_election_cont
+      county_phyactiv_lifexpcy_cont
+      county_dmgrcs_election_disc
+      cdcsvi_nohsdp_poverty_cont
+      cdcsvi_nohsdp_poverty_disc
+
     """
 
     def __init__(self):
@@ -42,7 +64,8 @@ class DataMaster:
 
         Arguments
             binary : bool, optional. If True, only binary datasets are returned.
-            continuous : bool, optional. If True, only continuous datasets are returned.
+            continuous : bool, optional. If True, only continuous datasets are 
+            returned.
 
         Returns
            list[str]:  Names of all available datasets.
@@ -63,7 +86,8 @@ class DataMaster:
 
     def __getitem__(self, key: str) -> pd.Series:
         """
-        Retrieves the row corresponding to the provided dataset key from the masterfile.
+        Retrieves the row corresponding to the provided dataset key from the 
+        masterfile.
 
         Parameters
         ----------
@@ -80,3 +104,13 @@ class DataMaster:
         except KeyError:
             LOGGER.error(f"Dataset {key} not found in masterfile.")
             return None
+        
+    def __str__(self) -> str:
+        datasets = self.list_datasets()
+        if len(datasets) > 10:
+            datasets_str = '\n  '.join(datasets[:5] + ['...'] + datasets[-5:])
+        else:
+            datasets_str = '\n  '.join(datasets)
+        
+        return (f'Available datasets (total: '
+                f'{len(datasets)}):\n\n  {datasets_str}')  
