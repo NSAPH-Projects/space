@@ -56,7 +56,7 @@ class DataMaster:
                 )
             )
 
-    def list_datasets(
+    def list_envs(
         self, binary: bool | None = None, continuous: bool | None = None
     ) -> list[str]:
         """
@@ -106,7 +106,7 @@ class DataMaster:
             return None
         
     def __str__(self) -> str:
-        datasets = self.list_datasets()
+        datasets = self.list_envs()
         if len(datasets) > 10:
             datasets_str = '\n  '.join(datasets[:5] + ['...'] + datasets[-5:])
         else:
