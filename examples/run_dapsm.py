@@ -69,7 +69,7 @@ if __name__ == "__main__":
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    envs = datamaster.list_datasets(binary=True)
+    envs = datamaster.list_envs(binary=True)
 
     filename = f"results_{args.method}.jsonl"
 
