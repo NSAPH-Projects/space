@@ -99,6 +99,9 @@ if __name__ == "__main__":
     envs = datamaster.list_datasets()
 
     filename = f"results/results_{args.method}.jsonl"
+    if not os.path.exists("results"):
+        os.mkdir("results")
+
     print(f"Method {args.method}")
 
     # Clean the file
