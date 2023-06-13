@@ -71,7 +71,9 @@ if __name__ == "__main__":
     datamaster = DataMaster()
     envs = datamaster.list_envs(binary=True)
 
-    filename = f"results_{args.method}.jsonl"
+    filename = f"results/results_{args.method}.jsonl"
+    if not os.path.exists("results"):
+        os.mkdir("results")
 
     # Clean the file
     if args.overwrite:

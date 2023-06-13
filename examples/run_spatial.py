@@ -1,7 +1,7 @@
 import concurrent.futures
+import os
 import jsonlines
 import time
-import csv
 from spacebench.algorithms import spatial
 import numpy as np
 import pandas as pd
@@ -63,12 +63,11 @@ if __name__ == '__main__':
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    datasets = datamaster.master 
+    envs = datamaster.list_envs()
 
-    filename = 'results_spatial.jsonl'
-
-    envs = datasets.index.values
-    envs = envs # REMOVE [:1] FOR THE FULL RUN
+    filename = 'results/results_spatial.jsonl'
+    if not os.path.exists("results"):
+        os.mkdir("results")
 
     # Clean the file
     with open(filename, 'w') as csvfile:
@@ -92,6 +91,4 @@ if __name__ == '__main__':
                     writer.write(result)
 
     finish = time.perf_counter()
-
     print(f'Finished in {round(finish-start, 2)} second(s)')
-    

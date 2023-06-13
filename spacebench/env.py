@@ -35,17 +35,17 @@ class SpaceDataset:
         Returns true if treatment is binary.
         """
         return len(self.treatment_values) == 2
-    
+
     def erf(self) -> np.ndarray:
         """
-        Returns the exposure-response function, also known 
+        Returns the exposure-response function, also known
         in the literature as the average dose-response function.
-        
+
         Returns
         -------
         np.ndarray: The exposure-response function
         """
-        
+
         return self.counterfactuals.mean(0)
 
     def adjacency_matrix(
@@ -57,13 +57,13 @@ class SpaceDataset:
         Parameters
         ----------
         sparse: bool, optional (default is False)
-            If True, returns a sparse matrix of type csr_matrix. If False, 
+            If True, returns a sparse matrix of type csr_matrix. If False,
             returns a dense matrix.
 
         Returns
         -------
-        np.ndarray | scipy.sparse.csr_matrix 
-            Adjacency matrix where entry (i, j) is 1 if there is an edge 
+        np.ndarray | scipy.sparse.csr_matrix
+            Adjacency matrix where entry (i, j) is 1 if there is an edge
             between node i and node j.
         """
         n = len(self.treatment)
@@ -79,9 +79,9 @@ class SpaceDataset:
 
 class SpaceEnv:
     """
-    Class for a SpaCE environment. 
-    
-    It holdss the data and metadata that is used to generate the datasets by 
+    Class for a SpaCE environment.
+
+    It holdss the data and metadata that is used to generate the datasets by
     masking a covariate, which becomes a missing confounder.
 
     Attributes
@@ -112,19 +112,19 @@ class SpaceEnv:
 
     def __init__(self, name: str, dir: str | None = None):
         """
-        Initializes the SpaceEnv class using a dataset name. 
-        
-        When the dataset is not found in the directory, it is downloaded from 
+        Initializes the SpaceEnv class using a dataset name.
+
+        When the dataset is not found in the directory, it is downloaded from
         the dataverse.
 
         Parameters
         ----------
-        
+
         name: str
             Name of the dataset. See the DataMaster.list_envs() method
             for a list of available datasets.
         dir: str, optional
-            Directory where the dataset is stored. Defaults to a temporary 
+            Directory where the dataset is stored. Defaults to a temporary
             directory.
         """
         self.name = name
@@ -175,12 +175,13 @@ class SpaceEnv:
         }
 
     def _check_scores(
-            self,
-            c: str, 
-            min_confounding: float, 
-            max_confounding: float, 
-            min_smoothness: float, 
-            max_smoothness: float) -> bool:
+        self,
+        c: str,
+        min_confounding: float,
+        max_confounding: float,
+        min_smoothness: float,
+        max_smoothness: float,
+    ) -> bool:
         """
         Check if given covariate's smoothness and confounding is within the 
         given ranges.
@@ -197,7 +198,7 @@ class SpaceEnv:
             Minimum smoothness score.
         max_smoothness: float
             Maximum smoothness score.
-    
+
         Returns
         -------
         bool
@@ -205,9 +206,10 @@ class SpaceEnv:
         """
         smoothness = self.smoothness_score_dict[c]
         confounding = self.confounding_score_dict[c]
-        return (min_confounding <= confounding <= max_confounding and 
-                min_smoothness <= smoothness <= max_smoothness)
-   
+        return (
+            min_confounding <= confounding <= max_confounding
+            and min_smoothness <= smoothness <= max_smoothness
+        )
 
     def __masking_candidates(
         self,
@@ -216,20 +218,20 @@ class SpaceEnv:
         min_smoothness: float = 0.0,
         max_smoothness: float = 1.0,
     ) -> str:
-        """ 
-        Auxiliary method for finding a covariate that satisfies the requirements 
+        """
+        Auxiliary method for finding a covariate that satisfies the requirements
         for masking.
         """
-        candidates = [c for c in self.metadata["covariates"] if 
-                      self._check_scores(c, 
-                                         min_confounding, 
-                                         max_confounding, 
-                                         min_smoothness, 
-                                         max_smoothness)]
-        
+        candidates = [
+            c
+            for c in self.metadata["covariates"]
+            if self._check_scores(
+                c, min_confounding, max_confounding, min_smoothness, max_smoothness
+            )
+        ]
+
         if len(candidates) == 0:
-            raise ValueError("No covariate found with the " 
-                             "specified requirements")
+            raise ValueError("No covariate found with the " "specified requirements")
         return candidates
 
     def __gen__dataset__from__observed_and_missing(
@@ -287,18 +289,17 @@ class SpaceEnv:
 
     def make_unmasked(self) -> SpaceDataset:
         """
-        Generates a SpaceDataset with all covariates observed 
+        Generates a SpaceDataset with all covariates observed
         (no missing confounding).
 
         Returns
         -------
-        SpaceDataset 
+        SpaceDataset
             A SpaceDataset with all covariates observed.
         """
         missing = None
         observed = self.metadata["covariates"]
-        return self.__gen__dataset__from__observed_and_missing(missing, 
-                                                               observed)
+        return self.__gen__dataset__from__observed_and_missing(missing, observed)
 
     def make(
         self,
@@ -314,17 +315,17 @@ class SpaceEnv:
         Parameters
         ----------
         missing: str, optional (Default is None)
-            Name of the covariate to be masked. If no covariate is specified, a 
-            covariate is selected at random from the ones that satisfy 
-            requirements for masking in terms of smoothness and confounding. 
+            Name of the covariate to be masked. If no covariate is specified, a
+            covariate is selected at random from the ones that satisfy
+            requirements for masking in terms of smoothness and confounding.
         min_confounding: float, optional (Default is 0.0)
-            Minimum confounding score for the covariate to be masked. 
-        max_confounding: float, optional (Default is 1.0) 
-            Maximum confounding score for the covariate to be masked. 
+            Minimum confounding score for the covariate to be masked.
+        max_confounding: float, optional (Default is 1.0)
+            Maximum confounding score for the covariate to be masked.
         min_smoothness: float, optional (Default is 0.0)
-            Minimum smoothness score for the covariate to be masked. 
-        max_smoothness: float, optional (Default is 1.0) 
-            Maximum smoothness score for the covariate to be masked. 
+            Minimum smoothness score for the covariate to be masked.
+        max_smoothness: float, optional (Default is 1.0)
+            Maximum smoothness score for the covariate to be masked.
 
         Returns
         -------
@@ -339,8 +340,7 @@ class SpaceEnv:
             LOGGER.debug(f"Missing covariate (selected at random): {missing}")
 
         observed = [c for c in self.metadata["covariates"] if c != missing]
-        return self.__gen__dataset__from__observed_and_missing(missing, 
-                                                               observed)
+        return self.__gen__dataset__from__observed_and_missing(missing, observed)
 
     def make_all(
         self,
@@ -350,31 +350,28 @@ class SpaceEnv:
         max_smoothness: float = 1.0,
     ):
         """
-        Generates all possible SpaceDatasets by masking all posssible 
+        Generates all possible SpaceDatasets by masking all posssible
         covariates.
 
         Parameters
         ----------
         min_confounding: float, optional (Default is 0.0)
-            Minimum confounding score for the covariate to be masked. 
+            Minimum confounding score for the covariate to be masked.
         max_confounding: float, optional (Default is 1.0)
-            Maximum confounding score for the covariate to be masked. 
+            Maximum confounding score for the covariate to be masked.
         min_smoothness: float, optional (Default is 0.0)
-            Minimum smoothness score for the covariate to be masked. 
+            Minimum smoothness score for the covariate to be masked.
         max_smoothness: float, optional (Default is 1.0)
-            Maximum smoothness score for the covariate to be masked. 
+            Maximum smoothness score for the covariate to be masked.
 
         Returns
         -------
         Generator[SpaceDataset]: Generator of SpaceDatasets
         """
         for c in self.metadata["covariates"]:
-            if self._check_scores(c, 
-                                  min_confounding, 
-                                  max_confounding, 
-                                  min_smoothness, 
-                                  max_smoothness):
-
+            if self._check_scores(
+                c, min_confounding, max_confounding, min_smoothness, max_smoothness
+            ):
                 yield self.make(missing=c)
 
 

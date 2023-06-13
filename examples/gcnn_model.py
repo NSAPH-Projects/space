@@ -8,9 +8,10 @@ import time
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from torch.optim import Adam
+import torch.nn as nn
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
-
+from pytorch_lightning.callbacks import LearningRateFinder
 
 import pytorch_lightning as pl
 
@@ -34,6 +35,9 @@ class GCN(pl.LightningModule):
         x = F.dropout(x, p=0.1, training=self.training)
         
         x = self.conv2(x, edge_index)
+        # x = F.silu(x)
+        # x = self.dropout2(x)
+        # x = self.conv3(x, edge_index)
 
         return x
 

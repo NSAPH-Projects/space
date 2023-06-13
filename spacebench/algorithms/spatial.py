@@ -44,5 +44,5 @@ def fit(
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
     #print(fit_bs_y.summary())
-    return(fit_bs_y.params[1])
+    return fit_bs_y.params[1]
 
