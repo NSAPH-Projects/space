@@ -51,7 +51,11 @@
 <p class="caption" role="heading"><span class="caption-text">Researchers</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="setup_env.html">Setting Up Environment</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#available-datasets">Available datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#semi-synthetic-data-environment">Semi-synthetic data environment</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Community</span></p>
@@ -86,7 +90,36 @@
              
   <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h1>
-<p>TBD</p>
+<section id="available-datasets">
+<h2>Available datasets<a class="headerlink" href="#available-datasets" title="Permalink to this heading"></a></h2>
+<p>Users can view the list of available datasets by executing the command below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spacebench.datasets</span> <span class="kn">import</span> <span class="n">Datasets</span>
+<span class="n">dm</span> <span class="o">=</span> <span class="n">Datasets</span><span class="p">()</span>
+<span class="n">dm</span><span class="o">.</span><span class="n">list_envs</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Please be aware that these are only the names of the datasets.</p>
+</section>
+<section id="semi-synthetic-data-environment">
+<h2>Semi-synthetic data environment<a class="headerlink" href="#semi-synthetic-data-environment" title="Permalink to this heading"></a></h2>
+<p>To access the actual data, you must establish a semi-synthetic data environment. Let’s say we want to download <cite>healthd_dmgrcs_mortality_disc</cite> which is the name of one of the datasets of the Air Pollution and Mortality collections. We can accomplish this by running the following command:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">env</span> <span class="o">=</span> <span class="n">SpaceEnv</span><span class="p">(</span><span class="s1">&#39;healthd_dmgrcs_mortality_disc&#39;</span><span class="p">,</span> <span class="nb">dir</span> <span class="o">=</span> <span class="s2">&quot;downloads&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>downloads/healthd_dmgrcs_mortality_disc</cite> directory will be created and the
+data will be downloaded into it. Each dataset includes:</p>
+<ul class="simple">
+<li><p>training data</p></li>
+<li><p>true counterfactuals</p></li>
+<li><p>spatial graph with coordiates</p></li>
+<li><p>smoothness and confounding scores</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the data is already downloaded, the <cite>SpaceEnv</cite> object will not download
+it again.</p>
+</div>
+</section>
 </section>
 
 

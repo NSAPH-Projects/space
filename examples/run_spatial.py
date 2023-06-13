@@ -1,4 +1,5 @@
 import concurrent.futures
+import os
 import jsonlines
 import time
 from spacebench.algorithms import spatial
@@ -51,7 +52,6 @@ def run_spatial(dataset, binary_treatment):
 
     res = {}
     res.update(**err_spatial_eval)
-
     res["beta"] = beta_spatial
     res["smoothness"] = dataset.smoothness_of_missing
     res["confounding"] = dataset.confounding_of_missing
@@ -63,13 +63,11 @@ if __name__ == '__main__':
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    datasets = datamaster.master 
+    envs = datamaster.list_envs()
 
-    filename = 'results_spatial.csv'
-
-    envs = datasets.index.values
-    envs = envs # ADD [:1] FOR DEBUGGING
-
+    filename = 'results/results_spatial.jsonl'
+    if not os.path.exists("results"):
+        os.mkdir("results")
 
     # Clean the file
     with open(filename, 'w') as csvfile:
@@ -83,7 +81,7 @@ if __name__ == '__main__':
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = {executor.submit(
                 run_spatial, dataset, binary) for dataset in 
-                dataset_list 
+                dataset_list # REMOVE [:1] FOR THE FULL RUN
                 }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):

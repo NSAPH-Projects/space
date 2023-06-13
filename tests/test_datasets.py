@@ -8,7 +8,7 @@ from spacebench import SpaceEnv, SpaceDataset, DataMaster
 
 class TestDataGenerator(unittest.TestCase):
     def setUp(self) -> None:
-        self.dataset_name = DataMaster().list_datasets()[0]
+        self.dataset_name = DataMaster().list_envs()[0]
 
     def test_create_env(self):
         env = SpaceEnv(self.dataset_name)
@@ -17,7 +17,7 @@ class TestDataGenerator(unittest.TestCase):
     def test_all_envs(self):
         # TODO: Find a different way to test that all environments
         # in datamaster can be accessed.
-        # for dataset in DataMaster().list_datasets():
+        # for dataset in DataMaster().list_envs():
         #     env = SpaceEnv(dataset)
         #     assert isinstance(env, SpaceEnv)
         pass

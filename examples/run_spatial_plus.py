@@ -2,18 +2,19 @@ import concurrent.futures
 import os
 import jsonlines
 import time
-from spacebench.algorithms import spatial, spatialplus
-
 import numpy as np
 import argparse
 import pandas as pd
+from typing import Literal
+
 from spacebench import (
     SpaceEnv,
     SpaceDataset,
     DataMaster,
     DatasetEvaluator,
 )
-from typing import Literal
+from spacebench.algorithms import spatial, spatialplus
+
 
 def run_spatial_plus(
     dataset: SpaceDataset,
@@ -86,10 +87,11 @@ if __name__ == "__main__":
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    envs = datamaster.list_datasets()
+    envs = datamaster.list_envs()
 
-    filename = f"results_{args.method}.jsonl"
-
+    filename = f"results/results_{args.method}.jsonl"
+    if not os.path.exists("results"):
+        os.mkdir("results")
 
     # Clean the file
     if args.overwrite:
@@ -128,7 +130,6 @@ if __name__ == "__main__":
             futures = {
                 executor.submit(run_spatial_plus, dataset, binary, args.method)
                 for dataset in dataset_list  # REMOVE [:1] FOR THE FULL RUN
-
             }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
@@ -140,4 +141,3 @@ if __name__ == "__main__":
     finish = time.perf_counter()
 
     print(f"Finished in {round(finish-start, 2)} second(s)")
-

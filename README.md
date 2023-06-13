@@ -81,6 +81,10 @@ conda activate space-env
 pip install -e .
 ```
 
+## Code of Conduct
+
+Please note that the SpaCE project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
+
 ## 👽 Contact
 
 We welcome contributions and feedback about **spacebench**. If you have any suggestions or ideas, please open an issue or submit a pull request. Thank you for your interest in our data.
