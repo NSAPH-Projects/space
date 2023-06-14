@@ -13,7 +13,7 @@
 
 ## 🚀 Description
 
-SpaCE loads benchmark datasets for causal inference that incorporartes spatial confounding. The **SpaCE** datasets contain real confounder and exposure/treatment data inspired by environmental health studies. The synthetic outcome and counterfactuals are generated for causal evaluation. They mimick real outcome data distributions learned with machine learning and neural network methods. Spatial confounding is achieved by masking influential confounders in the learned model. 
+Spatial confounding poses a significant challenge in scientific studies involving spatial data, where unobserved spatial variables can influence both treatment and outcome, possibly leading to spurious associations. To address this problem, SpaCE provides realistic benchmark datasets and tools for systematically evaluating causal inference methods designed to alleviate spatial confounding. Each dataset includes training data, true counterfactuals, a spatial graph with coordinates, and a smoothness and confounding scores characterizing the effect of a missing spatial confounder. The datasets cover real treatment and covariates from diverse domains, including climate, health and social sciences. Realistic semi-synthetic outcomes and counterfactuals are generated using state-of-the-art machine learning ensembles, following best practices for causal inference benchmarks. SpaCE facilitates an automated end-to-end machine learning pipeline, simplifying data loading, experimental setup, and model evaluation.
 
 
 ## 🐍 Installation
@@ -55,7 +55,10 @@ SpaceDataset with a missing spatial confounder:
   graph edge list: (9237, 2)
   graph node coordinates: (3109, 2)
   parent SpaceEnv: healthd_dmgrcs_mortality_disc
-WARNING ⚠️ : this dataset contains a (realistic) synthetic outcome! By using it, you agree to understand its limitations.  The variable names have been masked to emphasize that no  inferences can be made about the source data.
+WARNING ⚠️ : this dataset contains a (realistic) synthetic outcome!
+By using it, you agree to understand its limitations.  The variable
+names have been masked to emphasize that no  inferences can be made
+about the source data.
 ```
 
 
