@@ -57,15 +57,20 @@ class DataMaster:
             )
 
     def list_envs(
-        self, binary: bool | None = None, continuous: bool | None = None
+        self,
+        binary: bool | None = None,
+        continuous: bool | None = None,
+        collection: str | None = None,
     ) -> list[str]:
         """
-        Returns a list of names of available datasets.
+        Returns a list of names of available envs.
 
         Arguments
-            binary : bool, optional. If True, only binary datasets are returned.
-            continuous : bool, optional. If True, only continuous datasets are 
+            binary : bool, optional. If True, only binary envs are returned.
+            continuous : bool, optional. If True, only continuous envs are
             returned.
+            collection : str, optional. If provided, only envs from the given
+            collection are returned.
 
         Returns
            list[str]:  Names of all available datasets.
@@ -74,19 +79,30 @@ class DataMaster:
         index = np.zeros(master.shape[0], dtype=bool)
         if binary is None and continuous is None:
             return master.index.to_list()
-        
+
         if binary is not None:
             index[master.treatment_type == "binary"] = True
 
         if continuous is not None:
             index[master.treatment_type == "continuous"] = True
-        
-        return master.index[index].to_list()
 
+        if collection is not None:
+            index[master.collection != collection] = False
+
+        return master.index[index].to_list()
+    
+    def list_collections(self) -> list[str]:
+        """
+        Returns a list of names of available collections.
+
+        Returns
+           list[str]:  Names of all available collections.
+        """
+        return self.master.collection.unique().tolist()
 
     def __getitem__(self, key: str) -> pd.Series:
         """
-        Retrieves the row corresponding to the provided dataset key from the 
+        Retrieves the row corresponding to the provided dataset key from the
         masterfile.
 
         Parameters
@@ -104,13 +120,13 @@ class DataMaster:
         except KeyError:
             LOGGER.error(f"Dataset {key} not found in masterfile.")
             return None
-        
-    def __str__(self) -> str:
+
+    def __repr__(self) -> str:
         datasets = self.list_envs()
         if len(datasets) > 10:
-            datasets_str = '\n  '.join(datasets[:5] + ['...'] + datasets[-5:])
+            datasets_str = "\n  ".join(datasets[:5] + ["..."] + datasets[-5:])
         else:
-            datasets_str = '\n  '.join(datasets)
-        
-        return (f'Available datasets (total: '
-                f'{len(datasets)}):\n\n  {datasets_str}')  
+            datasets_str = "\n  ".join(datasets)
+
+        return f"Available datasets (total: " f"{len(datasets)}):\n\n  {datasets_str}"
+    
