@@ -8,8 +8,10 @@
 [![](<https://img.shields.io/badge/Dataverse-10.7910/DVN/SYNPBS-orange>)](https://www.doi.org/10.7910/DVN/SYNPBS)
 [![Licence](https://img.shields.io/pypi/l/spacebench.svg)](https://pypi.org/project/spacebench)
 [![PyPI version](https://img.shields.io/pypi/v/spacebench.svg)](https://pypi.org/project/spacebench)
+![build](https://github.com/NSAPH-Projects/space/actions/workflows/python-app.yml/badge.svg)
 [![codecov](https://codecov.io/gh/NSAPH-Projects/space/branch/dev/graph/badge.svg?token=I4BDXHGRFR)](https://codecov.io/gh/NSAPH-Projects/space)
-
+[![](https://img.shields.io/static/v1?label=GitHub&message=SpaCE-Data&color=blue&logo=github)](https://github.com/NSAPH-Projects/space-data)
+[![build](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat)](nsaph-projects.github.io/space/)
 
 ## 🚀 Description
 
@@ -94,13 +96,3 @@ We welcome contributions and feedback about `spacebench`. If you have any sugges
 ## Documentation
 
 The documentation is hosted at [https://nsaph-projects.github.io/space/](https://nsaph-projects.github.io/space/).
-
-## Citation
-
-``` bibtex
-@misc{space,
-  author = {Tec, Mauricio AND Ana Trisovic AND Michelle Audirac AND Sophie Woodward AND Kate Hu AND Naeem Khoshnevis AND Francesca Dominici},
-  title = {SpaCE: The Spatial Confounding Environment},
-  year = {2023},
-  note = {Github repository: \url{https://github.com/NSAPH-Projects/space}},
-}

@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: "SpaCE: The Spatial Confounding Environment"
+identifiers:
+  - description: "SpaCE Data GitHub repository."
+    type: url
+    value: "https://github.com/NSAPH-Projects/space-data"
+  - description: "SpaCE GitHub repository."
+    type: url
+    value: "https://github.com/NSAPH-Projects/space"
+  - description: "SpaCE Data Collection."
+    type: doi
+    value: 10.7910/DVN/SYNPBS
+authors:
+  - family-names: Tec
+    given-names: Mauricio
+  - family-names: Trisovic
+    given-names: Ana
+    orcid: https://orcid.org/0000-0003-1991-0533
+  - family-names: Audirac
+    given-names: Michelle
+  - family-names: Woodward
+    given-names: Sophie
+  - family-names: Hu
+    given-names: Kate
+  - family-names: Khoshnevis
+    given-names: Naeem
+  - family-names: Dominici
+    given-names: Francesca
+year: 2023
+license: MIT
+
