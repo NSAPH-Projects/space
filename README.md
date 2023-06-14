@@ -5,8 +5,6 @@
 
 ![](resources/logo.png)
 
-SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal inference methods tackling spatial confounding.
-
 [![](<https://img.shields.io/badge/Dataverse-10.7910/DVN/SYNPBS-orange>)](https://www.doi.org/10.7910/DVN/SYNPBS)
 [![Licence](https://img.shields.io/pypi/l/spacebench.svg)](https://pypi.org/project/spacebench)
 [![PyPI version](https://img.shields.io/pypi/v/spacebench.svg)](https://pypi.org/project/spacebench)
@@ -15,78 +13,51 @@ SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal 
 
 ## 🚀 Description
 
-The Spatial Confounding Environment loads benchmark datasets for causal inference that incorporartes spatial confounding. The **SpaCE** datasets contain real confounder and exposure/treatment data inspired by environmental health studies. The synthetic outcome and counterfactuals are generated for causal evaluation. They mimick real outcome data distributions learned with machine learning and neural network methods. Spatial confounding is achieved by masking influential confounders in the learned model. 
+SpaCE loads benchmark datasets for causal inference that incorporartes spatial confounding. The **SpaCE** datasets contain real confounder and exposure/treatment data inspired by environmental health studies. The synthetic outcome and counterfactuals are generated for causal evaluation. They mimick real outcome data distributions learned with machine learning and neural network methods. Spatial confounding is achieved by masking influential confounders in the learned model. 
 
-## 🛰️ Code and methods
 
-The code for **SpaCE** data loaders is in the `spacebench` directory. The **SpaCE** datasets are found in the [Harvard Dataverse repository](https://dataverse.harvard.edu/) for transparency and reproducibility.
+## 🐍 Installation
 
-Code examples with outcome modeling can be found in the `examples` directory. 
+Install PyPI version:
 
-## 🧑‍🚀 The API
-
-To retrieve and generate the data, run the command below in the Terminal: 
-
-``` sh
-conda env create --file requirements.yaml 
-conda activate space-env
-curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash -s [NN or XGBOOST] [BINARY or CONT] SEED PATH
+```sh
+pip install spacebench
 ```
 
-The input parameters of the command above are:
-
-| Parameter          | Meaning            |
-|--------------------|--------------------|
-| method             |   NN or XGBOOST    |
-| random seed        | integer            |
-| path (optional)    |   output file path |
-
-The command downloads the core data and uses it together with the user's input to generate a sample of the potential outcomes (factual and counterfactual) from the core data and the model predictions. The sampling mechanism is tuned to mimic the variability in the observed data.
-
-
-## 🔭 Attributes
-
- **SpaCE** benchmark data:
-
-| Atributes          |
-|--------------------|
-| treatment          |
-| covariates         |
-| synthetic_outcome  |
-| counterfactuals    |
-
-| Metadta            | Values            |
-|--------------------|-------------------|
-| predictive_model   | xgboost, nn_vcnet |
-| error_model        |                   |
-
-## Installation
-
-To install the package:
-
-- Clone the repository
+Or the latest version from GitHub:
 
 ``` sh
-git clone git@github.com:NSAPH-Projects/space.git
+pip install git+https://github.com/NSAPH-Projects/space
 ```
 
-- Navigate to the package folder and create a conda environment
+For access to the 🔥 features install the development version:
 
 ``` sh
-conda env create --file requirements.yaml 
-conda activate space-env
+pip install git+https://github.com/NSAPH-Projects/space@dev
 ```
 
-- Install the package
+We recommend Python 3.10 or higher. See the [docs](https://nsaph-projects.github.io/space/) and `requirements.txt` for more information.
 
-``` sh
-pip install -e .
-```
+## 🐢 Getting started
 
-## Code of Conduct
+
+## 🙉 Code of Conduct
 
 Please note that the SpaCE project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 
 ## 👽 Contact
 
 We welcome contributions and feedback about **spacebench**. If you have any suggestions or ideas, please open an issue or submit a pull request. Thank you for your interest in our data.
+
+## Documentation
+
+
+## Citation
+
+``` bibtex
+@misc{space,
+  author = {Tec, Mauricio AND Ana Trisovic AND Michelle Audirac AND Sophie Woodward AND Kate Hu AND Naeem Khoshnevis AND Francesca Dominici},
+  title = {SpaCE: The Spatial Confounding Environment},
+  year = {2023},
+  note = {Github repository: \url{https://github.com/NSAPH-Projects/space}},
+}
