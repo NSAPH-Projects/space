@@ -3,7 +3,7 @@
 > _This project is in active development. The API is not yet stable.</text> -->
 
 
-![](logo.png)
+![](resources/logo.png)
 
 SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal inference methods tackling spatial confounding.
 
