@@ -1,9 +1,9 @@
 
-_This project is swiftly evolving. Certain features may not yet be accessible._
+<!-- 
+> _This project is in active development. The API is not yet stable.</text> -->
 
-# SpaCE
 
-SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal inference methods tackling spatial confounding.
+![](resources/logo.png)
 
 [![](<https://img.shields.io/badge/Dataverse-10.7910/DVN/SYNPBS-orange>)](https://www.doi.org/10.7910/DVN/SYNPBS)
 [![Licence](https://img.shields.io/pypi/l/spacebench.svg)](https://pypi.org/project/spacebench)
@@ -13,78 +13,94 @@ SpaCE, the Spatial Confounding Environment, loads benchmark datasets for causal 
 
 ## 🚀 Description
 
-The Spatial Confounding Environment loads benchmark datasets for causal inference that incorporartes spatial confounding. The **SpaCE** datasets contain real confounder and exposure/treatment data inspired by environmental health studies. The synthetic outcome and counterfactuals are generated for causal evaluation. They mimick real outcome data distributions learned with machine learning and neural network methods. Spatial confounding is achieved by masking influential confounders in the learned model. 
+Spatial confounding poses a significant challenge in scientific studies involving spatial data, where unobserved spatial variables can influence both treatment and outcome, possibly leading to spurious associations. To address this problem, SpaCE provides realistic benchmark datasets and tools for systematically evaluating causal inference methods designed to alleviate spatial confounding. Each dataset includes training data, true counterfactuals, a spatial graph with coordinates, and a smoothness and confounding scores characterizing the effect of a missing spatial confounder. The datasets cover real treatment and covariates from diverse domains, including climate, health and social sciences. Realistic semi-synthetic outcomes and counterfactuals are generated using state-of-the-art machine learning ensembles, following best practices for causal inference benchmarks. SpaCE facilitates an automated end-to-end machine learning pipeline, simplifying data loading, experimental setup, and model evaluation.
 
-## 🛰️ Code and methods
 
-The code for **SpaCE** data loaders is in the `spacebench` directory. The **SpaCE** datasets are found in the [Harvard Dataverse repository](https://dataverse.harvard.edu/) for transparency and reproducibility.
+## 🐍 Installation
 
-Code examples with outcome modeling can be found in the `examples` directory. 
+Install the PyPI version:
 
-## 🧑‍🚀 The API
+```sh
+pip install spacebench[all]
+```
+The option `[all]` installs all dependencies necessary for the spatial confounding algorithms and the examples. If you only want to use the `SpaceDatasets`, use `pip install spacebench` instead.
 
-To retrieve and generate the data, run the command below in the Terminal: 
+You can also install the latest 🔥 features from the development version:
 
 ``` sh
-conda env create --file requirements.yaml 
-conda activate space-env
-curl -sSL https://raw.githubusercontent.com/NSAPH-Projects/space/master/data/data.sh | bash -s [NN or XGBOOST] [BINARY or CONT] SEED PATH
+pip install "git+https://github.com/NSAPH-Projects/space@dev#egg=spacebench[all]"
 ```
 
-The input parameters of the command above are:
+Python 3.10 or higher is required. See the [docs](https://nsaph-projects.github.io/space/) and `requirements.txt` for more information.
 
-| Parameter          | Meaning            |
-|--------------------|--------------------|
-| method             |   NN or XGBOOST    |
-| random seed        | integer            |
-| path (optional)    |   output file path |
+## 🐢 Getting started
 
-The command downloads the core data and uses it together with the user's input to generate a sample of the potential outcomes (factual and counterfactual) from the core data and the model predictions. The sampling mechanism is tuned to mimic the variability in the observed data.
+To obtain a benchmark dataset for spatial confounding you need to 1) create a `SpaceEnv` which contains real treatment and confounder data, and a realistic semi-synthetic outcome, 2) create a `SpaceDataset` which masks a spatially-varying confounder and facilitates the data loading pipeline for causal inference.
 
 
-## 🔭 Attributes
-
- **SpaCE** benchmark data:
-
-| Atributes          |
-|--------------------|
-| treatment          |
-| covariates         |
-| synthetic_outcome  |
-| counterfactuals    |
-
-| Metadta            | Values            |
-|--------------------|-------------------|
-| predictive_model   | xgboost, nn_vcnet |
-| error_model        |                   |
-
-## Installation
-
-To install the package:
-
-- Clone the repository
-
-``` sh
-git clone git@github.com:NSAPH-Projects/space.git
+```python
+from spacebench import SpaceEnv
+env = SpaceEnv('healthd_dmgrcs_mortality_disc')
+dataset = env.make()
+print(dataset)
+```
+```
+SpaceDataset with a missing spatial confounder:
+  treatment: (3109,) (binary)
+  confounders: (3109, 30)
+  outcome: (3109,)
+  counterfactuals: (3109, 2)
+  confounding score of missing: 0.02
+  spatial smoothness score of missing: 0.11
+  graph edge list: (9237, 2)
+  graph node coordinates: (3109, 2)
+  parent SpaceEnv: healthd_dmgrcs_mortality_disc
+WARNING ⚠️ : this dataset contains a (realistic) synthetic outcome!
+By using it, you agree to understand its limitations.  The variable
+names have been masked to emphasize that no  inferences can be made
+about the source data.
 ```
 
-- Navigate to the package folder and create a conda environment
 
-``` sh
-conda env create --file requirements.yaml 
-conda activate space-env
+ The list of available environments can be in the documentations or in an interactive session as:
+
+```python
+from spacebench import DataMaster
+dm = DataMaster()
+dm.master.head()
 ```
 
-- Install the package
 
-``` sh
-pip install -e .
-```
+| environment                           | treatment_type | collection                            |
+|-----------------------------------|----------------|---------------------------------------|
+| healthd_dmgrcs_mortality_disc     | binary         | Air Pollution and Mortality           |
+| cdcsvi_limteng_hburdic_cont       | continuous     | Social Vulnerability and Welfare      |
+| climate_relhum_wfsmoke_cont       | continuous     | Heat Exposure and Wildfires           |
+| climate_wfsmoke_minrty_disc       | binary         | Heat Exposure and Wildfires           |
 
-## Code of Conduct
+
+To learn more about the data collections and the environments see the [docs](https://nsaph-projects.github.io/space/). The data collections and environments are hosted at the [Harvard Dataverse](https://doi.org/10.7910/DVN/SYNPBS). "Data "nutrition labels" for the collections can be found [here](https://github.com/NSAPH-Projects/space-data/tree/main/data). The environments are produced using the [space-data](https://github.com/NSAPH-Projects/space-data) repository from a data collection with a [configuration file](https://github.com/NSAPH-Projects/space-data/tree/main/conf/spaceenv). Don't forget to read our paper.
+
+
+
+## 🙉 Code of Conduct
 
 Please note that the SpaCE project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 
 ## 👽 Contact
 
-We welcome contributions and feedback about **spacebench**. If you have any suggestions or ideas, please open an issue or submit a pull request. Thank you for your interest in our data.
+We welcome contributions and feedback about `spacebench`. If you have any suggestions or ideas, please open an issue or submit a pull request. 
+
+## Documentation
+
+The documentation is hosted at [https://nsaph-projects.github.io/space/](https://nsaph-projects.github.io/space/).
+
+## Citation
+
+``` bibtex
+@misc{space,
+  author = {Tec, Mauricio AND Ana Trisovic AND Michelle Audirac AND Sophie Woodward AND Kate Hu AND Naeem Khoshnevis AND Francesca Dominici},
+  title = {SpaCE: The Spatial Confounding Environment},
+  year = {2023},
+  note = {Github repository: \url{https://github.com/NSAPH-Projects/space}},
+}
