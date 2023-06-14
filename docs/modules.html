@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modules &mdash; spacebench 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contact Us" href="contact.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            spacebench
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Researchers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="setup_env.html">Setting Up Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#datamaster-module">DataMaster Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-module">Environment Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation-module">Evaluation Module</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact Us</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">spacebench (developing)</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">spacebench</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Modules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h1>
+<p>This section includes modules that are used in this project.</p>
+<section id="datamaster-module">
+<h2>DataMaster Module<a class="headerlink" href="#datamaster-module" title="Permalink to this heading"></a></h2>
+<p>This module handles the masterfile and collections metadata.</p>
+<span class="target" id="module-spacebench.datamaster"></span><dl class="py class">
+<dt class="sig sig-object py" id="spacebench.datamaster.DataMaster">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacebench.datamaster.</span></span><span class="sig-name descname"><span class="pre">DataMaster</span></span><a class="reference internal" href="_modules/spacebench/datamaster.html#DataMaster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.datamaster.DataMaster" title="Permalink to this definition"></a></dt>
+<dd><p>Class for managing the masterfile and collections metadata</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>masterfile</strong> (<em>pd.DataFrame</em>) – A dataframe with metadata about available datasets.</p></li>
+<li><p><strong>collections</strong> (<em>pd.DataFrame</em>) – A dataframe with information about the collections
+where the datasets are generated from.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spacebench.datamaster</span> <span class="kn">import</span> <span class="n">DataMaster</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span> <span class="o">=</span> <span class="n">DataMaster</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dm</span><span class="p">)</span>
+<span class="go">Available datasets (total: 11):</span>
+
+<span class="go">  healthd_dmgrcs_mortality_disc</span>
+<span class="go">  cdcsvi_limteng_hburdic_cont</span>
+<span class="go">  climate_relhum_wfsmoke_cont</span>
+<span class="go">  climate_wfsmoke_minrty_disc</span>
+<span class="go">  healthd_hhinco_mortality_cont</span>
+<span class="go">  ...</span>
+<span class="go">  county_educatn_election_cont</span>
+<span class="go">  county_phyactiv_lifexpcy_cont</span>
+<span class="go">  county_dmgrcs_election_disc</span>
+<span class="go">  cdcsvi_nohsdp_poverty_cont</span>
+<span class="go">  cdcsvi_nohsdp_poverty_disc</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.datamaster.DataMaster.list_envs">
+<span class="sig-name descname"><span class="pre">list_envs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/spacebench/datamaster.html#DataMaster.list_envs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.datamaster.DataMaster.list_envs" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of names of available datasets.</p>
+<dl class="simple">
+<dt>Arguments</dt><dd><p>binary : bool, optional. If True, only binary datasets are returned.
+continuous : bool, optional. If True, only continuous datasets are
+returned.</p>
+</dd>
+<dt>Returns</dt><dd><p>list[str]:  Names of all available datasets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="environment-module">
+<h2>Environment Module<a class="headerlink" href="#environment-module" title="Permalink to this heading"></a></h2>
+<p>This module handles the environment variables.</p>
+<span class="target" id="module-spacebench.env"></span><p>Module for defining the SpaceEnvironment class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="spacebench.env.SpaceDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacebench.env.</span></span><span class="sig-name descname"><span class="pre">SpaceDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">treatment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treatment_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothness_of_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confounding_of_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterfactuals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacebench/env.html#SpaceDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceDataset" title="Permalink to this definition"></a></dt>
+<dd><p>Class for storing a spatial causal inference benchmark dataset.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceDataset.adjacency_matrix">
+<span class="sig-name descname"><span class="pre">adjacency_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">scipy.sparse._csr.csr_matrix</span></span></span><a class="reference internal" href="_modules/spacebench/env.html#SpaceDataset.adjacency_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceDataset.adjacency_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the adjacency matrix of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sparse</strong> (<em>bool</em><em>, </em><em>optional</em><em> (</em><em>default is False</em><em>)</em>) – If True, returns a sparse matrix of type csr_matrix. If False,
+returns a dense matrix.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Adjacency matrix where entry (i, j) is 1 if there is an edge
+between node i and node j.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceDataset.erf">
+<span class="sig-name descname"><span class="pre">erf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/spacebench/env.html#SpaceDataset.erf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceDataset.erf" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the exposure-response function, also known
+in the literature as the average dose-response function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>np.ndarray</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The exposure-response function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceDataset.has_binary_treatment">
+<span class="sig-name descname"><span class="pre">has_binary_treatment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/spacebench/env.html#SpaceDataset.has_binary_treatment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceDataset.has_binary_treatment" title="Permalink to this definition"></a></dt>
+<dd><p>Returns true if treatment is binary.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacebench.env.</span></span><span class="sig-name descname"><span class="pre">SpaceEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacebench/env.html#SpaceEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceEnv" title="Permalink to this definition"></a></dt>
+<dd><p>Class for a SpaCE environment.</p>
+<p>It holdss the data and metadata that is used to generate the datasets by
+masking a covariate, which becomes a missing confounder.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.api">
+<span class="sig-name descname"><span class="pre">api</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.api" title="Permalink to this definition"></a></dt>
+<dd><p>Dataverse API object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataverseAPI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.config" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary with the configuration of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.counfound_score_dict">
+<span class="sig-name descname"><span class="pre">counfound_score_dict</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.counfound_score_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary with the confounding scores of the covariates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.datamaster">
+<span class="sig-name descname"><span class="pre">datamaster</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.datamaster" title="Permalink to this definition"></a></dt>
+<dd><p>DataMaster object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#spacebench.datamaster.DataMaster" title="spacebench.datamaster.DataMaster">DataMaster</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.dir">
+<span class="sig-name descname"><span class="pre">dir</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.dir" title="Permalink to this definition"></a></dt>
+<dd><p>Directory where the dataset is stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.graph">
+<span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.graph" title="Permalink to this definition"></a></dt>
+<dd><p>Graph of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>networkx.Graph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary with the metadata of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.name" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.smoothness_score_dict">
+<span class="sig-name descname"><span class="pre">smoothness_score_dict</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.smoothness_score_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Dictionary with the smoothness scores of the covariates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.synthetic_data">
+<span class="sig-name descname"><span class="pre">synthetic_data</span></span><a class="headerlink" href="#spacebench.env.SpaceEnv.synthetic_data" title="Permalink to this definition"></a></dt>
+<dd><p>Synthetic data of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv._check_scores">
+<span class="sig-name descname"><span class="pre">_check_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confounding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confounding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_smoothness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_smoothness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/spacebench/env.html#SpaceEnv._check_scores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceEnv._check_scores" title="Permalink to this definition"></a></dt>
+<dd><p>Check if given covariate’s smoothness and confounding is within the
+given ranges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>str</em>) – Covariate to check.</p></li>
+<li><p><strong>min_confounding</strong> (<em>float</em>) – Minimum confounding score.</p></li>
+<li><p><strong>max_confounding</strong> (<em>float</em>) – Maximum confounding score.</p></li>
+<li><p><strong>min_smoothness</strong> (<em>float</em>) – Minimum smoothness score.</p></li>
+<li><p><strong>max_smoothness</strong> (<em>float</em>) – Maximum smoothness score.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if scores are within range, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.make">
+<span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confounding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confounding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_smoothness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_smoothness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#spacebench.env.SpaceDataset" title="spacebench.env.SpaceDataset"><span class="pre">SpaceDataset</span></a></span></span><a class="reference internal" href="_modules/spacebench/env.html#SpaceEnv.make"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceEnv.make" title="Permalink to this definition"></a></dt>
+<dd><p>Generates a SpaceDataset by masking a covariate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>missing</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>Default is None</em><em>)</em>) – Name of the covariate to be masked. If no covariate is specified, a
+covariate is selected at random from the ones that satisfy
+requirements for masking in terms of smoothness and confounding.</p></li>
+<li><p><strong>min_confounding</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 0.0</em><em>)</em>) – Minimum confounding score for the covariate to be masked.</p></li>
+<li><p><strong>max_confounding</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 1.0</em><em>)</em>) – Maximum confounding score for the covariate to be masked.</p></li>
+<li><p><strong>min_smoothness</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 0.0</em><em>)</em>) – Minimum smoothness score for the covariate to be masked.</p></li>
+<li><p><strong>max_smoothness</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 1.0</em><em>)</em>) – Maximum smoothness score for the covariate to be masked.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A SpaceDataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#spacebench.env.SpaceDataset" title="spacebench.env.SpaceDataset">SpaceDataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.make_all">
+<span class="sig-name descname"><span class="pre">make_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_confounding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confounding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_smoothness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_smoothness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacebench/env.html#SpaceEnv.make_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceEnv.make_all" title="Permalink to this definition"></a></dt>
+<dd><p>Generates all possible SpaceDatasets by masking all posssible
+covariates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_confounding</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 0.0</em><em>)</em>) – Minimum confounding score for the covariate to be masked.</p></li>
+<li><p><strong>max_confounding</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 1.0</em><em>)</em>) – Maximum confounding score for the covariate to be masked.</p></li>
+<li><p><strong>min_smoothness</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 0.0</em><em>)</em>) – Minimum smoothness score for the covariate to be masked.</p></li>
+<li><p><strong>max_smoothness</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>Default is 1.0</em><em>)</em>) – Maximum smoothness score for the covariate to be masked.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Generator[SpaceDataset]</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of SpaceDatasets</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.env.SpaceEnv.make_unmasked">
+<span class="sig-name descname"><span class="pre">make_unmasked</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#spacebench.env.SpaceDataset" title="spacebench.env.SpaceDataset"><span class="pre">SpaceDataset</span></a></span></span><a class="reference internal" href="_modules/spacebench/env.html#SpaceEnv.make_unmasked"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.env.SpaceEnv.make_unmasked" title="Permalink to this definition"></a></dt>
+<dd><p>Generates a SpaceDataset with all covariates observed
+(no missing confounding).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A SpaceDataset with all covariates observed.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#spacebench.env.SpaceDataset" title="spacebench.env.SpaceDataset">SpaceDataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="evaluation-module">
+<h2>Evaluation Module<a class="headerlink" href="#evaluation-module" title="Permalink to this heading"></a></h2>
+<p>This module handles the evaluation of the models.</p>
+<span class="target" id="module-spacebench.eval"></span><dl class="py class">
+<dt class="sig sig-object py" id="spacebench.eval.DatasetEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacebench.eval.</span></span><span class="sig-name descname"><span class="pre">DatasetEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#spacebench.env.SpaceDataset" title="spacebench.env.SpaceDataset"><span class="pre">SpaceDataset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacebench/eval.html#DatasetEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.eval.DatasetEvaluator" title="Permalink to this definition"></a></dt>
+<dd><p>Class for evaluating the performance of a causal inference method
+in a specific SpaceDataset.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spacebench.eval.EnvEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacebench.eval.</span></span><span class="sig-name descname"><span class="pre">EnvEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#spacebench.env.SpaceEnv" title="spacebench.env.SpaceEnv"><span class="pre">SpaceEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacebench/eval.html#EnvEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.eval.EnvEvaluator" title="Permalink to this definition"></a></dt>
+<dd><p>Class for evaluating the performance of a causal inference method
+in a specific SpaceEnv.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.eval.EnvEvaluator.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#spacebench.env.SpaceDataset" title="spacebench.env.SpaceDataset"><span class="pre">SpaceDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterfactuals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/spacebench/eval.html#EnvEvaluator.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.eval.EnvEvaluator.add" title="Permalink to this definition"></a></dt>
+<dd><p>Add a dataset to the buffer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spacebench.eval.EnvEvaluator.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/spacebench/eval.html#EnvEvaluator.summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacebench.eval.EnvEvaluator.summarize" title="Permalink to this definition"></a></dt>
+<dd><p>Evaluate the error in causal prediction.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contact.html" class="btn btn-neutral float-right" title="Contact Us" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

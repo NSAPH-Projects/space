@@ -2,10 +2,13 @@
 .dataset_downloads
 test.ipynb
 .DS_Store
+**/lightning_logs
+outputs
 
 # VSCode
 .vscode/
-
+.env
+**/checkpoints/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

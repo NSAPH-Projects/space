@@ -1,0 +1,55 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python package
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Setup conda
+      uses: s-weigand/setup-conda@v1
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        conda update --all
+        conda install -c intel mkl_random
+        conda install -c intel mkl_fft
+        conda config --append channels conda-forge
+        conda config --append channels intel
+        conda install -y mkl-service
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -e ".[all]"
+    - name: Test with pytest
+      run: |
+        pip install coverage
+        coverage run -m pytest tests/
+        coverage report -i
+        coverage xml -i
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+

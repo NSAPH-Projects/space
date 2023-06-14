@@ -1,0 +1,12 @@
+environments,treatment_type,collection
+healthd_dmgrcs_mortality_disc,binary,Air Pollution and Mortality
+cdcsvi_limteng_hburdic_cont,continuous,Social Vulnerability and Welfare
+climate_relhum_wfsmoke_cont,continuous,Heat Exposure and Wildfires
+climate_wfsmoke_minrty_disc,binary,Heat Exposure and Wildfires
+healthd_hhinco_mortality_cont,continuous,Air Pollution and Mortality
+healthd_pollutn_mortality_cont,continuous,Air Pollution and Mortality
+county_educatn_election_cont,continuous,Welfare and Elections
+county_phyactiv_lifexpcy_cont,continuous,Welfare and Elections
+county_dmgrcs_election_disc,binary,Welfare and Elections
+cdcsvi_nohsdp_poverty_cont,continuous,Social Vulnerability and Welfare
+cdcsvi_nohsdp_poverty_disc,binary,Social Vulnerability and Welfare
