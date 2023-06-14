@@ -50,7 +50,7 @@ setup(
     # entry_points={"console_scripts": ["spacebench=spacebench.api.cli:main"]},
     # url="https://github.com/NSAPH-Projects/space", # cli api needs update
     license="MIT",
-    packages=find_packages(exclude=["tests*", "scripts*", "notebooks*" "examples*"]),
+    packages=find_packages(exclude=["tests*", "scripts*", "notebooks*", "examples*"]),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Science/Research",
