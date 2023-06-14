@@ -1,5 +1,6 @@
 """Module for defining the SpaceEnvironment class"""
 import os
+import json
 import zipfile
 from dataclasses import dataclass
 
@@ -29,6 +30,7 @@ class SpaceDataset:
     confounding_of_missing: float | None = None
     counterfactuals: np.ndarray | None = None
     coordinates: np.ndarray | None = None
+    parent_env: str | None = None
 
     def has_binary_treatment(self) -> bool:
         """
@@ -75,6 +77,28 @@ class SpaceDataset:
             adj[e[0], e[1]] = 1
             adj[e[1], e[0]] = 1
         return adj
+    
+    def __repr__(self) -> str:
+        warning_msg = (
+            "WARNING ⚠️ : this dataset contains a (realistic) synthetic outcome!\n"
+            + "By using it, you agree to understand its limitations."
+            + "The variable names have been masked to emphasize that no"
+            + "inferences can be made about the source data.\n"
+        )
+
+        b = "binary" if self.has_binary_treatment() else "continuous"
+        s = f"SpaceDataset with a missing spatial confounder:\n"
+        s += f"  treatment: {self.treatment.shape} ({b})\n"
+        s += f"  confounders: {self.covariates.shape}\n"
+        s += f"  outcome: {self.outcome.shape}\n"
+        s += f"  counterfactuals: {self.counterfactuals.shape}\n"
+        s += f"  confounding score of missing: {self.confounding_of_missing:.2f}\n"
+        s += f"  spatial smoothness score of missing: {self.smoothness_of_missing:.2f}\n"
+        s += f"  graph edge list: {np.array(self.edges).shape}\n"
+        s += f"  graph node coordinates: {self.coordinates.shape}\n"
+        s += f"  parent SpaceEnv: {self.parent_env}\n"
+        s += warning_msg
+        return s
 
 
 class SpaceEnv:
@@ -285,6 +309,7 @@ class SpaceEnv:
             smoothness_of_missing=missing_smoothness,
             confounding_of_missing=missing_confounding,
             treatment_values=treatment_values,
+            parent_env=self.name,
         )
 
     def make_unmasked(self) -> SpaceDataset:
@@ -374,14 +399,29 @@ class SpaceEnv:
             ):
                 yield self.make(missing=c)
 
+    def __repr__(self) -> str:
+        warning_msg = (
+            "WARNING ⚠️ : this env contains data with a (realistic) synthetic outcome!\n"
+            + "No inferences about the source data collection can be made.\n"
+            + "By using it, you agree to understand its limitations."
+        )
+
+        s = f"SpaceEnv with birth certificate config:\n"
+        s += f"{json.dumps(self.config, indent=2)}\n"
+        s += warning_msg
+        return s
+    
 
 if __name__ == "__main__":
     # small test
     # TODO: convert in unit test
+    import spacebench
     dm = DataMaster()
     envname = dm.list_envs()[0]
     dir = "downloads"
-    generator = SpaceEnv(envname, dir)
-    data = generator.make()
-    datasets = [generator.make() for _ in range(10)]
+    env = SpaceEnv(envname, dir)
+    print(env)
+    data = env.make()
+    print(data)
+    datasets = [env.make() for _ in range(10)]
     LOGGER.debug("ok")
