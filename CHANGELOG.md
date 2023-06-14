@@ -9,6 +9,8 @@
 - Added Masterfile but needs to be updated with new datasets.
 - `list_envs` in DataMaster (previously `list_datasets`) now has an option for `binary=True` or `continuous=True`
 - Added examples of benchmarks in the `examples/` folder.
+- Add nice printing methods for SpaceDataset and SpaceEnv.
+- Warning messages about data limitations are now printed when loading the package, creating a SpaceEnv, or creating a SpaceDataset.
 
 ## Changed
 - Deleted `spacebench/datasets/` folder in favor of `spaceenv/env.py` more consie module.
