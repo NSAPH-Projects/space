@@ -83,6 +83,21 @@ dm.master.head()
 
 To learn more about the data collections and the environments see the [docs](https://nsaph-projects.github.io/space/). The data collections and environments are hosted at the [Harvard Dataverse](https://doi.org/10.7910/DVN/SYNPBS). "Data "nutrition labels" for the collections can be found [here](https://github.com/NSAPH-Projects/space-data/tree/main/data). The environments are produced using the [space-data](https://github.com/NSAPH-Projects/space-data) repository from a data collection with a [configuration file](https://github.com/NSAPH-Projects/space-data/tree/main/conf/spaceenv). Don't forget to read our paper.
 
+Once obtaining a causal dataset, you can use the evaluator to assess the performance of a causal inference method.
+
+```python
+from spacebench import DatasetEvaluator
+results = your_method(dataset)
+metrics = DatasetEvaluator(dataset).eval(
+  ate=results['ate'],
+  erf=results['erf'],  # exposure response curve
+  counterfactuals=results['counterfactuals'],
+)
+metrics.keys()  # contains error metrics
+```
+```
+dict_keys(['ite_apehe', 'erf_ase', 'ate_se'])
+```
 
 
 ## 🙉 Code of Conduct
