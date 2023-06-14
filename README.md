@@ -11,7 +11,7 @@
 ![build](https://github.com/NSAPH-Projects/space/actions/workflows/python-app.yml/badge.svg)
 [![codecov](https://codecov.io/gh/NSAPH-Projects/space/branch/dev/graph/badge.svg?token=I4BDXHGRFR)](https://codecov.io/gh/NSAPH-Projects/space)
 [![](https://img.shields.io/static/v1?label=GitHub&message=SpaCE-Data&color=blue&logo=github)](https://github.com/NSAPH-Projects/space-data)
-[![build](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat)](nsaph-projects.github.io/space/)
+[![build](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat)](https://nsaph-projects.github.io/space/)
 
 ## 🚀 Description
 
