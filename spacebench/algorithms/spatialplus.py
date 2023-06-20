@@ -28,10 +28,8 @@ def fit(
 
     Returns
     -------
-        fit_bs_x: statsmodels.gam.generalized_linear_model.GLMGamResultsWrapper
-            The fitted model of x on covariates and coordinates.
-        fit_bs_y: statsmodels.gam.generalized_linear_model.GLMGamResultsWrapper
-            The fitted model of y on residuals from fit_bs_x, covariates, and coordinates.
+        fit_bs_y.params[1]: float
+            The estimated coefficient of X.
     """
     # Make X and Y n x 1 matrices
     X = X.reshape(-1,1)
@@ -55,7 +53,6 @@ def fit(
         alphax = gam_bs.select_penweight(criterion = "gcv", method = 'minimize')[0] # select penalty weight
         gam_bs = GLMGam.from_formula(formula=formula, data = df, smoother=bs, alpha=alphax)
 
-    #bs = BSplines(coord, df=[10, 10], degree=[3, 3]) # df and deg inputs
     fit_bs_x = gam_bs.fit()
     r_X = fit_bs_x.resid_response
     df['r_X'] = r_X # save residuals
@@ -64,11 +61,9 @@ def fit(
                                 smoother=bs) # fit outcome model without penalty
     fit_bs_y = gam_bs.fit()
     alphay = gam_bs.select_penweight(criterion="gcv", method = 'minimize')[0] # select penalty
-    #print(alphay)
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
-    #print(fit_bs_y.summary())
     return(fit_bs_y.params[1]) 
 
 
