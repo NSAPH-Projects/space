@@ -25,24 +25,22 @@ def fit(
 
     Returns
     -------
-        fit_bs_y: statsmodels.gam.generalized_linear_model.GLMGamResultsWrapper
-            The fitted model.
+        fit_bs_y.params[1]: float
+            The estimated coefficient of X.
     """
     # Make X and Y n x 1 matrices
     X = X.reshape(-1,1)
     Y = Y.reshape(-1,1)
     covs = [col for col in df.columns if col not in ['Y', 'coord1', 'coord2', 'X']]
 
-    bs = BSplines(coord, df=[5, 5], degree=[3, 3]) # df and deg inputs
+    bs = BSplines(coord, df=[5, 5], degree=[3, 3]) # df and deg can be altered
     formula = f"Y ~ X + {' + '.join(covs)}"
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs) # fit outcome model without penalty
     fit_bs_y = gam_bs.fit()
     alphay = gam_bs.select_penweight(criterion="gcv", method = 'minimize')[0] # select penalty
-    #print(alphay)
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
-    #print(fit_bs_y.summary())
     return fit_bs_y.params[1]
 
