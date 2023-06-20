@@ -28,10 +28,8 @@ def fit(
 
     Returns
     -------
-        fit_bs_x: statsmodels.gam.generalized_linear_model.GLMGamResultsWrapper
-            The fitted model of x on covariates and coordinates.
-        fit_bs_y: statsmodels.gam.generalized_linear_model.GLMGamResultsWrapper
-            The fitted model of y on residuals from fit_bs_x, covariates, and coordinates.
+        fit_bs_y.params[1]: float
+            The estimated coefficient of X.
     """
     # Make X and Y n x 1 matrices
     X = X.reshape(-1,1)
@@ -68,7 +66,6 @@ def fit(
     gam_bs = GLMGam.from_formula(formula=formula, data = df,
                                 smoother=bs, alpha=alphay) # fit outcome model with penalty
     fit_bs_y = gam_bs.fit()
-    #print(fit_bs_y.summary())
     return(fit_bs_y.params[1]) 
 
 
@@ -91,4 +88,4 @@ if __name__ == "__main__": # this is for testing
     dfbin = pd.DataFrame(np.column_stack((coord, cov1, cov2, Xbin, Ybin)),
                          columns=['coord1', 'coord2', 'cov1', 'cov2', 'X', 'Y'])
     print(fit(X,Y,coord, df)) # should return 0.3
-    print(fit(Xbin,Ybin,coord, dfbin)) # should return 0.3
+    print(fit(Xbin,Ybin,coord, dfbin, binary_treatment = True)) # should return 0.3
