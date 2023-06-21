@@ -12,7 +12,7 @@ def read_requirements(file):
 
 setup(
     name="spacebench",
-    version="0.0.2",
+    version="0.0.3",
     author=(
         "Mauricio Tec, Ana Trisovic, Audirac, Michelle, Jie Hu,"
         "Sophie Mirabai Woodward, Naeem Khoshnevis, Francesca Dominici"
@@ -38,9 +38,9 @@ setup(
         "counterfactuals, a spatial graph with coordinates, and realistic semi-",
         "synthetic outcomes."
     ),
+    long_description=long_description,
     long_description_content_type="text/markdown",
-    # entry_points={"console_scripts": ["spacebench=spacebench.api.cli:main"]},
-    # url="https://github.com/NSAPH-Projects/space", # cli api needs update
+    url="https://github.com/NSAPH-Projects/space", # cli api needs update
     license="MIT",
     packages=find_packages(exclude=["tests*", "scripts*", "notebooks*", "examples*"]),
     classifiers=[
