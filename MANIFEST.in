@@ -1,3 +1,3 @@
 include requirements.txt
 include optional-requirements.txt
-include masterfile.csv
+include spacebench/masterfile.csv
