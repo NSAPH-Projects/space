@@ -12,7 +12,7 @@ def read_requirements(file):
 
 setup(
     name="spacebench",
-    version="0.1.1",
+    version="0.1.2",
     author=(
         "Mauricio Tec, Ana Trisovic, Audirac, Michelle, Jie Hu,"
         "Sophie Mirabai Woodward, Naeem Khoshnevis, Francesca Dominici"
