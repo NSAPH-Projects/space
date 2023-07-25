@@ -23,7 +23,7 @@ Spatial confounding poses a significant challenge in scientific studies involvin
 Install the PyPI version:
 
 ```sh
-pip install spacebench[all]
+pip install "spacebench[all]"
 ```
 The option `[all]` installs all dependencies necessary for the spatial confounding algorithms and the examples. If you only want to use the `SpaceDatasets`, use `pip install spacebench` instead.
 
