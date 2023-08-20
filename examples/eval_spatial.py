@@ -79,8 +79,8 @@ def eval_func_spatial(dataset:SpaceDataset,
     counterfactuals_spatialplus = np.stack(counterfactuals_spatialplus, axis=1)
 
     evaluator = DatasetEvaluator(dataset)
-    smoothness = dataset.smoothness_of_missing
-    confounding = dataset.confounding_of_missing
+    smoothness = dataset.snoothness_scores
+    confounding = dataset.confounding_scores
 
     if binary_treatment:
         eval_spatial = evaluator.eval(ate=beta_spatial)
