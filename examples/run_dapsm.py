@@ -51,8 +51,8 @@ def run_dapsm(
 
     evaluator = DatasetEvaluator(dataset)
     res = evaluator.eval(ate=ate)
-    res["smoothness"] = dataset.snoothness_scores
-    res["confounding"] = dataset.confounding_scores
+    res["smoothness"] = dataset.smoothness_score
+    res["confounding"] = dataset.confounding_score
     res.update(**kwargs)
 
     return res
@@ -95,8 +95,8 @@ if __name__ == "__main__":
 
         to_remove = []
         for dataset in dataset_list:
-            spatial_score = dataset.snoothness_scores
-            confounding_score = dataset.confounding_scores
+            spatial_score = dataset.smoothness_score
+            confounding_score = dataset.confounding_score
             for result in results:
                 if (
                     result["envname"] == envname
