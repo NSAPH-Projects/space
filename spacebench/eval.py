@@ -105,9 +105,9 @@ class EnvEvaluator:
             res["att_variance"] = np.array(self.buffer["att_error"]).var()
 
         # pehe bias and variance
-        if "pehe_curve" in self.buffer:
-            res["pehe_curve"] = np.array(self.buffer["pehe_curve"]).mean(0)
-            res["pehe"] = np.array(self.buffer["pehe"]).mean(0)   
+        if "ite_curve" in self.buffer:
+            res["ite_curve"] = np.array(self.buffer["ite_curve"]).mean(0)
+            res["ite"] = np.array(self.buffer["ite"]).mean(0)   
 
         # response curve bias and variance
         if "erf_error" in self.buffer:
