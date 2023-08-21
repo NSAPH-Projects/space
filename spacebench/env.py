@@ -99,7 +99,7 @@ class SpaceDataset:
             + "inferences can be made about the source data.\n"
         )
         cs = {x: float(np.round(v, 4)) for x, v in self.confounding_score.items()}
-        ss = list(np.round(self.smoothness_score, 2))
+        ss = np.round(self.smoothness_score, 2)
         b = "binary" if self.has_binary_treatment() else "continuous"
         s = f"SpaceDataset with a missing spatial confounder:\n"
         s += f"  treatment: {self.treatment.shape} ({b})\n"
