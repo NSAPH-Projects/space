@@ -1,6 +1,4 @@
-# spacebench changelog
-
-## Next release
+## spacebench (developing)
 
 ### Added
 
