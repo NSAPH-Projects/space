@@ -2,12 +2,21 @@
 
 ## Next release
 
-- [added] Use new covariate groups and confounding scores per metric. Confounding scores are now a dictionary with keys ate, erf, ite, and importance. The first three correspond to the error scores (absolute ate error, mean absolute erf error, mean root-mean-squared ite error) using a baseline model from autogluon. The importance scores correspond to the max of min(outcome_importance, treatment_importance), which are the previously used scores.
-- [changed] Fixed bug in Space Dataset where `smoothness_score` was called `snoothness scores``.
-- [changed] `confounding_score` and `smoothness_score` are not both singular in a SpaceDataset. 
-- [changed] Mask entire covariate groups from new covariate groupping in the space environments.
-- [removed] Remove option to filter by confounding score in make. It is not useful since user can filter externally examining the `confounding_scores` attribute.
+### Added
 
+- Use new covariate groups and confounding scores per metric. Confounding scores are now a dictionary with keys ate, erf, ite, and importance. The first three correspond to the error scores (absolute ate error, mean absolute erf error, mean root-mean-squared ite error) using a baseline model from autogluon. The importance scores correspond to the max of min(outcome_importance, treatment_importance), which are the previously used scores.
+
+
+### Changed
+
+- Fixed bug in Space Dataset where `smoothness_score` was called `snoothness scores``.
+- `confounding_score` and `smoothness_score` are not both singular in a SpaceDataset. 
+- Mask entire covariate groups from new covariate groupping in the space environments.
+  
+### Removed
+
+- Remove option to filter by confounding score in make. It is not useful since user can filter externally examining the `confounding_scores` attribute.
+  
 
 ## v0.0.2
 
