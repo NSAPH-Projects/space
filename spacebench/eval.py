@@ -31,23 +31,25 @@ class DatasetEvaluator:
             assert self.dataset.has_binary_treatment(), "ATE only valid in binary"
             ate_true = (cf_true[:, 1] - cf_true[:, 0]).mean()
             errors["ate_error"] = (ate - ate_true) / scale
-            errors["ate_se"] = np.square(errors["ate_error"])
+            errors["ate"] = np.abs(errors["ate_error"])
 
         if att is not None:
             assert self.dataset.has_binary_treatment(), "ATT only valid in binary"
             assert np.min(t) == 0.0 and np.max(t) == 1.0
             att_true = (cf_true[t == 1, 1] - cf_true[t == 1, 0]).mean()
             errors["att_error"] = (att - att_true) / scale
-            errors["att_se"] = np.square(errors["att_error"])
+            errors["att"] = np.abs(errors["att_error"])
 
         if counterfactuals is not None:
-            errors["pehe_curve"] = ((counterfactuals - cf_true) ** 2).mean(0) / scale**2
-            errors["pehe_av"] = errors["pehe_curve"].mean()
+            # compute the precision at estimating heterogeneous effects (PEHE)
+            cferr = (counterfactuals - cf_true) / scale
+            errors["ite_curve"] = np.sqrt((cferr ** 2).mean(0))
+            errors["ite"] = errors["ite_curve"].mean()
 
         if erf is not None:
             erf_true = self.dataset.erf()
             errors["erf_error"] = (erf - erf_true) / scale
-            errors["erf_av"] = np.square(errors["erf_error"]).mean()
+            errors["erf"] = np.abs(errors["erf_error"]).mean()
 
         return errors
 
@@ -99,12 +101,13 @@ class EnvEvaluator:
 
         # att bias and variance
         if "att_error" in self.buffer:
-            res["att_bias"] = np.array(self.buffer["att"]).mean()
-            res["att_variance"] = np.array(self.buffer["att"]).var()
+            res["att_bias"] = np.array(self.buffer["att_error"]).mean()
+            res["att_variance"] = np.array(self.buffer["att_error"]).var()
 
         # pehe bias and variance
-        if "pehe" in self.buffer:
-            res["pehe"] = np.array(self.buffer["pehe"]).mean(0)
+        if "pehe_curve" in self.buffer:
+            res["pehe_curve"] = np.array(self.buffer["pehe_curve"]).mean(0)
+            res["pehe"] = np.array(self.buffer["pehe"]).mean(0)   
 
         # response curve bias and variance
         if "erf_error" in self.buffer:

@@ -79,8 +79,8 @@ def run_pysal_reg(
     res = {}
     res.update(**err_eval)
     res["beta"] = treatment_beta.tolist()
-    res["smoothness"] = dataset.smoothness_of_missing
-    res["confounding"] = dataset.confounding_of_missing
+    res["smoothness"] = dataset.smoothness_score
+    res["confounding"] = dataset.confounding_score
 
     return res
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     start = time.perf_counter()
 
     datamaster = DataMaster()
-    envs = datamaster.list_datasets()
+    envs = datamaster.list_envs()
 
     filename = f"results/results_{args.method}.jsonl"
     if not os.path.exists("results"):
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         if os.path.exists(filename):
             os.remove(filename)
 
-    for envname in envs[3:4]: # reversed(envs):
+    for envname in envs: # reversed(envs):
         print(f"Running {envname}")
         env = SpaceEnv(envname, dir="downloads")
         dataset_list = list(env.make_all())
@@ -124,8 +124,8 @@ if __name__ == "__main__":
 
         to_remove = []
         for dataset in dataset_list:
-            spatial_score = dataset.smoothness_of_missing
-            confounding_score = dataset.confounding_of_missing
+            spatial_score = dataset.smoothness_score
+            confounding_score = dataset.confounding_score
             for result in results:
                 if (
                     result["envname"] == envname
