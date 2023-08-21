@@ -12,7 +12,7 @@ def read_requirements(file):
 
 setup(
     name="spacebench",
-    version="0.0.1",
+    version="0.1.3",
     author=(
         "Mauricio Tec, Ana Trisovic, Audirac, Michelle, Jie Hu,"
         "Sophie Mirabai Woodward, Naeem Khoshnevis, Francesca Dominici"
@@ -29,18 +29,11 @@ setup(
     maintainer="Naeem Khoshnevis",
     maintainer_email="nkhoshnevis@g.harvard.edu",
     description=(
-        "Spatial confounding poses a significant challenge in scientific studies ",
-        "where unobserved spatial variables influence both treatment and ",
-        "outcome, leading to spurious associations. ",
-        "SpaCE provides realistic benchmark datasets and tools for systematically ",
-        "evaluating causal inference methods for spatial confounding. Each "
-        "dataset includes training data with spatial confounding, true ",
-        "counterfactuals, a spatial graph with coordinates, and realistic semi-",
-        "synthetic outcomes."
+        "Spatial confounding poses a significant challenge in scientific studies where unobserved spatial variables influence both treatment and outcome, leading to spurious associations. SpaCE provides realistic benchmark datasets and tools for systematically valuating causal inference methods for spatial confounding. Each dataset includes training data with spatial confounding, true counterfactuals, a spatial graph with coordinates, and realistic semi-synthetic outcomes."
     ),
+    long_description=long_description,
     long_description_content_type="text/markdown",
-    # entry_points={"console_scripts": ["spacebench=spacebench.api.cli:main"]},
-    # url="https://github.com/NSAPH-Projects/space", # cli api needs update
+    url="https://github.com/NSAPH-Projects/space", # cli api needs update
     license="MIT",
     packages=find_packages(exclude=["tests*", "scripts*", "notebooks*", "examples*"]),
     classifiers=[
