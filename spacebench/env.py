@@ -99,7 +99,6 @@ class SpaceDataset:
             + "inferences can be made about the source data.\n"
         )
         cs = {x: float(np.round(v, 4)) for x, v in self.confounding_score.items()}
-        ss = np.round(self.smoothness_score, 2)
         b = "binary" if self.has_binary_treatment() else "continuous"
         s = f"SpaceDataset with a missing spatial confounder:\n"
         s += f"  treatment: {self.treatment.shape} ({b})\n"
@@ -108,7 +107,7 @@ class SpaceDataset:
         s += f"  covariates: {self.covariates.shape}\n"
         s += f"  missing covariates: {self.missing_covariates.shape}\n"
         s += f"  confounding score of missing: {cs}\n"
-        s += f"  spatial smoothness score of missing: {ss}\n"
+        s += f"  spatial smoothness score of missing: {self.smoothness_score:.2f}\n"
         s += f"  graph edge list: {np.array(self.edges).shape}\n"
         s += f"  graph node coordinates: {self.coordinates.shape}\n"
         s += f"  parent SpaceEnv: {self.parent_env}\n"
