@@ -1,0 +1,14 @@
+binary: true
+continuous: false
+name: ${hydra.runtime.choices.algo}
+
+algo:
+  _target_: spacebench.algorithms.DAPSm
+  balance_cutoff: 1e12
+  caliper_type: daps
+  matching_algorithm: optimal
+
+hpars:
+  treatment_classifier_l2_penalty:
+    _target_: ray.tune.grid_search
+    # - [0.001, 0.01, 0.1, 1.0]
