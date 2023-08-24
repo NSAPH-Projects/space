@@ -28,10 +28,10 @@ class SpaceDataset:
     outcome: np.ndarray
     edges: list[tuple[int, int]]
     treatment_values: np.ndarray
+    counterfactuals: np.ndarray
     missing_covariates: np.ndarray | None = None
     smoothness_score: list[float] | None = None
     confounding_score: dict[Literal["ate", "erf", "ite"], list[float]] | None = None
-    counterfactuals: np.ndarray | None = None
     coordinates: np.ndarray | None = None
     parent_env: str | None = None
 
@@ -113,6 +113,61 @@ class SpaceDataset:
         s += f"  parent SpaceEnv: {self.parent_env}\n"
         s += warning_msg
         return s
+
+    # add indexing method that retuns a new SpaceDataset, and subset of the graph
+    # it should only support indexing by a list of indices, boolean mask or nd array
+    def __getitem__(self, idx: list[int | bool]) -> "SpaceDataset":
+        # if list of boolean, extract indices
+        if isinstance(idx, list) and isinstance(idx[0], bool):
+            idx = np.arange(len(idx))[idx]
+
+        ind_ = set(idx)
+        subedges = [e for e in self.edges if e[0] in ind_ and e[1] in ind_]
+        new_ind = sorted(set(itertools.chain.from_iterable(subedges)))
+        new_ind = {x: i for i, x in enumerate(new_ind)}
+        new_edges = [(new_ind[e[0]], new_ind[e[1]]) for e in subedges]
+
+        return SpaceDataset(
+            treatment=self.treatment[idx],
+            covariates=self.covariates[idx],
+            outcome=self.outcome[idx],
+            edges=new_edges,
+            treatment_values=self.treatment_values,
+            missing_covariates=self.missing_covariates,
+            smoothness_score=self.smoothness_score,
+            confounding_score=self.confounding_score,
+            counterfactuals=self.counterfactuals[idx],
+            coordinates=self.coordinates[idx] if self.coordinates is not None else None,
+            parent_env=self.parent_env,
+        )
+
+    def size(self) -> int:
+        """Returns the number of nodes in the dataset"""
+        return len(self.treatment)
+
+    def remove_islands(self) -> "SpaceDataset":
+        """Returns a space dataset without islands
+
+        Returns
+        _______
+        SpaceDataset
+            A new SpaceDataset without islands. The components of the
+            spacedataset and edge indices are updated accordingly.
+            When no islands are found, it returns self. When islands are found it
+            returns a subset without islands.
+        """
+        num_neighbors = np.zeros(len(self.treatment), dtype=int)
+        for e in self.edges:
+            num_neighbors[e[0]] += 1
+            num_neighbors[e[1]] += 1
+        islands = num_neighbors == 0
+
+        if sum(islands) == 0:
+            LOGGER.debug("No islands found. Returning self.")
+            return self
+        else:
+            LOGGER.debug(f"Found {sum(islands)} islands. Removing them.")
+            return self[~islands]
 
 
 class SpaceEnv:
