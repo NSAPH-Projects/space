@@ -3,13 +3,16 @@ import numpy as np
 from pysal.model import spreg
 
 from spacebench import SpaceDataset
+from spacebench.algorithms import SpaceAlgo
 from spacebench.log import LOGGER
 
 
-class GMError:
+class GMError(SpaceAlgo):
     """
     Wrapper of PySAL GM_Error model.
     """
+    supports_binary = True
+    supports_continuous = True
 
     def fit(self, dataset: SpaceDataset):
         x = np.concatenate([dataset.treatment[:, None], dataset.covariates], axis=1)
@@ -36,10 +39,12 @@ class GMError:
         return effects
 
 
-class GMLag:
+class GMLag(SpaceAlgo):
     """
     Wrapper of PySAL GM_Lag model.
     """
+    supports_binary = True
+    supports_continuous = True
 
     def __init__(self, w_lags: int = 1):
         """
@@ -50,6 +55,7 @@ class GMLag:
             Number of spatial lags to include in the model. See the GM_Lag
             documentation for more details.
         """
+        super().__init__()
         self.w_lags = w_lags
 
     def fit(self, dataset: SpaceDataset):

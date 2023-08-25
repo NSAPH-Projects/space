@@ -142,7 +142,9 @@ dmypy.json
 .pyre/
 
 
-# Results/training
+# benchmark training
 **/results
-benchmarks/ray
+benchmarks/ray_cache
 .lr_find*
+.snakemake/*
+logs

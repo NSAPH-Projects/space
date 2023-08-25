@@ -1,0 +1,38 @@
+logdir: benchmarks/results
+
+concurrency: 8
+
+spaceenvs:
+  cont:
+    - climate_relhum_wfsmoke_cont
+    - healthd_hhinco_mortality_cont
+    - healthd_pollutn_mortality_cont
+    - county_educatn_election_cont
+    - county_phyactiv_lifexpcy_cont
+    - cdcsvi_limteng_hburdic_cont
+    - cdcsvi_nohsdp_poverty_cont
+  disc:
+    - county_dmgrcs_election_disc
+    - climate_wfsmoke_minrty_disc
+    - healthd_dmgrcs_mortality_disc
+    - cdcsvi_nohsdp_poverty_disc
+
+algorithms:
+  cont:
+    - spatial
+    - spatialplus
+    - xgboost
+    - ols
+    - gcn
+    - s2sls-lag1
+    - s2sls-lag2
+    - gmerror
+  disc:
+    - spatial
+    - spatialplus
+    - xgboost
+    - ols
+    - gcn
+    - s2sls-lag1
+    - s2sls-lag2
+    - gmerror

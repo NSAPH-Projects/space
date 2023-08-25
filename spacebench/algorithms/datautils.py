@@ -53,7 +53,9 @@ def spatial_train_test_split(
     buffer_nodes : list
         List of buffer node indices
     """
-    LOGGER.debug(f"Selecting tunning split removing {levels} nbrs from val. pts.")
+    LOGGER.debug(
+        f"Selecting tunning split removing {levels} level and {buffer} buffer from val. pts."
+    )
 
     # make dict of neighbors from graph
     node_list = np.array(graph.nodes())

@@ -285,7 +285,7 @@ class SpaceEnv:
 
         coordinates = []
         for v in graph.nodes.values():
-            coordinates.append([float(x) for x in v.values()])       
+            coordinates.append([float(x) for x in v.values()])
         self.coordinates = np.array(coordinates)
 
         # -- 6. covariates --
@@ -391,6 +391,12 @@ class SpaceEnv:
         """
         for c in self.covariate_groups:
             yield self.make(missing_group=c)
+
+    def has_binary_treatment(self) -> bool:
+        """
+        Returns true if treatment is binary.
+        """
+        return len(self.treatment_values) == 2
 
     def __repr__(self) -> str:
         warning_msg = (

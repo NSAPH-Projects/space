@@ -8,16 +8,18 @@ from pytorch_lightning.callbacks import LearningRateFinder
 from torch.optim import Adam
 from torch_geometric.nn import GCNConv
 
-from spacebench.algorithms.base import SpatialMethod
+from spacebench.algorithms import SpaceAlgo
 from spacebench.algorithms.datautils import graph_data_loader
 from spacebench.env import SpaceDataset
 from spacebench.log import LOGGER
 
 
-class GCN(SpatialMethod):
+class GCN(SpaceAlgo):
     """
     Wrapper for Graph Convolutional Network (GCN) trainer.
     """
+    supports_continuous = True
+    supports_binary = True
 
     def __init__(
         self,
@@ -61,6 +63,7 @@ class GCN(SpatialMethod):
         verbose : bool
             Print model summary and training progress.
         """
+        super().__init__()
         self.impl_kwargs = {
             "hidden_dim": hidden_dim,
             "hidden_layers": hidden_layers,

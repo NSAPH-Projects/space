@@ -2,20 +2,24 @@ defaults:
   - algo: ???
 
 global_seed: 123
+
+concurrency: 4
+
 spatial_train_test_split:
-  init_frac: 0.05
+  init_frac: 0.02
   levels: 1
   buffer: 1
   seed: 0
 
+spaceenv: climate_wfsmoke_minrty_disc  # must be a valid spaceenv
+logfile: benchmarks/results/${spaceenv}/${hydra:runtime.choices.algo}.jsonl
+
 algo:  # these config must be overwritten by algo/*.yaml
-  needs_train_test_split: true
+  needs_train_test_split: ???
   name: ${hydra:runtime.choices.algo}
 
   method:
-    _target_: ???  # most point to a spacebench.algorithms.SpatialMethod calss
-  binary: ???
-  continuous: ???
+    _target_: ???  # most point to a SpaceAlgo
 
   tune:  # ray tune resources, can override  in algo/*.yaml but not needed
     param_space: {}
@@ -24,11 +28,11 @@ algo:  # these config must be overwritten by algo/*.yaml
     tune_config:
       _target_: ray.tune.TuneConfig
       num_samples: 50
-      max_concurrent_trials: 4
+      max_concurrent_trials: ${concurrency}
       scheduler:
         _target_: ray.tune.schedulers.ASHAScheduler
       mode: min
     run_config:
       _target_: ray.air.RunConfig
-      local_dir: benchmarks/ray
-      name: ${hydra:runtime.choices.algo}
+      local_dir: benchmarks/ray_cache
+      name: ${spaceenv}/${hydra:runtime.choices.algo}

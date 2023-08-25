@@ -3,7 +3,23 @@ from abc import abstractmethod
 from spacebench.env import SpaceDataset
 
 
-class SpatialMethod:
+class SpaceAlgo:
+    supports_binary: bool | None = None
+    supports_continuous: bool | None = None
+
+    def __init__(self):
+        self.__validate_class()
+
+    @classmethod
+    def __validate_class(cls):
+        """Initialize the spatial method."""
+        assert (
+            cls.supports_binary is not None
+        ), "supports_binary must be set as class attribute"
+        assert (
+            cls.supports_continuous is not None
+        ), "supports_continuous must be set as class attribute"
+
     @abstractmethod
     def fit(self, dataset: SpaceDataset, **kwargs) -> None:
         """Estimates the causal effect of a treatment on an outcome.

@@ -7,7 +7,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 from sklearn.linear_model import LogisticRegression
 
-from spacebench.algorithms.base import SpatialMethod
+from spacebench.algorithms import SpaceAlgo
 from spacebench.env import SpaceDataset
 from spacebench.log import LOGGER
 
@@ -273,8 +273,12 @@ def dapsm(
     return att, weight, matches, balances
 
 
-class DAPSm(SpatialMethod):
-    """Wrapper for DAPS matching algorithm for use with causal datasets"""
+class DAPSm(SpaceAlgo):
+    """
+    Wrapper for DAPS matching algorithm for use with causal datasets
+    """
+    supports_continuous = False
+    supports_binary = True
 
     def __init__(
         self,
@@ -397,10 +401,10 @@ class DAPSm(SpatialMethod):
         return {"att": self.att, "ate": ate, "atc": self.atc, "erf": erf, "ite": ite}
 
     def tune_metric(self, dataset: SpaceDataset):
-        # Returns the negative weighted covariate balance
+        # Returns the negative weighted covariate balance with spatial weight bonus
         w = np.nanmean(dataset.treatment.astype(bool))
         balance = w * self.att_balance + (1 - w) * self.atc_balance
-        return - balance
+        return - balance - 0.1 * self.spatial_weight
 
     @property
     def available_estimands(self):

@@ -1,0 +1,17 @@
+needs_train_test_split: true
+
+method:
+  _target_: spacebench.algorithms.Spatial
+  max_iter: 5_000
+
+tune:
+  param_space:
+    k:
+      _target_: ray.tune.choice
+      _args_:
+        - [100, 500]
+    lam:
+      _target_: ray.tune.loguniform
+      _args_: [1e-4, 1.0]
+
+  num_samples: 10
