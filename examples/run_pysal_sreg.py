@@ -65,11 +65,11 @@ def run_pysal_reg(
     evaluator = DatasetEvaluator(dataset)
 
     if binary_treatment: 
-        err_eval = evaluator.eval(ate=treatment_beta, counterfactuals=counterfactuals)
+        err_eval = evaluator.eval(ate=treatment_beta, ite=counterfactuals)
     else:
         erf = counterfactuals.mean(0)
         err_eval = evaluator.eval(
-            erf=erf, counterfactuals=counterfactuals)
+            erf=erf, ite=counterfactuals)
 
     # this is because json cannot serialize numpy arrays
     for key, value in err_eval.items():

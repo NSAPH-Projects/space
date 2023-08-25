@@ -274,16 +274,18 @@ class SpaceEnv:
 
         # for 0/1 when treatment is binary
         if len(self.treatment_values) == 2:
-            self.treatment = (self.treatment == self.treatment_values[1])
+            self.treatment = self.treatment == self.treatment_values[1]
             self.treatment_values = np.array([0, 1])
 
         # -- 5. graph, edges --
-        self.graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
-        node2id = {n: i for i, n in enumerate(self.graph.nodes)}
-        self.edge_list = [(node2id[e[0]], node2id[e[1]]) for e in self.graph.edges]
+        graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
+        node2id = {n: i for i, n in enumerate(graph.nodes)}
+        self.edge_list = [(node2id[e[0]], node2id[e[1]]) for e in graph.edges]
+        self.graph = nx.from_edgelist(self.edge_list)
+
         coordinates = []
-        for v in self.graph.nodes.values():
-            coordinates.append([float(x) for x in v.values()])
+        for v in graph.nodes.values():
+            coordinates.append([float(x) for x in v.values()])       
         self.coordinates = np.array(coordinates)
 
         # -- 6. covariates --

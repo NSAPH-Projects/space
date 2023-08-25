@@ -109,9 +109,9 @@ def eval_func_spatial(dataset:SpaceDataset,
         erf_spatial = counterfactuals_spatial.mean(0)
         erf_spatialplus = counterfactuals_spatialplus.mean(0)
         err_spatial_eval = evaluator.eval(erf=erf_spatial, 
-                                          counterfactuals=counterfactuals_spatial)
+                                          ite=counterfactuals_spatial)
         err_spatialplus_eval = evaluator.eval(erf=erf_spatialplus, 
-                                              counterfactuals=counterfactuals_spatialplus)
+                                              ite=counterfactuals_spatialplus)
         
         erf_error_spatial = err_spatial_eval["erf_error"]
         erf_error_spatialplus = err_spatialplus_eval["erf_error"]

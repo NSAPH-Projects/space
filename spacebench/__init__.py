@@ -1,6 +1,7 @@
 from spacebench.env import SpaceEnv, SpaceDataset
 from spacebench.eval import DatasetEvaluator, EnvEvaluator
 from spacebench.datamaster import DataMaster
+import spacebench.algorithms.datautils
 
 
 def _warn_user():

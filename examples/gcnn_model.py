@@ -111,7 +111,7 @@ def run_gcn(dataset):
     evaluator = DatasetEvaluator(dataset)
     erf =counterfactuals.mean(0)
     err_spatial_eval = evaluator.eval(
-            erf=erf, counterfactuals=np.squeeze(counterfactuals))
+            erf=erf, ite=np.squeeze(counterfactuals))
 
     res = {}
     for key, value in err_spatial_eval.items():

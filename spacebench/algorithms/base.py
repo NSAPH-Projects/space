@@ -15,7 +15,7 @@ class SpatialMethod:
         about the estimation process.
 
         Arguments
-        _________
+        ---------
         dataset : SpaceDataset
             The dataset used to learn the causal effect.
         """
@@ -27,7 +27,7 @@ class SpatialMethod:
         """Aavailable estimands.
 
         Returns
-        _______
+        -------
         list[str]
             A list of available estimands (erf, ate, att, ite, etc.)
         """
@@ -39,14 +39,29 @@ class SpatialMethod:
         available estimands.
 
         Arguments
-        _________
+        ---------
         dataset : SpaceDataset
             The dataset to be evaluated.
 
         Returns
-        _______
+        -------
         dict[str, float | list[float]]
             A dictionary with the estimands as keys and the estimated
             effects as values.
         """
         pass
+
+    def tune_metric(self, datset: SpaceDataset) -> float:
+        """Return a metric to be used for hyperparameter tuning.
+
+        Arguments
+        ---------
+        dataset : SpaceDataset
+            The dataset to be evaluated.
+
+        Returns
+        -------
+        float
+            A metric to be used for hyperparameter tuning.
+        """
+        raise NotImplementedError

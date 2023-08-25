@@ -54,12 +54,12 @@ def run_spatial_plus(
 
     if binary_treatment:
         err_spatial_eval = evaluator.eval(
-            ate=beta_spatial, counterfactuals=counterfactuals_spatial
+            ate=beta_spatial, ite=counterfactuals_spatial
         )
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
         err_spatial_eval = evaluator.eval(
-            erf=erf_spatial, counterfactuals=counterfactuals_spatial
+            erf=erf_spatial, ite=counterfactuals_spatial
         )
 
     # this is because json cannot serialize numpy arrays

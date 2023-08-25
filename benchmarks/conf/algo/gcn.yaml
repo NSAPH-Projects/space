@@ -1,0 +1,33 @@
+binary: true
+continuous: true
+needs_train_test_split: true
+
+method:
+  _target_: spacebench.algorithms.GCN
+  verbose: false
+
+tune:
+  param_space:
+    epochs:
+      _target_: ray.tune.choice
+      _args_:
+        - [500, 2000]
+    dropout:
+      _target_: ray.tune.uniform
+      _args_: [0.0, 0.5]
+    hidden_dim:
+      _target_: ray.tune.choice
+      _args_:
+        - [16, 64]
+    hidden_layers:
+      _target_: ray.tune.choice
+      _args_:
+        - [1, 2]
+    weight_decay:
+      _target_: ray.tune.loguniform
+      _args_: [1e-6, 1e-3]
+    act:
+      _target_: ray.tune.choice
+      _args_:
+        - [relu, silu, elu]
+

@@ -3,4 +3,4 @@ continuous: true
 needs_train_test_split: false
 
 method:
-  _target_: spacebench.algorithms.OLS
+  _target_: spacebench.algorithms.GMError

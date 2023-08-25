@@ -30,3 +30,4 @@ dependencies:
     - tqdm>=4.62.3
     - scipy>=1.10.1
     - "ray[tune]"==2.6.3
+    - optuna==3.3.0

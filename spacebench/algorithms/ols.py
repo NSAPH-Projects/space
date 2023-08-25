@@ -1,111 +1,59 @@
 import numpy as np
 from spacebench import SpaceDataset
-from typing import Literal
-import libpysal as lp
-from pysal.model.spreg import GM_Lag, GM_Error
 from sklearn.linear_model import Ridge
 
 
-class OSLModel:
+class OLS:
     """
-    This class is for implementing linear models, in particular the Ordinary Least
-    Squares (OLS) model with Ridge Regression and the PySal models.
-
-
-    Attributes:
-        dataset (SpaceDataset): The input dataset for the model.
-        binary_treatment (bool): Indicator for whether the treatment is binary.
-        treatment (np.ndarray): The treatment values from the dataset.
-        covariates (np.ndarray): The covariates from the dataset.
-        outcome (np.ndarray): The outcome values from the dataset.
-        trainmat (np.ndarray): The matrix used for training the model.
-        tvals (np.ndarray): The treatment values from the dataset.
+    Simple wrapper for OLS regression for comparison purposes.
     """
 
-    def __init__(self, dataset: SpaceDataset, binary_treatment: bool):
-        """
-        Constructor for the OSLModel class.
+    def fit(self, dataset: SpaceDataset):
+        self.model = Ridge(alpha=1e-6, fit_intercept=True)
+        inputs = np.concatenate(
+            [dataset.treatment[:, None], dataset.covariates], axis=1
+        )
+        self.model.fit(inputs, dataset.outcome)
 
-        Args:
-            dataset (SpaceDataset): The input dataset for the model.
-            binary_treatment (bool): Indicator for whether the treatment is binary.
-        """
+    def eval(self, dataset: SpaceDataset):
+        treatment_values = dataset.treatment_values
+        inputs = np.concatenate(
+            [dataset.treatment[:, None], dataset.covariates], axis=1
+        )
+        preds = self.model.predict(inputs)
+        residuals = dataset.outcome - preds
 
-        if not isinstance(dataset, SpaceDataset):
-            raise ValueError("causal_dataset must be an instance" "of SpaceDataset")
+        mu_cf = []
+        for a in treatment_values:
+            treatment_a = np.full((dataset.size(), 1), a)
+            inputs_a = np.concatenate([treatment_a, dataset.covariates], axis=1)
+            pred_a = self.model.predict(inputs_a)
+            mu_cf.append(pred_a)
+        mu_cf = np.stack(mu_cf, axis=1)
 
-        self.dataset = dataset
-        self.binary_treatment = binary_treatment
-        self.treatment = dataset.treatment[:, None]
-        self.covariates = dataset.covariates
-        self.outcome = dataset.outcome
-        self.trainmat = np.hstack([self.covariates, self.treatment])
-        self.tvals = dataset.treatment_values
-
-    def ridge(self, nugget: float):
-        """
-        Fits a Ridge regression model with the given nugget and evaluates counterfactuals.
-
-        Args:
-            nugget (float): The regularization strength.
-
-        Returns:
-            tuple: Beta values and counterfactuals.
-        """
-        model = Ridge(alpha=nugget, fit_intercept=True)
-        model.fit(self.trainmat, self.outcome)
-
-        beta = model.coef_[-1]
-        counterfactuals = self._create_counterfactuals(beta)
-
-        if self.binary_treatment:
-            return beta, counterfactuals
-        else:
-            erf = counterfactuals.mean(0)
-            return erf, counterfactuals
-
-    def _process_method(self, method):
-        options = {
-            "GM_Lag": GM_Lag,
-            "GM_Error": GM_Error,
+        effects = {
+            "erf": mu_cf.mean(0),
+            "ite": mu_cf + residuals[:, None],
         }
-        return options.get(method)
 
-    def sreg(self, method_name: Literal["GM_Lag", "GM_Error"]):
-        """
-        Runs PySAL regression based on the provided method name.
+        if dataset.has_binary_treatment():
+            effects["ate"] = effects["erf"][1] - effects["erf"][0]
 
-        Args:
-            method_name (Literal): The name of the method for PySAL regression.
+        return effects
 
-        Returns:
-            tuple: Beta values and counterfactuals.
-        """
-        W = lp.weights.util.full2W(self.dataset.adjacency_matrix())
+    def available_estimands(self):
+        return ["ate", "erf", "ite"]
 
-        method = self._process_method(method_name)
-        model = method(self.outcome, self.trainmat, w=W)
 
-        beta = model.betas[-2]
-        counterfactuals = self._create_counterfactuals(beta)
+if __name__ == "__main__":
+    import sys
+    import spacebench
 
-        return beta, counterfactuals
+    env_name = spacebench.DataMaster().list_envs()[0]
+    env = spacebench.SpaceEnv(env_name)
+    dataset = env.make()
 
-    def _create_counterfactuals(self, beta):
-        """
-        Helper function to create counterfactuals.
-
-        Args:
-            model (Ridge or PySAL model): The trained model.
-
-        Returns:
-            np.ndarray: The counterfactuals.
-        """
-        counterfactuals = []
-        for tval in self.tvals:
-            # simplified formula for linear models
-            diff = np.squeeze(tval - self.treatment, axis=-1)
-            counterfactuals.append(self.outcome + beta * (diff))
-
-        counterfactuals = np.stack(counterfactuals, axis=1)
-        return counterfactuals
+    algo = OLS()
+    algo.fit(dataset)
+    effects = algo.eval(dataset)
+    sys.exit(0)

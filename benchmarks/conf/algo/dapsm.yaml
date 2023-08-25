@@ -1,14 +1,22 @@
 binary: true
 continuous: false
-name: ${hydra.runtime.choices.algo}
+needs_train_test_split: false
 
-algo:
+method:
   _target_: spacebench.algorithms.DAPSm
-  balance_cutoff: 1e12
   caliper_type: daps
   matching_algorithm: optimal
 
-hpars:
-  treatment_classifier_l2_penalty:
-    _target_: ray.tune.grid_search
-    # - [0.001, 0.01, 0.1, 1.0]
+tune:
+  param_space:
+    propensity_score_penalty_value:
+      _target_: ray.tune.choice
+      _args_:
+        - [0.001, 0.01, 0.1, 1.0]
+    propensity_score_penalty_type:
+      _target_: ray.tune.choice
+      _args_: 
+        - [l1, l2]
+    spatial_weight:
+      _target_: ray.tune.uniform
+      _args_: [0.0, 0.8]

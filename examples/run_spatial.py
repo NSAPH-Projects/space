@@ -39,11 +39,11 @@ def run_spatial(dataset, binary_treatment):
     evaluator = DatasetEvaluator(dataset)
 
     if binary_treatment: # THERE SEEMS TO BE A PROBLEM HERE
-        err_spatial_eval = evaluator.eval(ate=beta_spatial, counterfactuals=counterfactuals_spatial)
+        err_spatial_eval = evaluator.eval(ate=beta_spatial, ite=counterfactuals_spatial)
     else:
         erf_spatial = counterfactuals_spatial.mean(0)
         err_spatial_eval = evaluator.eval(
-            erf=erf_spatial, counterfactuals=counterfactuals_spatial)
+            erf=erf_spatial, ite=counterfactuals_spatial)
     
     # this is because json cannot serialize numpy arrays
     for key, value in err_spatial_eval.items():

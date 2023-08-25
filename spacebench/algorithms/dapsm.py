@@ -1,19 +1,20 @@
 import sys
 import warnings
-from typing import Any, Literal
 from dataclasses import dataclass
+from typing import Any, Literal
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from sklearn.linear_model import LogisticRegression
 
+from spacebench.algorithms.base import SpatialMethod
 from spacebench.env import SpaceDataset
-from spacebench.algorithms.classes import SpatialMethod
 from spacebench.log import LOGGER
 
 
 class NoMatchError(Exception):
     """Class for no matches found in DAPS matching."""
+
     def __init__(self):
         super().__init__("No matches found.")
 
@@ -40,6 +41,7 @@ def dapsm_matching(
     caliper: float = np.inf,
     caliper_type: Literal["daps", "ps"] = "daps",
     matching_algorithm: Literal["optimal", "greedy"] = "optimal",
+    target_group: Literal["treated", "controls"] = "treated",
     warn: bool = True,
 ):
     """Spatially weighted matching.
@@ -61,6 +63,10 @@ def dapsm_matching(
         A weight for the DAPS.
     matching_algorithm: str
         Whether to use optimal or greedy matching.
+    target_group: str
+        If target_group == "treated", then the algorithm will find a match
+        for each treated unit. If target_group == "controls", then the
+        algorithm will find a match for each control unit.
 
     Returns
     -------
@@ -77,9 +83,8 @@ def dapsm_matching(
     assert 0 <= weight <= 1, "weight must be between 0 and 1"
 
     # normalize distances in 0-1
-    wdist = (spatial_dists - np.min(spatial_dists)) / (
-        spatial_dists.max() - spatial_dists.min()
-    )
+    m, M = spatial_dists.min(), spatial_dists.max()
+    wdist = (spatial_dists - m) / (M - m)
 
     # DAPS matrix
     score = (1 - weight) * wdist + weight * ps_dists
@@ -98,7 +103,12 @@ def dapsm_matching(
 
     # find matches, keep only matches with finite score
     if matching_algorithm == "optimal":
-        trt_indices, ctrl_indices = linear_sum_assignment(score)
+        if target_group == "controls":
+            ctrl_indices, trt_indices = linear_sum_assignment(score.T)
+        elif target_group == "treated":
+            trt_indices, ctrl_indices = linear_sum_assignment(score)
+        else:
+            raise ValueError(target_group)
     else:
         trt_indices = np.arange(score.shape[0])
         ctrl_indices = np.argmin(score, axis=1)
@@ -247,7 +257,7 @@ def dapsm(
         pairs: list of matched pairs.
     """
 
-    weight, matches, _ = find_spatial_weight(
+    weight, matches, balances = find_spatial_weight(
         covars_treated=covars_treated,
         covars_controls=covars_controls,
         ps_dists=ps_dists,
@@ -260,7 +270,7 @@ def dapsm(
     # ATT estimation
     att = (outcome_treated[matches.treated] - outcome_controls[matches.controls]).mean()
 
-    return att, weight, matches
+    return att, weight, matches, balances
 
 
 class DAPSm(SpatialMethod):
@@ -268,8 +278,7 @@ class DAPSm(SpatialMethod):
 
     def __init__(
         self,
-        search_values: np.ndarray = np.linspace(0.01, 0.99, 10),
-        balance_cutoff: float = 0.5,
+        spatial_weight: float = 0.5,
         propensity_score_penalty_value: float = 0.1,
         propensity_score_penalty_type: Literal["l1", "l2", "elasticnet"] = "l2",
         ps_clip: float = 1e-2,
@@ -277,13 +286,11 @@ class DAPSm(SpatialMethod):
         matching_algorithm: Literal["optimal", "greedy"] = "optimal",
     ):
         """Initialize DAPSm method.
- 
+
         Arguments
         ---------
-        search_values: np.ndarray
-            values to search for the spatial weight that satisfies the cutoff.
-        balance_cutoff: float
-            maximum standardized difference in covariates between matched pairs.
+        spatial_weight: np.ndarray
+            weight assigned to the spatial distance vs propensity score in matching.
         propensity_score_penalty_value: float
             penalty value for propensity score model.
         propensity_score_penalty_type: str
@@ -299,14 +306,15 @@ class DAPSm(SpatialMethod):
             maximum standardized difference in covariates between matched pairs.
         """
         super().__init__()
-        self.search_values = search_values
-        self.balance_cutoff = balance_cutoff
+        self.spatial_weight = spatial_weight
         self.propensity_score_penalty_value = propensity_score_penalty_value
         self.propensity_score_penalty_type = propensity_score_penalty_type
         self.ps_clip = ps_clip
         self.dapsm_kwargs = {
             "caliper_type": caliper_type,
             "matching_algorithm": matching_algorithm,
+            "search_values": [spatial_weight],
+            "balance_cutoff": np.inf,
         }
 
     def fit(self, dataset: SpaceDataset):
@@ -320,7 +328,9 @@ class DAPSm(SpatialMethod):
         coords = (dataset.coordinates - m) / (M - m)
         coords_1 = coords[treatment]
         coords_0 = coords[~treatment]
-        spatial_dists = np.sqrt(np.square(coords_1[:, None] - coords_0[None, :]).sum(axis=-1))
+        spatial_dists = np.sqrt(
+            np.square(coords_1[:, None] - coords_0[None, :]).sum(axis=-1)
+        )
 
         # standardize covariates
         mu = dataset.covariates.mean(axis=0)
@@ -338,6 +348,7 @@ class DAPSm(SpatialMethod):
         model = LogisticRegression(
             penalty=self.propensity_score_penalty_type,
             C=self.propensity_score_penalty_value,
+            solver="liblinear",
         )
         model.fit(covars, treatment)
         ps = model.predict_proba(covars)[:, 1]
@@ -345,41 +356,51 @@ class DAPSm(SpatialMethod):
         ps_dists = np.abs(ps[treatment, None] - ps[None, ~treatment])
 
         # call DAPSm, catch for no matches
-        try:
-            att, *_ = dapsm(
-                outcome_treated=outcome_1,
-                outcome_controls=outcome_0,
-                covars_treated=covars_1,
-                covars_controls=covars_0,
-                ps_dists=ps_dists,
-                spatial_dists=spatial_dists,
-                search_values=self.search_values,
-                balance_cutoff=self.balance_cutoff,
-                **self.dapsm_kwargs,
-            )
+        self.att, *_, (self.att_balance, ) = dapsm(
+            outcome_treated=outcome_1,
+            outcome_controls=outcome_0,
+            covars_treated=covars_1,
+            covars_controls=covars_0,
+            ps_dists=ps_dists,
+            spatial_dists=spatial_dists,
+            target_group="controls",
+            **self.dapsm_kwargs,
+        )
 
-            atc, *_ = dapsm(
-                outcome_treated=outcome_0,
-                outcome_controls=outcome_1,
-                covars_treated=covars_0,
-                covars_controls=covars_1,
-                ps_dists=ps_dists.T,
-                spatial_dists=spatial_dists.T,
-                search_values=self.search_values,
-                balance_cutoff=self.balance_cutoff,
-                **self.dapsm_kwargs,
-            )
+        # compute the atc by inverting the treatment, but add a minus sign
+        # atc(t) = - att(1 - t)
+        self.atc, *_, (self.atc_balance, ) = dapsm(
+            outcome_treated=outcome_1,
+            outcome_controls=outcome_0,
+            covars_treated=covars_1,
+            covars_controls=covars_0,
+            ps_dists=ps_dists,
+            spatial_dists=spatial_dists,
+            target_group="controls",
+            **self.dapsm_kwargs,
+        )
 
-            w = np.mean(treatment)
-            ate = w * att + (1 - w) * atc
+    def eval(self, dataset: SpaceDataset):
+        t = dataset.treatment.astype(bool)
+        y = dataset.outcome
+        w = np.nanmean(t)
+        ate = w * self.att + (1 - w) * self.atc
+        erf = [(1 - w) * y[~t].mean() + w * (y[t] - self.att).mean()]
+        erf.append(erf[0] + ate)
 
-            erf = [(1 - w) * outcome_0.mean() + w * (outcome_1 - att).mean()]
-            erf.append(erf[0] + ate)
+        ite = np.zeros((len(y), 2))
+        ite[t, 1] = y[t]
+        ite[~t, 0] = y[~t]
+        ite[~t, 1] = y[~t] + self.atc
+        ite[t, 0] = y[t] - self.att
 
-        except NoMatchError:
-            LOGGER.warn("No matches found, returning NaNs.")
-            att = atc = ate = erf = np.nan
+        return {"att": self.att, "ate": ate, "atc": self.atc, "erf": erf, "ite": ite}
 
+    def tune_metric(self, dataset: SpaceDataset):
+        # Returns the negative weighted covariate balance
+        w = np.nanmean(dataset.treatment.astype(bool))
+        balance = w * self.att_balance + (1 - w) * self.atc_balance
+        return - balance
 
     @property
     def available_estimands(self):

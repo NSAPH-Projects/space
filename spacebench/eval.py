@@ -19,7 +19,8 @@ class DatasetEvaluator:
         self,
         ate: np.ndarray | None = None,
         att: np.ndarray | None = None,
-        counterfactuals: np.ndarray | None = None,
+        atc: np.ndarray | None = None,
+        ite: np.ndarray | None = None,
         erf: np.ndarray | None = None,
     ) -> dict[str, float]:
         errors = {}
@@ -33,6 +34,12 @@ class DatasetEvaluator:
             errors["ate_error"] = (ate - ate_true) / scale
             errors["ate"] = np.abs(errors["ate_error"])
 
+        if atc is not None:
+            assert self.dataset.has_binary_treatment(), "ATC only valid in binary"
+            atc_true = (cf_true[t == 0, 1] - cf_true[t == 0, 0]).mean()
+            errors["atc_error"] = (atc - atc_true) / scale
+            errors["atc"] = np.abs(errors["atc_error"])
+
         if att is not None:
             assert self.dataset.has_binary_treatment(), "ATT only valid in binary"
             assert np.min(t) == 0.0 and np.max(t) == 1.0
@@ -40,9 +47,9 @@ class DatasetEvaluator:
             errors["att_error"] = (att - att_true) / scale
             errors["att"] = np.abs(errors["att_error"])
 
-        if counterfactuals is not None:
+        if ite is not None:
             # compute the precision at estimating heterogeneous effects (PEHE)
-            cferr = (counterfactuals - cf_true) / scale
+            cferr = (ite - cf_true) / scale
             errors["ite_curve"] = np.sqrt((cferr ** 2).mean(0))
             errors["ite"] = errors["ite_curve"].mean()
 
@@ -79,7 +86,7 @@ class EnvEvaluator:
         metrics = evaluator.eval(
             ate=ate,
             att=att,
-            counterfactuals=counterfactuals,
+            ite=counterfactuals,
             erf=erf,
         )
         for k, v in metrics.items():

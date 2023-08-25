@@ -1,18 +1,11 @@
-import os
-import time
 import argparse
 import concurrent.futures
+import os
+import time
 
 import jsonlines
-import numpy as np
-from sklearn.linear_model import SGDClassifier
 
-from spacebench import (
-    SpaceEnv,
-    SpaceDataset,
-    DataMaster,
-    DatasetEvaluator,
-)
+from spacebench import DataMaster, DatasetEvaluator, SpaceDataset, SpaceEnv
 from spacebench.algorithms import dapsm
 
 
@@ -21,33 +14,15 @@ def run_dapsm(
     **kwargs,
 ):
     treatment = dataset.treatment
-    covariates = dataset.covariates
     tvals = dataset.treatment_values
-    tind = (treatment == tvals[1])
-    
-    # Fit propensity score model
-    model = SGDClassifier(loss="log_loss", penalty="l2", alpha=0.1, max_iter=500)
-    covars_ = (covariates - covariates.mean(axis=0)) / covariates.std(axis=0)
-    model.fit(covars_, tind)
-    propensity = model.predict_proba(covariates)[:, 1]
-
-    # Compute distances
-    coords = dataset.coordinates
-    dists2 = np.zeros((coords.shape[0], coords.shape[0]))
-    for i in range(coords.shape[1]):
-        dists2 += (coords[:, i][:, None] - coords[:, i][None, :]) ** 2
-    distmat_full = np.sqrt(dists2) / np.sqrt(dists2).max()
 
     # Call DAPSM
-    model = dapsm.DAPSm(
-        causal_dataset=dataset,
-        ps_score=propensity,
-        spatial_dists_full=distmat_full,
-        balance_cutoff=np.inf,
-    )
+    model = dapsm.DAPSm(0.5)
+    model.fit(dataset)
+    effects = model.eval(dataset)
 
     # Compute counterfactuals
-    ate, *_ = model.estimate("att")
+    ate = effects["ate"]
 
     evaluator = DatasetEvaluator(dataset)
     res = evaluator.eval(ate=ate)
@@ -111,7 +86,7 @@ if __name__ == "__main__":
         with concurrent.futures.ProcessPoolExecutor(args.max_workers) as executor:
             futures = {
                 executor.submit(run_dapsm, dataset, dataset_num=i)
-                for i, dataset in enumerate(dataset_list) 
+                for i, dataset in enumerate(dataset_list)
             }
             # As each future completes, write its result
             for future in concurrent.futures.as_completed(futures):
