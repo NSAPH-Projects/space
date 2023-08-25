@@ -17,7 +17,6 @@ LOGGER = logging.getLogger(__name__)
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> None:
-    dm = spacebench.DataMaster()
     seed_everything(cfg.global_seed)
 
     # make logfile

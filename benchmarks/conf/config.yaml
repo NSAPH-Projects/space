@@ -2,7 +2,7 @@ defaults:
   - algo: ???
 
 global_seed: 123
-
+overwrite: false
 concurrency: 4
 
 spatial_train_test_split:
