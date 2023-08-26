@@ -19,7 +19,11 @@ class GMError(SpaceAlgo):
         y = dataset.outcome
 
         LOGGER.debug("Computing spatial weights")
-        w = lp.weights.util.full2W(dataset.adjacency_matrix())
+        # add a bit of noise to every non-diagonal element to avoid singular matrix
+        adjmat = dataset.adjacency_matrix()
+        adjmat += 1e-6
+        adjmat[np.diag_indices_from(adjmat)] = 0.0
+        w = lp.weights.util.full2W(adjmat)
 
         self.model = spreg.GM_Error(x=x, y=y, w=w)
         self.t_coef = self.model.betas[1, 0]
@@ -63,7 +67,11 @@ class GMLag(SpaceAlgo):
         y = dataset.outcome
 
         LOGGER.debug("Computing spatial weights")
-        w = lp.weights.util.full2W(dataset.adjacency_matrix())
+        # add a bit of noise to every non-diagonal element to avoid singular matrix
+        adjmat = dataset.adjacency_matrix()
+        adjmat += 1e-6
+        adjmat[np.diag_indices_from(adjmat)] = 0.0
+        w = lp.weights.util.full2W(adjmat)
 
         self.model = spreg.GM_Lag(x=x, y=y, w=w, w_lags=self.w_lags)
         self.t_coef = self.model.betas[1, 0]

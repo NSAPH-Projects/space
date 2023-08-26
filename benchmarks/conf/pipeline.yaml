@@ -22,18 +22,19 @@ algorithms:
   cont:
     - spatial
     - spatialplus
-    # - xgboost
-    # - ols
-    # - gcn
-    # - s2sls-lag1
-    # - s2sls-lag2
-    # - gmerror
+    - xgboost
+    - ols
+    - gcn
+    - s2sls-lag1
+    - s2sls-lag2
+    - gmerror
   disc:
+    - dapsm
     - spatial
     - spatialplus
-    # - xgboost
-    # - ols
-    # - gcn
-    # - s2sls-lag1
-    # - s2sls-lag2
-    # - gmerror
+    - xgboost
+    - ols
+    - gcn
+    - s2sls-lag1
+    - s2sls-lag2
+    - gmerror

@@ -9,10 +9,10 @@ conda env create -f benchmarks/conda.yaml
 conda activate benchmarks
 ```
 
-Running experiments on a lap top might take a few days. However, it is possible with the following command assuming 8 cores:
+Running experiments on a laptop might take a few days. However, it is possible with the following command assuming 10 cores with 5 processes and 2 cpus per process:
 
 ```bash
-PYTHONPATH=. snakemake -j=1 --configfile benchmarks/conf/pipeline.yaml -C concurrency=8 --use-conda
+PYTHONPATH=. snakemake --configfile benchmarks/conf/pipeline.yaml -C concurrency=5 --use-conda -j=1 
 ```
 
 Here, `j=1` indicates to train one algo at a time, while `concurrency=4` indicates to use 8 processes to train each algo. The code uses `ray[tune]` to launch async experiments on each process. See `conf/config.yaml` for more details. Concurrency controls the number of simultaneous experiments.
