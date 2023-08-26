@@ -5,6 +5,7 @@ import time
 
 import hydra
 import jsonlines
+import ray
 from omegaconf import DictConfig
 from pytorch_lightning import seed_everything
 from ray import tune
@@ -76,6 +77,8 @@ def main(cfg: DictConfig) -> None:
             tune_config = hydra.utils.instantiate(cfg.algo.tune.tune_config)
             run_config = hydra.utils.instantiate(cfg.algo.tune.run_config)
 
+            ray.shutdown()
+            ray.init(ignore_reinit_error=True, include_dashboard=False)
             tuner = tune.Tuner(
                 objective,
                 tune_config=tune_config,

@@ -1,6 +1,7 @@
 logdir: benchmarks/results
 
 concurrency: 8
+mem_mb: 10000  # make sure it is also compatible with the cluster.yaml
 
 spaceenvs:
   cont:

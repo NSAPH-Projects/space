@@ -26,5 +26,5 @@ opts="--use-conda  --configfile benchmarks/conf/pipeline.yaml -C concurrency=10"
 slurm_opts="/usr/bin/sbatch --ntasks {cluster.ntasks} -N {cluster.N} -t {cluster.t} \
     --cpus-per-task {cluster.cpus_per_task} -p {cluster.p} --mem {cluster.mem} -o {cluster.output} \
     -e {cluster.error} --mail-type={cluster.mail_type}"
-PYTHONPATH=. snakemake $opts --cluster "${slurm_opts}" --cluster-config benchmarks/conf/cluster.yaml  -j 10
+PYTHONPATH=. snakemake $opts --cluster "${slurm_opts}" --cluster-config benchmarks/conf/cluster.yaml  -j 12
 ```

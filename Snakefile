@@ -34,6 +34,8 @@ rule train_spaceenv:
     output:
         config["logdir"] + "/{spaceenv}/{algo}.jsonl",
     threads: config["concurrency"]
+    resources:
+        mem_mb=config["mem_mb"],
     params:
         concurrency=config["concurrency"],
     log:
@@ -44,5 +46,6 @@ rule train_spaceenv:
             algo={wildcards.algo} \
             spaceenv={wildcards.spaceenv} \
             concurrency={params.concurrency} \
+            hydra.run.dir=outputs/logs/{wildcards.spaceenv}/{wildcards.algo} \
             2> {log.err}
         """
