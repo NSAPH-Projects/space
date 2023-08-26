@@ -17,4 +17,4 @@ tune:
         - [l1, l2]
     spatial_weight:
       _target_: ray.tune.uniform
-      _args_: [0.0, 1.0]
+      _args_: [0.1, 0.5]
