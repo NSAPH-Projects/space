@@ -92,7 +92,7 @@ def tps_loss(
         pred_loss = F.binary_cross_entropy_with_logits(pred, y)
 
     c = compute_phi(coords, coords[cp_idx]) @ params[-k:, None]  # vector of size k x 1
-    # c = params[-k:, None]
+    c = params[-k:, None]
     reg_loss = c.pow(2).sum()
 
     # Phi_cp = compute_phi(coords[cp_idx], coords[cp_idx])
@@ -409,29 +409,31 @@ if __name__ == "__main__":
     import numpy as np
 
     import spacebench
+    from spacebench.algorithms.datautils import spatial_train_test_split
 
     # test 1d tps solve
-    # n = 100
+    n = 100
+    coords = torch.FloatTensor(sorted(np.random.rand(n) * 2 * np.pi)).unsqueeze(1)
     # coords = torch.linspace(0, 2 * torch.pi, n).unsqueeze(1)
-    # covars = torch.randn(n, 1)
-    # # cp_idx = torch.LongTensor(np.random.choice(n, 100, replace=False))
-    # cp_idx = torch.arange(n)
-    # y = torch.sin(2 * coords.squeeze())  # + 0.1 * torch.randn(n)
+    covars = torch.randn(n, 1)
+    # cp_idx = torch.LongTensor(np.random.choice(n, 100, replace=False))
+    cp_idx = torch.arange(n)
+    y = torch.sin(2 * coords.squeeze())  + 0.1 * torch.randn(n)
 
-    # # standardize
-    # coords = (coords - coords.mean()) / coords.std()
-    # covars = (covars - covars.mean()) / covars.std()
-    # y = (y - y.mean()) / y.std()
+    # standardize
+    coords = (coords - coords.mean()) / coords.std()
+    covars = (covars - covars.mean()) / covars.std()
+    y = (y - y.mean()) / y.std()
 
-    # params = tps_opt(y, coords, cp_idx, covars, lam=0.001)
-    # pred = tps_pred(coords, cp_idx, covars, params)
+    params = tps_opt(y, coords, cp_idx, covars, lam=0.03)
+    pred = tps_pred(coords, cp_idx, covars, params)
 
-    # fig, ax = plt.subplots(1, 1, figsize=(5, 3))
-    # ax.scatter(coords[:, 0], y, label="Y", c="blue", alpha=0.2, s=10)
-    # ax.plot(coords[:, 0], pred, label="pred", c="red")
-    # ax.legend()
-    # plt.show()
-    # plt.close()
+    fig, ax = plt.subplots(1, 1, figsize=(5, 3))
+    ax.scatter(coords[:, 0], y, label="Y", c="blue", alpha=0.2, s=10)
+    ax.plot(coords[:, 0], pred, label="pred", c="red")
+    ax.legend()
+    plt.show()
+    plt.close()
 
     # plt.bar(np.arange(len(params)), params)
     # plt.show()
@@ -440,6 +442,9 @@ if __name__ == "__main__":
     env_name = spacebench.DataMaster().list_envs()[0]
     env = spacebench.SpaceEnv(env_name)
     dataset = env.make()
+
+    train_ix = spatial_train_test_split(env.graph, 0.02, 1, 1)[0]
+    dataset = dataset[train_ix]
 
     # Run Spatial
     algo = Spatial(max_iter=1000)

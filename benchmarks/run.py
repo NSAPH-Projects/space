@@ -94,7 +94,7 @@ def main(cfg: DictConfig) -> None:
             LOGGER.info("...skipping hyperparameter tuning, no param space provided")
             best_params = {}
 
-        LOGGER.info("...training full model from best results")
+        LOGGER.info("...training full model")
         method = hydra.utils.instantiate(cfg.algo.method, **best_params)
         method.fit(full_dataset)
         effects = method.eval(full_dataset)
