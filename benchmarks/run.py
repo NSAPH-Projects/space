@@ -78,7 +78,12 @@ def main(cfg: DictConfig) -> None:
             run_config = hydra.utils.instantiate(cfg.algo.tune.run_config)
 
             ray.shutdown()
-            ray.init(ignore_reinit_error=True, include_dashboard=False)
+            ray.init(
+                ignore_reinit_error=True,
+                include_dashboard=False, 
+                num_cpus=cfg.concurrency,
+                storage=run_config.storage,
+            )
             tuner = tune.Tuner(
                 objective,
                 tune_config=tune_config,

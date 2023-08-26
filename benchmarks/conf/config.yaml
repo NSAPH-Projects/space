@@ -3,7 +3,7 @@ defaults:
 
 global_seed: 123
 overwrite: false
-concurrency: 4
+concurrency: 5
 
 spatial_train_test_split:
   init_frac: 0.02
@@ -24,10 +24,10 @@ algo:  # these config must be overwritten by algo/*.yaml
   tune:  # ray tune resources, can override  in algo/*.yaml but not needed
     param_space: {}
     resources:
-      cpu: 1
+      cpu: 2
     tune_config:
       _target_: ray.tune.TuneConfig
-      num_samples: 50
+      num_samples: 25
       max_concurrent_trials: ${concurrency}
       scheduler:
         _target_: ray.tune.schedulers.ASHAScheduler
@@ -35,4 +35,7 @@ algo:  # these config must be overwritten by algo/*.yaml
     run_config:
       _target_: ray.air.RunConfig
       local_dir: benchmarks/ray_cache
-      name: ${spaceenv}/${hydra:runtime.choices.algo}
+
+hydra:
+  run:
+    dir: logs/${spaceenv}/${hydra:runtime.choices.algo}

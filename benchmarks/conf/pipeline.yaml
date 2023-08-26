@@ -1,6 +1,6 @@
 logdir: benchmarks/results
 
-concurrency: 8
+concurrency: 5
 mem_mb: 10000  # make sure it is also compatible with the cluster.yaml
 
 spaceenvs:
@@ -20,20 +20,20 @@ spaceenvs:
 
 algorithms:
   cont:
-    - spatial
-    - spatialplus
+    # - spatial
+    # - spatialplus
     - xgboost
-    - ols
+    # - ols
     - gcn
-    - s2sls-lag1
-    - s2sls-lag2
-    - gmerror
+    # - s2sls-lag1
+    # - s2sls-lag2
+    # - gmerror
   disc:
-    - spatial
-    - spatialplus
+    # - spatial
+    # - spatialplus
     - xgboost
-    - ols
+    # - ols
     - gcn
-    - s2sls-lag1
-    - s2sls-lag2
-    - gmerror
+    # - s2sls-lag1
+    # - s2sls-lag2
+    # - gmerror

@@ -39,13 +39,13 @@ rule train_spaceenv:
     params:
         concurrency=config["concurrency"],
     log:
-        err="outputs/logs/{spaceenv}/{algo}.err",
+        err="logs/{spaceenv}/{algo}.err",
     shell:
         """
         python benchmarks/run.py \
             algo={wildcards.algo} \
             spaceenv={wildcards.spaceenv} \
             concurrency={params.concurrency} \
-            hydra.run.dir=outputs/logs/{wildcards.spaceenv}/{wildcards.algo} \
+            hydra.run.dir=logs/{wildcards.spaceenv}/{wildcards.algo} \
             2> {log.err}
         """
