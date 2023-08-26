@@ -82,7 +82,7 @@ def main(cfg: DictConfig) -> None:
             ray.init(
                 ignore_reinit_error=True,
                 include_dashboard=False,
-                num_cpus=cfg.concurrency,
+                # num_cpus=cfg.concurrency,
             )
             tuner = tune.Tuner(
                 objective,
