@@ -348,6 +348,8 @@ class SpatialPlus(SpaceAlgo):
         coords = torch.FloatTensor(dataset.coordinates)
         covars = torch.FloatTensor(dataset.covariates)
         t = torch.FloatTensor(dataset.treatment)
+        self.t_mu, self.t_std = t.mean(), t.std()
+        t = (t - self.t_mu) / self.t_std
 
         # sample control points
         k = min(self.k, dataset.size())
@@ -401,7 +403,7 @@ class SpatialPlus(SpaceAlgo):
         )
 
         # 0 coef is intercept, 1,2 are for coords, 3 is treatment
-        self.t_coef = (self.y_params[3] * self.y_std / self.inputs_std[0]).item()
+        self.t_coef = (self.y_params[3] * self.y_std / self.t_mu).item()
 
     def eval(self, dataset: SpaceDataset):
         ite = [
@@ -433,8 +435,9 @@ class SpatialPlus(SpaceAlgo):
         t = torch.FloatTensor(dataset.treatment)
         covars = (covars - self.covars_mu) / self.covars_std
         coords = (coords - self.coords_mu) / self.coords_std
+        t = (t - self.t_mu) / self.t_std
         t_loss = tps_loss(
-            y,
+            t,
             coords,
             self.cp_idx,
             covars,
