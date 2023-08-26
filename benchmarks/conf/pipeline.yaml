@@ -20,20 +20,20 @@ spaceenvs:
 
 algorithms:
   cont:
-    # - spatial
-    # - spatialplus
-    - xgboost
+    - spatial
+    - spatialplus
+    # - xgboost
     # - ols
-    - gcn
+    # - gcn
     # - s2sls-lag1
     # - s2sls-lag2
     # - gmerror
   disc:
-    # - spatial
-    # - spatialplus
-    - xgboost
+    - spatial
+    - spatialplus
+    # - xgboost
     # - ols
-    - gcn
+    # - gcn
     # - s2sls-lag1
     # - s2sls-lag2
     # - gmerror
