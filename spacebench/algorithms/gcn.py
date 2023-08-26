@@ -141,7 +141,7 @@ class GCN(SpaceAlgo):
         pred = pred.cpu().numpy()
         pred = self.output_scaler.inverse_transform(pred)[:, 0]
 
-        return np.sum((dataset.outcome - pred) ** 2)
+        return np.mean((dataset.outcome - pred) ** 2)
 
 
 class _GCN_impl(pl.LightningModule):
