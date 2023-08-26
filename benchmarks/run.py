@@ -76,13 +76,13 @@ def main(cfg: DictConfig) -> None:
             LOGGER.info("...setting up hyperparameter tuning")
             tune_config = hydra.utils.instantiate(cfg.algo.tune.tune_config)
             run_config = hydra.utils.instantiate(
-                cfg.algo.tune.run_config, name=f"{cfg.algo.name}/{i}"
+                cfg.algo.tune.run_config, name="dataset_{i}"
             )
 
             ray.shutdown()
             ray.init(
                 ignore_reinit_error=True,
-                include_dashboard=False, 
+                include_dashboard=False,
                 num_cpus=cfg.concurrency,
                 storage=run_config.storage,
             )

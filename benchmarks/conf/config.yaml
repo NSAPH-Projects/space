@@ -34,7 +34,7 @@ algo:  # these config must be overwritten by algo/*.yaml
       mode: min
     run_config:
       _target_: ray.air.RunConfig
-      local_dir: benchmarks/ray_cache
+      local_dir: benchmarks/ray_cache/${spaceenv}/${hydra:runtime.choices.algo}
 
 hydra:
   run:
