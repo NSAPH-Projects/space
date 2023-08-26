@@ -75,7 +75,9 @@ def main(cfg: DictConfig) -> None:
             # create tuner
             LOGGER.info("...setting up hyperparameter tuning")
             tune_config = hydra.utils.instantiate(cfg.algo.tune.tune_config)
-            run_config = hydra.utils.instantiate(cfg.algo.tune.run_config)
+            run_config = hydra.utils.instantiate(
+                cfg.algo.tune.run_config, name=f"{cfg.algo.name}/{i}"
+            )
 
             ray.shutdown()
             ray.init(

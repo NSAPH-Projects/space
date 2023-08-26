@@ -110,8 +110,7 @@ def tps_opt(
     lam: float,
     lr: float = 0.01,
     max_iter: int = 20_000,
-    atol: float = 1e-6,
-    rtol: float = 1e-12,
+    atol: float = 1e-4,
     plateau_patience: int = 10,
     verbose: bool = True,
     binary_loss: bool = False,
@@ -300,7 +299,7 @@ class SpatialPlus(SpaceAlgo):
         # sample control points
         k = min(self.k, dataset.size())
         self.cp_idx = torch.LongTensor(
-            np.random.choice(dataset.size(), k, replace=False)
+            sorted(np.random.choice(dataset.size(), k, replace=False))
         )
 
         # standardize
@@ -443,13 +442,14 @@ if __name__ == "__main__":
     env = spacebench.SpaceEnv(env_name)
     dataset = env.make()
 
-    train_ix = spatial_train_test_split(env.graph, 0.02, 1, 1)[0]
-    dataset = dataset[train_ix]
+    train_ix, test_ix = spatial_train_test_split(env.graph, 0.02, 1, 1)[0]
+    train_dataset = dataset[train_ix]
+    eval_dataset = dataset[test_ix]
 
     # Run Spatial
     algo = Spatial(max_iter=1000)
-    algo.fit(dataset)
-    effects1 = algo.eval(dataset)
+    algo.fit(train_dataset)
+    effects1 = algo.eval(eval_dataset)
     tune_metric1 = algo.tune_metric(dataset)
 
     # Run SpatialPlus
