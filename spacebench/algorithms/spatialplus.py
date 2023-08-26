@@ -115,7 +115,7 @@ def tps_opt(
     cp_idx: torch.LongTensor | list[int],
     covars: torch.Tensor,
     lam: float,
-    lr: float = 0.01,
+    lr: float = 0.003,
     max_iter: int = 20_000,
     atol: float = 1e-4,
     plateau_patience: int = 10,
@@ -139,7 +139,7 @@ def tps_opt(
         max_iter (int, optional): Maximum number of iterations. Defaults to 10_000.
         atol (float, optional): Tolerance for max abs gradient. Defaults to 1e-6.
         plateau_patience (int, optional): Patience for learning rate scheduler.
-            Defaults to 100.
+            Defaults to 10.
         verbose (bool, optional): Whether to scheduler messages. Defaults to True.
         binary_loss (bool, optional): Whether to use binary cross entropy loss.
             Defaults to False.

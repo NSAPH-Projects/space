@@ -33,7 +33,7 @@ rule all:
 rule train_spaceenv:
     output:
         config["logdir"] + "/{spaceenv}/{algo}.jsonl",
-    threads: config["concurrency"]
+    threads: config["concurrency"] * config["cpus_per_task"]
     resources:
         mem_mb=config["mem_mb"],
     params:

@@ -1,7 +1,10 @@
 logdir: benchmarks/results
 
-concurrency: 5
-mem_mb: 10000  # make sure it is also compatible with the cluster.yaml
+# make sure it is also compatible with the cluster.yaml
+# and the config file at benchmarks/run/config.yaml
+concurrency: 10
+mem_mb: 4000
+cpus_per_task: 1
 
 spaceenvs:
   cont:
