@@ -16,5 +16,3 @@ tune:
     lam_y:
       _target_: ray.tune.loguniform
       _args_: [1e-8, 0.5]
-
-  num_samples: 10

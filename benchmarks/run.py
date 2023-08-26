@@ -43,7 +43,7 @@ def main(cfg: DictConfig) -> None:
         shutil.rmtree(raydir)
 
     env_name = cfg.spaceenv
-    env = spacebench.SpaceEnv(env_name)
+    env = spacebench.SpaceEnv(env_name, dir="downloads")
     train_ix, test_ix, _ = spatial_train_test_split(
         env.graph, **cfg.spatial_train_test_split
     )
@@ -76,7 +76,7 @@ def main(cfg: DictConfig) -> None:
             LOGGER.info("...setting up hyperparameter tuning")
             tune_config = hydra.utils.instantiate(cfg.algo.tune.tune_config)
             run_config = hydra.utils.instantiate(
-                cfg.algo.tune.run_config, name="dataset_{i}"
+                cfg.algo.tune.run_config, name=f"{i:02d}"
             )
             ray.shutdown()
             ray.init(
