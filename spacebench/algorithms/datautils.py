@@ -19,7 +19,7 @@ def spatial_train_test_split(
     graph: nx.Graph,
     init_frac: float,
     levels: int,
-    buffer: int,
+    buffer: int = 0,
     seed: int | None = None,
 ) -> tuple[list, list, list]:
     """Utility function for splitting a graph into training, tuning, and buffer sets.
@@ -39,7 +39,7 @@ def spatial_train_test_split(
 
     buffer : int
         Number of levels of neighbors to include in buffer set by breadth-first search
-        starting from the tuning set. The buffer set is not used in training or tuning.
+        starting from the tuning set. The buffer set is not used in training or tuning. Default is 0.
 
     seed : int, optional
         Seed for random number generator

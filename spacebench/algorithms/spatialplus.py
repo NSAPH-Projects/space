@@ -1,10 +1,12 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import networkx as nx
 
 from spacebench.algorithms import SpaceAlgo
 from spacebench.env import SpaceDataset
 from spacebench.log import LOGGER
+from spacebench.algorithms.datautils import spatial_train_test_split
 
 
 def compute_phi(c1: torch.Tensor, c2: torch.Tensor) -> torch.Tensor:
@@ -65,6 +67,7 @@ def tps_loss(
     params: torch.Tensor,
     lam: float,
     binary_loss: bool = False,
+    mask: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """
     Compute the loss for Thin Plate Spline regression.
@@ -77,6 +80,9 @@ def tps_loss(
         covars (torch.Tensor): Covariate matrix of size (n, p).
         params (torch.Tensor): Model parameters of length 1 + d + p + k
         lam (float): Regularization parameter.
+        binary_loss (bool, optional): Whether to use binary cross entropy loss.
+            Defaults to False.
+        mask (torch.Tensor, optional): Mask of length n to use for loss. Defaults to None.
 
     Returns
     ----------
@@ -85,11 +91,12 @@ def tps_loss(
     k = len(cp_idx)
 
     pred = tps_pred(coords, cp_idx, covars, params)
-
     if not binary_loss:
-        pred_loss = F.mse_loss(pred, y)
+        pred_loss = F.mse_loss(pred, y, reduction="none")
     else:
-        pred_loss = F.binary_cross_entropy_with_logits(pred, y)
+        pred_loss = F.binary_cross_entropy_with_logits(pred, y, reduction="none")
+
+    pred_loss = (pred_loss * mask).mean() if mask is not None else pred_loss.mean()
 
     c = compute_phi(coords, coords[cp_idx]) @ params[-k:, None]  # vector of size k x 1
     c = params[-k:, None]
@@ -114,6 +121,7 @@ def tps_opt(
     plateau_patience: int = 10,
     verbose: bool = True,
     binary_loss: bool = False,
+    mask: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """
     Optimize the parameters for Thin Plate Spline regression.
@@ -133,6 +141,9 @@ def tps_opt(
         plateau_patience (int, optional): Patience for learning rate scheduler.
             Defaults to 100.
         verbose (bool, optional): Whether to scheduler messages. Defaults to True.
+        binary_loss (bool, optional): Whether to use binary cross entropy loss.
+            Defaults to False.
+        mask (torch.Tensor, optional): Mask of length n to use for loss. Defaults to None.
 
     Returns:
         torch.Tensor: Optimized parameters of length 1 + d + p + k
@@ -162,7 +173,7 @@ def tps_opt(
 
     while it < max_iter:
         opt.zero_grad()
-        loss = tps_loss(y, coords, cp_idx, covars, params, lam, binary_loss)
+        loss = tps_loss(y, coords, cp_idx, covars, params, lam, binary_loss, mask=mask)
         loss.backward()
         opt.step()
         sched.step(loss)
@@ -185,7 +196,13 @@ class Spatial(SpaceAlgo):
     supports_binary = True
     supports_continuous = True
 
-    def __init__(self, k: int = 100, max_iter: int = 20_000, lam: float = 0.001):
+    def __init__(
+        self,
+        k: int = 100,
+        max_iter: int = 20_000,
+        lam: float = 0.001,
+        spatial_split_kwargs: dict | None = None,
+    ):
         """Implementation of the Spatial Method using Thin Plate Spline regression.
 
         Arguments
@@ -193,13 +210,27 @@ class Spatial(SpaceAlgo):
             k (int): max number of control points. Defaults to 100.
             max_iter (int): max number of iterations for optimization. Defaults to 20_000.
             lam (float): regularization parameter. Defaults to 0.001.
+            spatial_split_kwargs (dict, optional): args for spatial_train_test_split.
+                Defaults to None. When not none, it creates a training and test mask
+                to use for minimizing the loss and the tune metric, respectively. Must specify
+                init_frac and levels.
         """
         super().__init__()
         self.k = k
         self.max_iter = max_iter
         self.lam = lam
+        self.spatial_split_kwargs = spatial_split_kwargs
 
     def fit(self, dataset: SpaceDataset):
+        if self.spatial_split_kwargs is not None:
+            train_ix, _, _ = spatial_train_test_split(
+                nx.from_edgelist(dataset.edges), **self.spatial_split_kwargs
+            )
+            self.mask = torch.zeros(dataset.size())
+            self.mask[train_ix] = torch.tensor(1.0)
+        else:
+            self.mask = None
+
         coords = torch.FloatTensor(dataset.coordinates)
         covars = torch.FloatTensor(dataset.covariates)
         y = torch.FloatTensor(dataset.outcome)
@@ -229,6 +260,7 @@ class Spatial(SpaceAlgo):
             lam=self.lam,
             max_iter=self.max_iter,
             verbose=False,
+            mask=self.mask,
         )
         # 0 coef is intercept, 1,2 are for coords, 3 is treatment
         self.t_coef = (self.params[3] * self.y_std / self.inputs_std[0]).item()
@@ -260,8 +292,15 @@ class Spatial(SpaceAlgo):
         inputs = (inputs - self.inputs_mu) / self.inputs_std
         y = (y - self.y_mu) / self.y_std
         pred = tps_pred(coords, self.cp_idx, inputs, self.params)
+        loss = F.mse_loss(pred, y, reduction="none")
 
-        return F.mse_loss(pred, y).item()
+        if self.mask is not None:
+            loss = (loss * (1.0 - self.mask)).mean()
+        else:
+            LOGGER.warning("No mask specified for the tune metric. Using full dataset.")
+            loss = loss.mean()
+
+        return loss.item()
 
 
 class SpatialPlus(SpaceAlgo):
@@ -274,6 +313,7 @@ class SpatialPlus(SpaceAlgo):
         max_iter: int = 20_000,
         lam_t: float = 0.001,
         lam_y: float = 0.001,
+        spatial_split_kwargs: dict | None = None,
     ):
         """Implementation of the SpatialPlus Method using Thin Plate Spline regression.
 
@@ -283,17 +323,30 @@ class SpatialPlus(SpaceAlgo):
             max_iter (int): max number of iterations for optimization. Defaults to 20_000.
             lam_t (float): regularization parameter for treatment model.
             lam_y (float): regularization parameter for outcome model.
+            spatial_split_kwargs (dict, optional): args for spatial_train_test_split.
+                Defaults to None. When not none, it creates a training and test mask
+                to use for minimizing the loss and the tune metric, respectively. Must specify
+                init_frac and levels.
         """
         super().__init__()
         self.k = k
         self.max_iter = max_iter
         self.lam_t = lam_t
         self.lam_y = lam_y
+        self.spatial_split_kwargs = spatial_split_kwargs
 
     def fit(self, dataset: SpaceDataset):
+        if self.spatial_split_kwargs is not None:
+            train_ix, _, _ = spatial_train_test_split(
+                nx.from_edgelist(dataset.edges), **self.spatial_split_kwargs
+            )
+            self.mask = torch.zeros(dataset.size())
+            self.mask[train_ix] = torch.tensor(1.0)
+        else:
+            self.mask = None
+
         coords = torch.FloatTensor(dataset.coordinates)
         covars = torch.FloatTensor(dataset.covariates)
-        y = torch.FloatTensor(dataset.outcome)
         t = torch.FloatTensor(dataset.treatment)
 
         # sample control points
@@ -305,10 +358,8 @@ class SpatialPlus(SpaceAlgo):
         # standardize
         self.coords_mu, self.coords_std = coords.mean(0), coords.std(0)
         self.covars_mu, self.covars_std = covars.mean(0), covars.std(0)
-        self.y_mu, self.y_std = y.mean(), y.std()
         coords = (coords - self.coords_mu) / self.coords_std
         covars = (covars - self.covars_mu) / self.covars_std
-        y = (y - self.y_mu) / self.y_std
 
         # fit a model for the treatment
         self.t_params = tps_opt(
@@ -320,15 +371,19 @@ class SpatialPlus(SpaceAlgo):
             max_iter=self.max_iter,
             verbose=False,
             binary_loss=dataset.has_binary_treatment(),
+            mask=self.mask,
         )
 
         # predict
+        y = torch.FloatTensor(dataset.outcome)
         t_pred = tps_pred(coords, self.cp_idx, covars, self.t_params)
         if dataset.has_binary_treatment():
             t_pred = torch.sigmoid(t_pred)
         t_resid = t - t_pred
 
         # fit a model for the outcome
+        self.y_mu, self.y_std = y.mean(), y.std()
+        y = (y - self.y_mu) / self.y_std
         inputs = torch.cat(
             [t_resid[:, None], torch.FloatTensor(dataset.covariates)], dim=1
         )
@@ -342,6 +397,7 @@ class SpatialPlus(SpaceAlgo):
             lam=self.lam_y,
             max_iter=self.max_iter,
             verbose=False,
+            mask=self.mask,
         )
 
         # 0 coef is intercept, 1,2 are for coords, 3 is treatment
@@ -365,6 +421,12 @@ class SpatialPlus(SpaceAlgo):
         return ["ate", "erf", "ite"]
 
     def tune_metric(self, dataset: SpaceDataset) -> float:
+        if self.mask is None:
+            LOGGER.warning("No mask specified for the tune metric. Using full dataset.")
+            tune_mask = None
+        else:
+            tune_mask = 1.0 - self.mask
+
         coords = torch.FloatTensor(dataset.coordinates)
         covars = torch.FloatTensor(dataset.covariates)
         y = torch.FloatTensor(dataset.outcome)
@@ -379,6 +441,7 @@ class SpatialPlus(SpaceAlgo):
             self.t_params,
             lam=0.0,
             binary_loss=dataset.has_binary_treatment(),
+            mask=tune_mask,
         )
         t_pred = tps_pred(coords, self.cp_idx, covars, self.t_params)
         if dataset.has_binary_treatment():
@@ -396,6 +459,7 @@ class SpatialPlus(SpaceAlgo):
             inputs,
             self.y_params,
             lam=0.0,
+            mask=tune_mask,
         )
 
         return t_loss.item() + y_loss.item()
@@ -410,50 +474,47 @@ if __name__ == "__main__":
     import spacebench
     from spacebench.algorithms.datautils import spatial_train_test_split
 
-    # test 1d tps solve
-    n = 100
-    coords = torch.FloatTensor(sorted(np.random.rand(n) * 2 * np.pi)).unsqueeze(1)
-    # coords = torch.linspace(0, 2 * torch.pi, n).unsqueeze(1)
-    covars = torch.randn(n, 1)
-    # cp_idx = torch.LongTensor(np.random.choice(n, 100, replace=False))
-    cp_idx = torch.arange(n)
-    y = torch.sin(2 * coords.squeeze())  + 0.1 * torch.randn(n)
+    # # test 1d tps solve
+    # n = 100
+    # coords = torch.FloatTensor(sorted(np.random.rand(n) * 2 * np.pi)).unsqueeze(1)
+    # # coords = torch.linspace(0, 2 * torch.pi, n).unsqueeze(1)
+    # covars = torch.randn(n, 1)
+    # # cp_idx = torch.LongTensor(np.random.choice(n, 100, replace=False))
+    # cp_idx = torch.arange(n)
+    # y = torch.sin(2 * coords.squeeze()) + 0.1 * torch.randn(n)
 
-    # standardize
-    coords = (coords - coords.mean()) / coords.std()
-    covars = (covars - covars.mean()) / covars.std()
-    y = (y - y.mean()) / y.std()
+    # # standardize
+    # coords = (coords - coords.mean()) / coords.std()
+    # covars = (covars - covars.mean()) / covars.std()
+    # y = (y - y.mean()) / y.std()
 
-    params = tps_opt(y, coords, cp_idx, covars, lam=0.03)
-    pred = tps_pred(coords, cp_idx, covars, params)
+    # params = tps_opt(y, coords, cp_idx, covars, lam=0.03)
+    # pred = tps_pred(coords, cp_idx, covars, params)
 
-    fig, ax = plt.subplots(1, 1, figsize=(5, 3))
-    ax.scatter(coords[:, 0], y, label="Y", c="blue", alpha=0.2, s=10)
-    ax.plot(coords[:, 0], pred, label="pred", c="red")
-    ax.legend()
-    plt.show()
-    plt.close()
+    # fig, ax = plt.subplots(1, 1, figsize=(5, 3))
+    # ax.scatter(coords[:, 0], y, label="Y", c="blue", alpha=0.2, s=10)
+    # ax.plot(coords[:, 0], pred, label="pred", c="red")
+    # ax.legend()
+    # plt.show()
+    # plt.close()
 
     # plt.bar(np.arange(len(params)), params)
     # plt.show()
     # plt.close()
+    spatial_split_kwargs = {"init_frac": 0.02, "levels": 1, "seed": 1}
 
     env_name = spacebench.DataMaster().list_envs()[0]
     env = spacebench.SpaceEnv(env_name)
     dataset = env.make()
 
-    train_ix, test_ix = spatial_train_test_split(env.graph, 0.02, 1, 1)[0]
-    train_dataset = dataset[train_ix]
-    eval_dataset = dataset[test_ix]
-
     # Run Spatial
-    algo = Spatial(max_iter=1000)
-    algo.fit(train_dataset)
-    effects1 = algo.eval(eval_dataset)
+    algo = Spatial(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
+    algo.fit(dataset)
+    effects1 = algo.eval(dataset)
     tune_metric1 = algo.tune_metric(dataset)
 
     # Run SpatialPlus
-    algo = SpatialPlus(max_iter=1000)
+    algo = SpatialPlus(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
     algo.fit(dataset)
     effects2 = algo.eval(dataset)
     tune_metric2 = algo.tune_metric(dataset)
