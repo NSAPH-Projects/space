@@ -11,12 +11,19 @@ class GMError(SpaceAlgo):
     """
     Wrapper of PySAL GM_Error model.
     """
+
     supports_binary = True
     supports_continuous = True
 
     def fit(self, dataset: SpaceDataset):
-        x = np.concatenate([dataset.treatment[:, None], dataset.covariates], axis=1)
-        y = dataset.outcome
+        noisy_covars = dataset.covariates + np.random.normal(
+            scale=1e-6, size=dataset.covariates.shape
+        )
+        x = np.concatenate([dataset.treatment[:, None], noisy_covars], axis=1)
+        self.mu_x, self.sig_x = x.mean(0), x.std(0)
+        x = (x - self.mu_x) / self.sig_x
+        self.mu_y, self.sig_y = dataset.outcome.mean(), dataset.outcome.std()
+        y = (dataset.outcome - self.mu_y) / self.sig_y
 
         LOGGER.debug("Computing spatial weights")
         # add a bit of noise to every non-diagonal element to avoid singular matrix
@@ -26,7 +33,7 @@ class GMError(SpaceAlgo):
         w = lp.weights.util.full2W(adjmat)
 
         self.model = spreg.GM_Error(x=x, y=y, w=w)
-        self.t_coef = self.model.betas[1, 0]
+        self.t_coef = self.model.betas[1, 0] * self.sig_y / self.sig_x[0]
 
     def eval(self, dataset: SpaceDataset):
         ite = [
@@ -47,6 +54,7 @@ class GMLag(SpaceAlgo):
     """
     Wrapper of PySAL GM_Lag model.
     """
+
     supports_binary = True
     supports_continuous = True
 
@@ -63,8 +71,15 @@ class GMLag(SpaceAlgo):
         self.w_lags = w_lags
 
     def fit(self, dataset: SpaceDataset):
-        x = np.concatenate([dataset.treatment[:, None], dataset.covariates], axis=1)
-        y = dataset.outcome
+        noisy_covars = dataset.covariates + np.random.normal(
+            scale=1e-6, size=dataset.covariates.shape
+        )
+        x = np.concatenate([dataset.treatment[:, None], noisy_covars], axis=1)
+        self.mu_x, self.sig_x = x.mean(0), x.std(0)
+        x = (x - self.mu_x) / self.sig_x
+        self.mu_y, self.sig_y = dataset.outcome.mean(), dataset.outcome.std()
+        y = (dataset.outcome - self.mu_y) / self.sig_y
+
 
         LOGGER.debug("Computing spatial weights")
         # add a bit of noise to every non-diagonal element to avoid singular matrix
@@ -74,7 +89,7 @@ class GMLag(SpaceAlgo):
         w = lp.weights.util.full2W(adjmat)
 
         self.model = spreg.GM_Lag(x=x, y=y, w=w, w_lags=self.w_lags)
-        self.t_coef = self.model.betas[1, 0]
+        self.t_coef = self.model.betas[1, 0] * self.sig_y / self.sig_x[0]
 
     def eval(self, dataset: SpaceDataset):
         ite = [

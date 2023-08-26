@@ -38,6 +38,7 @@ rule train_spaceenv:
         mem_mb=config["mem_mb"],
     params:
         concurrency=config["concurrency"],
+        overwrite=config["overwrite"],
     log:
         err="logs/{spaceenv}/{algo}.err",
     shell:
@@ -46,6 +47,7 @@ rule train_spaceenv:
             algo={wildcards.algo} \
             spaceenv={wildcards.spaceenv} \
             concurrency={params.concurrency} \
+            overwrite={params.overwrite} \
             hydra.run.dir=logs/{wildcards.spaceenv}/{wildcards.algo} \
             2> {log.err}
         """

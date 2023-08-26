@@ -5,6 +5,7 @@ logdir: benchmarks/results
 concurrency: 10
 mem_mb: 4000
 cpus_per_task: 1
+overwrite: false
 
 spaceenvs:
   cont:
@@ -23,21 +24,21 @@ spaceenvs:
 
 algorithms:
   cont:
-    - spatial
-    - spatialplus
-    - xgboost
-    - ols
-    - gcn
+    # - spatial
+    # - spatialplus
+    # - xgboost
+    # - ols
+    # - gcn
     - s2sls-lag1
     - s2sls-lag2
     - gmerror
   disc:
     - dapsm
-    - spatial
-    - spatialplus
-    - xgboost
-    - ols
-    - gcn
+    # - spatial
+    # - spatialplus
+    # - xgboost
+    # - ols
+    # - gcn
     - s2sls-lag1
     - s2sls-lag2
     - gmerror

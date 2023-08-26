@@ -12,6 +12,6 @@ slurm_options="/usr/bin/sbatch --ntasks {cluster.ntasks} -N {cluster.N} -t {clus
     --cpus-per-task {cluster.cpus_per_task} -p {cluster.p} --mem {cluster.mem} -o {cluster.output} \
     -e {cluster.error} --mail-type={cluster.mail_type}"
 
-options="--nolock --rerun-incomplete --use-conda --configfile benchmarks/conf/pipeline.yaml -C concurrency=10"
+options="--nolock --rerun-incomplete --use-conda --configfile benchmarks/conf/pipeline.yaml -C concurrency=10 overwrite=true"
 export PYTHONPATH=.
 snakemake $options --cluster "${slurm_options}" --cluster-config benchmarks/conf/cluster.yaml -j 87
