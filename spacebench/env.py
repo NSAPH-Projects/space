@@ -168,6 +168,43 @@ class SpaceDataset:
         else:
             LOGGER.debug(f"Found {sum(islands)} islands. Removing them.")
             return self[~islands]
+        
+    def unmask(self, inplace: bool = False) -> "SpaceDataset":
+        """
+        Returns a SpaceDataset with the masked covariate unmasked.
+
+        Parameters
+        ----------
+        inplace: bool, optional (default is False)
+            If True, the covariates are unmasked inplace. If False, a new
+            SpaceDataset is returned.
+
+        Returns
+        -------
+        SpaceDataset
+            A new SpaceDataset with the masked covariate unmasked.
+        """
+        if self.missing_covariates is None:
+            raise ValueError("Dataset is already unmasked")
+
+        if inplace:
+            self.covariates = self.unmasked_covariates
+            self.missing_covariates = None
+            return self
+        else:
+            return SpaceDataset(
+                treatment=self.treatment,
+                covariates=self.unmasked_covariates,
+                outcome=self.outcome,
+                edges=self.edges,
+                treatment_values=self.treatment_values,
+                missing_covariates=None,
+                smoothness_score=self.smoothness_score,
+                confounding_score=self.confounding_score,
+                counterfactuals=self.counterfactuals,
+                coordinates=self.coordinates,
+                parent_env=self.parent_env,
+            )
 
 
 class SpaceEnv:

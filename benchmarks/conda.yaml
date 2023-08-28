@@ -33,3 +33,5 @@ dependencies:
     - optuna==3.3.0
     - snakemake>=7.30.2
     - jsonlines
+    - statsmodels
+    - 'plotnine[all]'

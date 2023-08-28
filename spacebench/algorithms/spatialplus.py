@@ -506,20 +506,27 @@ if __name__ == "__main__":
     # plt.close()
     spatial_split_kwargs = {"init_frac": 0.02, "levels": 1, "seed": 1}
 
-    env_name = spacebench.DataMaster().list_envs()[0]
-    env = spacebench.SpaceEnv(env_name)
+    env = spacebench.SpaceEnv("healthd_hhinco_mortality_cont")
     dataset = env.make()
+    evaluator = spacebench.DatasetEvaluator(dataset)
 
-    # Run Spatial
-    algo = Spatial(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
-    algo.fit(dataset)
-    effects1 = algo.eval(dataset)
-    tune_metric1 = algo.tune_metric(dataset)
+    # # Run Spatial
+    # algo = Spatial(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
+    # algo.fit(dataset)
+    # effects1 = algo.eval(dataset)
+    # tune_metric1 = algo.tune_metric(dataset)
 
     # Run SpatialPlus
-    algo = SpatialPlus(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
+    algo = SpatialPlus(
+        max_iter=1000,
+        spatial_split_kwargs=spatial_split_kwargs,
+        lam_t=1.0,
+        lam_y=0.0,
+        k=200,
+    )
     algo.fit(dataset)
     effects2 = algo.eval(dataset)
     tune_metric2 = algo.tune_metric(dataset)
+    errors = evaluator.eval(**effects2)
 
     sys.exit(0)

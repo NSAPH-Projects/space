@@ -28,17 +28,17 @@ algorithms:
     # - spatialplus
     # - xgboost
     # - ols
-    # - gcn
-    - s2sls-lag1
-    - s2sls-lag2
-    - gmerror
+    - gcn
+    # - s2sls-lag1
+    # - s2sls-lag2
+    # - gmerror
   disc:
-    - dapsm
+    # - dapsm
     # - spatial
     # - spatialplus
     # - xgboost
     # - ols
-    # - gcn
-    - s2sls-lag1
-    - s2sls-lag2
-    - gmerror
+    - gcn
+    # - s2sls-lag1
+    # - s2sls-lag2
+    # - gmerror

@@ -5,6 +5,7 @@ method:
   caliper_type: daps
   matching_algorithm: optimal
 
+
 tune:
   param_space:
     propensity_score_penalty_value:
@@ -17,4 +18,4 @@ tune:
         - [l1, l2]
     spatial_weight:
       _target_: ray.tune.uniform
-      _args_: [0.1, 0.5]
+      _args_: [0.0, 0.1]
