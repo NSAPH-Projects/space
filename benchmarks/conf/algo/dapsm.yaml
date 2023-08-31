@@ -1,0 +1,21 @@
+needs_train_test_split: false
+
+method:
+  _target_: spacebench.algorithms.DAPSm
+  caliper_type: daps
+  matching_algorithm: optimal
+
+
+tune:
+  param_space:
+    propensity_score_penalty_value:
+      _target_: ray.tune.choice
+      _args_:
+        - [0.001, 0.01, 0.1, 1.0]
+    propensity_score_penalty_type:
+      _target_: ray.tune.choice
+      _args_: 
+        - [l1, l2]
+    spatial_weight:
+      _target_: ray.tune.uniform
+      _args_: [0.0, 0.1]

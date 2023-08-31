@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[margin=1in]{geometry}
+\begin{document}
+\scriptsize
+\begin{table}[!tbp]
+\centering
+\begin{tabular}{lllllll}
+\toprule
+ &  &  & \multicolumn{2}{r}{\textsc{binary}} & \multicolumn{2}{r}{\textsc{continuous}} \\
+ &  &  & \textsc{ate} & \textsc{ite} & \textsc{erf} & \textsc{ite} \\
+Smoothness & Confounding & Method &  &  &  &  \\
+\midrule
+\multirow[t]{18}{*}{high} & \multirow[t]{9}{*}{high} & \textsc{dapsm} & 0.29 ± {\small 0.20} & 0.25 ± {\small 0.15} & n/a & n/a \\
+ &  & \textsc{gcnn} & 0.16 ± {\small 0.07} & 0.25 ± {\small 0.08} & 0.49 ± {\small 0.14} & 0.72 ± {\small 0.16} \\
+ &  & \textsc{gmerror} & 0.07 ± {\small 0.04} & 0.14 ± {\small 0.05} & 0.26 ± {\small 0.07} & 0.45 ± {\small 0.11} \\
+ &  & \textsc{ols} & 0.08 ± {\small 0.03} & 0.14 ± {\small 0.06} & 0.26 ± {\small 0.07} & \bf 0.44 ± {\small 0.11} \\
+ &  & \textsc{s2sls-lag1} & 0.11 ± {\small 0.06} & 0.15 ± {\small 0.07} & 0.26 ± {\small 0.07} & 0.45 ± {\small 0.11} \\
+ &  & \textsc{s2sls-lag2} & 0.08 ± {\small 0.03} & 0.14 ± {\small 0.06} & 0.26 ± {\small 0.07} & 0.44 ± {\small 0.11} \\
+ &  & \textsc{spatial+} & \bf 0.03 ± {\small 0.03} & 0.13 ± {\small 0.05} & 0.42 ± {\small 0.13} & 0.56 ± {\small 0.14} \\
+ &  & \textsc{spatial} & 0.05 ± {\small 0.03} & 0.13 ± {\small 0.06} & 0.26 ± {\small 0.08} & 0.44 ± {\small 0.11} \\
+ &  & \textsc{xgboost} & 0.05 ± {\small 0.04} & \bf 0.11 ± {\small 0.03} & \bf 0.20 ± {\small 0.05} & 0.47 ± {\small 0.12} \\
+\cline{2-7}
+ & \multirow[t]{9}{*}{low} & \textsc{dapsm} & 0.39 ± {\small 0.16} & 0.37 ± {\small 0.09} & n/a & n/a \\
+ &  & \textsc{gcnn} & 0.14 ± {\small 0.04} & 0.28 ± {\small 0.04} & 0.44 ± {\small 0.11} & 0.58 ± {\small 0.12} \\
+ &  & \textsc{gmerror} & 0.05 ± {\small 0.02} & 0.18 ± {\small 0.04} & 0.37 ± {\small 0.19} & 0.43 ± {\small 0.19} \\
+ &  & \textsc{ols} & 0.04 ± {\small 0.02} & 0.18 ± {\small 0.04} & 0.36 ± {\small 0.18} & 0.41 ± {\small 0.18} \\
+ &  & \textsc{s2sls-lag1} & 0.04 ± {\small 0.02} & 0.18 ± {\small 0.04} & 0.86 ± {\small 1.01} & 0.94 ± {\small 1.06} \\
+ &  & \textsc{s2sls-lag2} & 0.09 ± {\small 0.09} & 0.21 ± {\small 0.06} & 0.44 ± {\small 0.21} & 0.50 ± {\small 0.21} \\
+ &  & \textsc{spatial+} & \bf 0.03 ± {\small 0.01} & 0.18 ± {\small 0.04} & 0.41 ± {\small 0.19} & 0.47 ± {\small 0.19} \\
+ &  & \textsc{spatial} & 0.04 ± {\small 0.01} & 0.18 ± {\small 0.04} & 0.37 ± {\small 0.19} & 0.42 ± {\small 0.19} \\
+ &  & \textsc{xgboost} & 0.03 ± {\small 0.01} & \bf 0.16 ± {\small 0.03} & \bf 0.08 ± {\small 0.03} & \bf 0.20 ± {\small 0.06} \\
+\cline{1-7} \cline{2-7}
+\multirow[t]{18}{*}{low} & \multirow[t]{9}{*}{high} & \textsc{dapsm} & 0.14 ± {\small 0.10} & 0.16 ± {\small 0.09} & n/a & n/a \\
+ &  & \textsc{gcnn} & 0.12 ± {\small 0.05} & 0.15 ± {\small 0.07} & 0.31 ± {\small 0.08} & 0.57 ± {\small 0.07} \\
+ &  & \textsc{gmerror} & 0.08 ± {\small 0.02} & 0.14 ± {\small 0.06} & 0.31 ± {\small 0.07} & 0.48 ± {\small 0.10} \\
+ &  & \textsc{ols} & 0.08 ± {\small 0.02} & 0.14 ± {\small 0.06} & 0.31 ± {\small 0.07} & 0.47 ± {\small 0.10} \\
+ &  & \textsc{s2sls-lag1} & 0.09 ± {\small 0.02} & 0.14 ± {\small 0.06} & 0.31 ± {\small 0.07} & 0.48 ± {\small 0.10} \\
+ &  & \textsc{s2sls-lag2} & 0.09 ± {\small 0.02} & 0.14 ± {\small 0.06} & \bf 0.30 ± {\small 0.06} & \bf 0.47 ± {\small 0.09} \\
+ &  & \textsc{spatial+} & 0.05 ± {\small 0.03} & 0.13 ± {\small 0.06} & 0.47 ± {\small 0.12} & 0.60 ± {\small 0.13} \\
+ &  & \textsc{spatial} & 0.05 ± {\small 0.03} & 0.13 ± {\small 0.06} & 0.31 ± {\small 0.07} & 0.48 ± {\small 0.10} \\
+ &  & \textsc{xgboost} & \bf 0.04 ± {\small 0.01} & \bf 0.11 ± {\small 0.03} & 0.30 ± {\small 0.09} & 0.56 ± {\small 0.13} \\
+\cline{2-7}
+ & \multirow[t]{9}{*}{low} & \textsc{dapsm} & 0.52 ± {\small 0.14} & 0.44 ± {\small 0.07} & n/a & n/a \\
+ &  & \textsc{gcnn} & 0.18 ± {\small 0.04} & 0.34 ± {\small 0.03} & 0.36 ± {\small 0.09} & 0.50 ± {\small 0.09} \\
+ &  & \textsc{gmerror} & 0.07 ± {\small 0.02} & 0.19 ± {\small 0.04} & 0.32 ± {\small 0.19} & 0.37 ± {\small 0.19} \\
+ &  & \textsc{ols} & 0.07 ± {\small 0.02} & 0.19 ± {\small 0.04} & 0.33 ± {\small 0.19} & 0.38 ± {\small 0.19} \\
+ &  & \textsc{s2sls-lag1} & 0.08 ± {\small 0.05} & 0.19 ± {\small 0.04} & 0.70 ± {\small 0.57} & 0.77 ± {\small 0.59} \\
+ &  & \textsc{s2sls-lag2} & 0.09 ± {\small 0.05} & 0.20 ± {\small 0.05} & 0.32 ± {\small 0.19} & 0.38 ± {\small 0.19} \\
+ &  & \textsc{spatial+} & \bf 0.03 ± {\small 0.01} & 0.18 ± {\small 0.04} & 0.35 ± {\small 0.19} & 0.40 ± {\small 0.19} \\
+ &  & \textsc{spatial} & 0.05 ± {\small 0.02} & 0.19 ± {\small 0.04} & 0.34 ± {\small 0.21} & 0.39 ± {\small 0.20} \\
+ &  & \textsc{xgboost} & 0.03 ± {\small 0.01} & \bf 0.17 ± {\small 0.02} & \bf 0.07 ± {\small 0.01} & \bf 0.18 ± {\small 0.04} \\
+\cline{1-7} \cline{2-7}
+\bottomrule
+\end{tabular}
+
+\end{table}
+\end{document}
