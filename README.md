@@ -63,6 +63,7 @@ names have been masked to emphasize that no  inferences can be made
 about the source data.
 ```
 
+### Available SpaceEnvs
 
  The list of available environments can be in the documentations or in an interactive session as:
 
@@ -72,17 +73,21 @@ dm = DataMaster()
 dm.master.head()
 ```
 
-
-| environment                           | treatment_type | collection                            |
-|-----------------------------------|----------------|---------------------------------------|
-| healthd_dmgrcs_mortality_disc     | binary         | Air Pollution and Mortality           |
-| cdcsvi_limteng_hburdic_cont       | continuous     | Social Vulnerability and Welfare      |
-| climate_relhum_wfsmoke_cont       | continuous     | Heat Exposure and Wildfires           |
-| climate_wfsmoke_minrty_disc       | binary         | Heat Exposure and Wildfires           |
-
+| environments                   | treatment_type   | collection                       |
+|:-------------------------------|:-----------------|:---------------------------------|
+| healthd_dmgrcs_mortality_disc  | binary           | Air Pollution and Mortality      |
+| cdcsvi_limteng_hburdic_cont    | continuous       | Social Vulnerability and Welfare |
+| climate_relhum_wfsmoke_cont    | continuous       | Heat Exposure and Wildfires      |
+| climate_wfsmoke_minrty_disc    | binary           | Heat Exposure and Wildfires      |
+| healthd_hhinco_mortality_cont  | continuous       | Air Pollution and Mortality      |
+| healthd_pollutn_mortality_cont | continuous       | Air Pollution and Mortality      |
+| county_educatn_election_cont   | continuous       | Welfare and Elections            |
+| county_phyactiv_lifexpcy_cont  | continuous       | Welfare and Elections            |
+| county_dmgrcs_election_disc    | binary           | Welfare and Elections            |
+| cdcsvi_nohsdp_poverty_cont     | continuous       | Social Vulnerability and Welfare |
+| cdcsvi_nohsdp_poverty_disc     | binary           | Social Vulnerability and Welfare |
 
 To learn more about the data collections and the environments see the [docs](https://nsaph-projects.github.io/space/). The data collections and environments are hosted at the [Harvard Dataverse](https://doi.org/10.7910/DVN/SYNPBS). "Data "nutrition labels" for the collections can be found [here](https://github.com/NSAPH-Projects/space-data/tree/main/data). The environments are produced using the [space-data](https://github.com/NSAPH-Projects/space-data) repository from a data collection with a [configuration file](https://github.com/NSAPH-Projects/space-data/tree/main/conf/spaceenv). Don't forget to read our paper.
-
 
 
 ## 🙉 Code of Conduct
