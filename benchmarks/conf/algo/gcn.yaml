@@ -1,0 +1,21 @@
+needs_train_test_split: true
+
+method:
+  _target_: spacebench.algorithms.GCN
+  verbose: false
+  epochs: 2_500
+
+tune:
+  param_space:
+    hidden_dim:
+      _target_: ray.tune.choice
+      _args_:
+        - [16, 64]
+    hidden_layers:
+      _target_: ray.tune.choice
+      _args_:
+        - [1, 2]
+    weight_decay:
+      _target_: ray.tune.loguniform
+      _args_: [1e-6, 1e-1]
+
