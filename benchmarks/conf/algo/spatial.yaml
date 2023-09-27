@@ -1,4 +1,4 @@
-needs_train_test_split: false
+needs_train_test_split: true
 
 method:
   _target_: spacebench.algorithms.Spatial

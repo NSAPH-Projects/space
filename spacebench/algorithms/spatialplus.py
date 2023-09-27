@@ -35,7 +35,7 @@ def compute_phi(c1: torch.Tensor, c2: torch.Tensor) -> torch.Tensor:
 
 def tps_pred(
     coords: torch.Tensor,
-    cp_idx: torch.LongTensor | list[int],
+    cp_coords: torch.Tensor,
     covars: torch.Tensor,
     params: torch.Tensor,
 ) -> torch.Tensor:
@@ -45,7 +45,7 @@ def tps_pred(
     Arguments
     ----------
         coords (torch.Tensor): Coordinate matrix of size (n, d).
-        cp_idx (list[int]): Indexes of control points of length k.
+        cp_coords (list[int]): Coordinate matrix of contorl points of size (k, d).
         covars (torch.Tensor): Covariate matrix of size (n, p).
         params (torch.Tensor): Model parameters of length 1 + d + p + k
 
@@ -53,7 +53,7 @@ def tps_pred(
     ----------
         torch.Tensor: Predicted values of length n.
     """
-    Phi = compute_phi(coords, coords[cp_idx])
+    Phi = compute_phi(coords, cp_coords)
     intercept = torch.ones((coords.shape[0], 1))
     A = torch.cat([intercept, coords, covars, Phi], dim=1)
     return A @ params
@@ -62,7 +62,7 @@ def tps_pred(
 def tps_loss(
     y: torch.Tensor,
     coords: torch.Tensor,
-    cp_idx: torch.LongTensor | list[int],
+    cp_coords: torch.Tensor,
     covars: torch.Tensor,
     params: torch.Tensor,
     lam: float,
@@ -76,7 +76,7 @@ def tps_loss(
     ----------
         y (torch.Tensor): Target values of length n.
         coords (torch.Tensor): Coordinate matrix of size (n, d).
-        cp_idx (list[int]): Indexes of control points of length k.
+        cp_coords (list[int]): Coordinate matrix of contorl points of size (k, d).
         covars (torch.Tensor): Covariate matrix of size (n, p).
         params (torch.Tensor): Model parameters of length 1 + d + p + k
         lam (float): Regularization parameter.
@@ -88,9 +88,9 @@ def tps_loss(
     ----------
         torch.Tensor: Loss value.
     """
-    k = len(cp_idx)
+    k = cp_coords.shape[0]
 
-    pred = tps_pred(coords, cp_idx, covars, params)
+    pred = tps_pred(coords, cp_coords, covars, params)
     if not binary_loss:
         pred_loss = F.mse_loss(pred, y, reduction="none")
     else:
@@ -98,13 +98,9 @@ def tps_loss(
 
     pred_loss = (pred_loss * mask).mean() if mask is not None else pred_loss.mean()
 
-    c = compute_phi(coords, coords[cp_idx]) @ params[-k:, None]  # vector of size k x 1
+    c = compute_phi(coords, cp_coords) @ params[-k:, None]  # vector of size k x 1
     c = params[-k:, None]
     reg_loss = c.pow(2).sum()
-
-    # Phi_cp = compute_phi(coords[cp_idx], coords[cp_idx])
-    # c = params[-k:, None]
-    # reg_loss = c.T @ Phi_cp @ c
 
     return pred_loss + lam * reg_loss
 
@@ -112,7 +108,7 @@ def tps_loss(
 def tps_opt(
     y: torch.Tensor,
     coords: torch.Tensor,
-    cp_idx: torch.LongTensor | list[int],
+    cp_coords: torch.Tensor,
     covars: torch.Tensor,
     lam: float,
     lr: float = 0.003,
@@ -132,7 +128,7 @@ def tps_opt(
     ----------
         y (torch.Tensor): Target values of length n.
         coords (torch.Tensor): Coordinate matrix of size (n, d).
-        cp_idx (list[int]): Indexes of control points of length k.
+        cp_coords (torch.Tensor): Coordinate matrix of control points of size (k, d).
         covariates (torch.Tensor): Covariate matrix of size (n, p).
         lam (float): Regularization parameter.
         lr (float, optional): Learning rate. Defaults to 0.003.
@@ -154,7 +150,7 @@ def tps_opt(
     """
     d = coords.shape[1]
     p = covars.shape[1]
-    k = len(cp_idx)
+    k = cp_coords.shape[0]
 
     # Initialization of params
     params = torch.zeros(1 + d + p + k, requires_grad=True)
@@ -173,7 +169,7 @@ def tps_opt(
 
     while it < max_iter:
         opt.zero_grad()
-        loss = tps_loss(y, coords, cp_idx, covars, params, lam, binary_loss, mask=mask)
+        loss = tps_loss(y, coords, cp_coords, covars, params, lam, binary_loss, mask=mask)
         loss.backward()
         opt.step()
         sched.step(loss)
@@ -242,6 +238,7 @@ class Spatial(SpaceAlgo):
         self.cp_idx = torch.LongTensor(
             np.random.choice(dataset.size(), k, replace=False)
         )
+        self.cp_coords = coords[self.cp_idx]
 
         # standardize
         self.coords_mu, self.coords_std = coords.mean(0), coords.std(0)
@@ -255,7 +252,7 @@ class Spatial(SpaceAlgo):
         self.params = tps_opt(
             y,
             coords,
-            self.cp_idx,
+            self.cp_coords,
             inputs,
             lam=self.lam,
             max_iter=self.max_iter,
@@ -291,8 +288,9 @@ class Spatial(SpaceAlgo):
         coords = (coords - self.coords_mu) / self.coords_std
         inputs = (inputs - self.inputs_mu) / self.inputs_std
         y = (y - self.y_mu) / self.y_std
-        pred = tps_pred(coords, self.cp_idx, inputs, self.params)
-        loss = F.mse_loss(pred, y, reduction="none")
+        with torch.no_grad():
+            pred = tps_pred(coords, self.cp_coords, inputs, self.params)
+            loss = F.mse_loss(pred, y, reduction="none")
 
         if self.mask is not None:
             loss = (loss * (1.0 - self.mask)).mean()
@@ -349,13 +347,17 @@ class SpatialPlus(SpaceAlgo):
         covars = torch.FloatTensor(dataset.covariates)
         t = torch.FloatTensor(dataset.treatment)
         self.t_mu, self.t_std = t.mean(), t.std()
-        t = (t - self.t_mu) / self.t_std
+
+        # standardize t if not binary treatment
+        if not dataset.has_binary_treatment():
+            t = (t - self.t_mu) / self.t_std
 
         # sample control points
         k = min(self.k, dataset.size())
         self.cp_idx = torch.LongTensor(
             sorted(np.random.choice(dataset.size(), k, replace=False))
         )
+        self.cp_coords = coords[self.cp_idx]
 
         # standardize
         self.coords_mu, self.coords_std = coords.mean(0), coords.std(0)
@@ -367,7 +369,7 @@ class SpatialPlus(SpaceAlgo):
         self.t_params = tps_opt(
             t,
             coords,
-            self.cp_idx,
+            self.cp_coords,
             covars,
             lam=self.lam_t,
             max_iter=self.max_iter,
@@ -378,10 +380,11 @@ class SpatialPlus(SpaceAlgo):
 
         # predict
         y = torch.FloatTensor(dataset.outcome)
-        t_pred = tps_pred(coords, self.cp_idx, covars, self.t_params)
+        t_pred = tps_pred(coords, self.cp_coords, covars, self.t_params)
         if dataset.has_binary_treatment():
             t_pred = torch.sigmoid(t_pred)
-        t_resid = t - t_pred
+        with torch.no_grad():
+            t_resid = t - t_pred
 
         # fit a model for the outcome
         self.y_mu, self.y_std = y.mean(), y.std()
@@ -394,7 +397,7 @@ class SpatialPlus(SpaceAlgo):
         self.y_params = tps_opt(
             y,
             coords,
-            self.cp_idx,
+            self.cp_coords,
             inputs,
             lam=self.lam_y,
             max_iter=self.max_iter,
@@ -435,18 +438,22 @@ class SpatialPlus(SpaceAlgo):
         t = torch.FloatTensor(dataset.treatment)
         covars = (covars - self.covars_mu) / self.covars_std
         coords = (coords - self.coords_mu) / self.coords_std
-        t = (t - self.t_mu) / self.t_std
+
+        # standardize t if not binary treatment
+        if not dataset.has_binary_treatment():
+            t = (t - self.t_mu) / self.t_std
+
         t_loss = tps_loss(
             t,
             coords,
-            self.cp_idx,
+            self.cp_coords,
             covars,
             self.t_params,
             lam=0.0,
             binary_loss=dataset.has_binary_treatment(),
             mask=tune_mask,
         )
-        t_pred = tps_pred(coords, self.cp_idx, covars, self.t_params)
+        t_pred = tps_pred(coords, self.cp_coords, covars, self.t_params)
         if dataset.has_binary_treatment():
             t_pred = torch.sigmoid(t_pred)
         t_resid = t - t_pred
@@ -455,10 +462,11 @@ class SpatialPlus(SpaceAlgo):
             [t_resid[:, None], torch.FloatTensor(dataset.covariates)], dim=1
         )
         inputs = (inputs - self.inputs_mu) / self.inputs_std
+        y = (y - self.y_mu) / self.y_std
         y_loss = tps_loss(
             y,
             coords,
-            self.cp_idx,
+            self.cp_coords,
             inputs,
             self.y_params,
             lam=0.0,
@@ -510,11 +518,12 @@ if __name__ == "__main__":
     dataset = env.make()
     evaluator = spacebench.DatasetEvaluator(dataset)
 
-    # # Run Spatial
-    # algo = Spatial(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
-    # algo.fit(dataset)
-    # effects1 = algo.eval(dataset)
-    # tune_metric1 = algo.tune_metric(dataset)
+    # Run Spatial
+    algo = Spatial(max_iter=1000, spatial_split_kwargs=spatial_split_kwargs)
+    algo.fit(dataset)
+    effects1 = algo.eval(dataset)
+    tune_metric1 = algo.tune_metric(dataset)
+    errors1 = evaluator.eval(**effects1)
 
     # Run SpatialPlus
     algo = SpatialPlus(
@@ -527,6 +536,7 @@ if __name__ == "__main__":
     algo.fit(dataset)
     effects2 = algo.eval(dataset)
     tune_metric2 = algo.tune_metric(dataset)
-    errors = evaluator.eval(**effects2)
+    errors2 = evaluator.eval(**effects2)
 
     sys.exit(0)
+    

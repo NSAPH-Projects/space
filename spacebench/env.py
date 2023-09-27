@@ -4,6 +4,8 @@ import json
 import os
 import zipfile
 from dataclasses import dataclass
+from glob import glob
+import tarfile
 from typing import Literal
 
 import networkx as nx
@@ -291,7 +293,15 @@ class SpaceEnv:
             self.metadata = yaml.load(f, Loader=yaml.BaseLoader)
 
         # -- full data --
-        data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.csv"), index_col=0)
+        ext = ".".join(glob(os.path.join(tgtdir, "synthetic_data.*"))[0].split(".")[1:])
+        if ext == "csv":
+            data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.csv"), index_col=0)
+        elif ext in ("tab", "tsv"):
+            data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.tab"), sep="\t")
+        elif ext == "parquet":
+            data = pd.read_parquet(os.path.join(tgtdir, "synthetic_data.parquet"))
+        else:
+            raise ValueError(f"Unknown file extension: {ext}")
 
         # -- 2. outcome (Y) --
         self.outcome = data["Y_synth"].values
@@ -315,7 +325,18 @@ class SpaceEnv:
             self.treatment_values = np.array([0, 1])
 
         # -- 5. graph, edges --
-        graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
+        ext = ".".join(glob(os.path.join(tgtdir, "graph.*"))[0].split(".")[1:])
+        if ext in ("graphml", "graphml.gz"):
+            graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
+        elif ext == "tar.gz":
+            with tarfile.open(os.path.join(tgtdir, "graph.tar.gz"), "r:gz") as tar:
+                edges = pd.read_parquet(tar.extractfile("graph/edges.parquet"))
+                coords = pd.read_parquet(tar.extractfile("graph/coords.parquet"))
+
+            graph = nx.Graph()
+            graph.add_nodes_from(coords.index)
+            graph.add_edges_from(edges.values)
+       
         node2id = {n: i for i, n in enumerate(graph.nodes)}
         self.edge_list = [(node2id[e[0]], node2id[e[1]]) for e in graph.edges]
         self.graph = nx.from_edgelist(self.edge_list)
