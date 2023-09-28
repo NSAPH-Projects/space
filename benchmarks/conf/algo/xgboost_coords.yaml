@@ -2,6 +2,7 @@ needs_train_test_split: false
 
 method:
   _target_: spacebench.algorithms.XGBoost
+  coords: true
 
 tune:
   param_space:
