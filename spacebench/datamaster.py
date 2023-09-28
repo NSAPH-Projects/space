@@ -81,10 +81,10 @@ class DataMaster:
             return master.index.to_list()
 
         if binary is not None:
-            index[master.treatment_type == "binary"] = binary
+            index[master.treatment_type == "binary"] = True
 
         if continuous is not None:
-            index[master.treatment_type == "continuous"] = continuous
+            index[master.treatment_type == "continuous"] = True
 
         if collection is not None:
             index[master.collection != collection] = False

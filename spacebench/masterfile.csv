@@ -10,7 +10,3 @@ county_phyactiv_lifexpcy_cont,continuous,Welfare and Elections
 county_dmgrcs_election_disc,binary,Welfare and Elections
 cdcsvi_nohsdp_poverty_cont,continuous,Social Vulnerability and Welfare
 cdcsvi_nohsdp_poverty_disc,binary,Social Vulnerability and Welfare
-zcta_age_broadband_cont,continuous,Welfare and Broadband
-zcta_income_broadband_disc,binary,Welfare and Broadband
-pm25_hires_no3_pm_cont,continuous,Particulate matter composition
-pm25_hires_so4_pm_cont,continuous,Particulate matter composition
