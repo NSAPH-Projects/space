@@ -1,0 +1,18 @@
+needs_train_test_split: false
+
+method:
+  _target_: spacebench.algorithms.XGBoost
+
+tune:
+  param_space:
+    max_depth:
+      _target_: ray.tune.choice
+      _args_:
+        - [2, 3, 4]
+    n_estimators:
+      _target_: ray.tune.choice
+      _args_:
+        - [100, 500]
+    learning_rate:
+      _target_: ray.tune.loguniform
+      _args_: [0.01, 1.0]

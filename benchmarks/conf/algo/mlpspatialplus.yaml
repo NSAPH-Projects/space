@@ -1,0 +1,37 @@
+needs_train_test_split: false
+
+method:
+  _target_: spacebench.algorithms.MLPSpatialPlus
+  max_iter: 2_500
+  spatial_split_kwargs:
+    init_frac: 0.05
+    levels: 0
+    buffer: 1
+    seed: 0
+  k: 100
+  lr: 0.003
+
+tune:
+  param_space:
+    hidden_dim:
+      _target_: ray.tune.choice
+      _args_:
+        - [16, 64]
+    hidden_layers:
+      _target_: ray.tune.choice
+      _args_:
+        - [1, 2]
+    weight_decay:
+      _target_: ray.tune.loguniform
+      _args_: [1e-5, 0.1]
+    lam_t:
+      _target_: ray.tune.loguniform
+      _args_: [1e-5, 0.1]
+    lam_y:
+      _target_: ray.tune.loguniform
+      _args_: [1e-5, 0.1]
+    dropout:
+      _target_: ray.tune.loguniform
+      _args_: [1e-3, 0.5]
+
+

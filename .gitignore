@@ -141,3 +141,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+
+# benchmark training
+**/results
+benchmarks/ray_cache
+.lr_find*
+.snakemake/*
+logs

@@ -1,0 +1,5 @@
+needs_train_test_split: false
+
+method:
+  _target_: spacebench.algorithms.GMLag
+  w_lags: 1
