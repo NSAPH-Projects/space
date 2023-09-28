@@ -66,6 +66,7 @@ def tps_deep_opt(
     binary_loss: bool = False,
     mask: torch.Tensor | None = None,
     weight_decay: float = 1e-3,
+    scheduler: bool = True,
 ) -> torch.Tensor:
     """
     Optimize the parameters for Thin Plate Spline regression.
@@ -105,14 +106,15 @@ def tps_deep_opt(
     opt = torch.optim.Adam(
         list(net.parameters()) + [params], lr=lr, weight_decay=weight_decay
     )
-    sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        opt,
-        mode="min",
-        factor=0.9,
-        patience=plateau_patience,
-        verbose=verbose,
-        min_lr=1e-8,
-    )
+    if scheduler:
+        sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            opt,
+            mode="min",
+            factor=0.9,
+            patience=plateau_patience,
+            verbose=verbose,
+            min_lr=1e-4,
+        )
 
     # Run the optimizer
     it = 0
@@ -124,18 +126,19 @@ def tps_deep_opt(
         )
         loss.backward()
         opt.step()
-        sched.step(loss)
+        if scheduler:
+            sched.step(loss)
 
-        # Check for convergence
-        max_grad = params.grad.abs().max()
-        if max_grad < atol:
-            LOGGER.info(f"TPS converged after {it} iterations.")
-            break
+    #     # Check for convergence
+    #     max_grad = params.grad.abs().max()
+    #     if max_grad < atol:
+    #         LOGGER.info(f"TPS converged after {it} iterations.")
+    #         break
 
         it += 1
 
-    if it == max_iter - 1:
-        LOGGER.warning(f"TPS did not converge after {max_iter} iterations.")
+    # if it == max_iter - 1:
+    #     LOGGER.warning(f"TPS did not converge after {max_iter} iterations.")
 
     return params.detach()
 
@@ -210,6 +213,7 @@ def tps_deep_opt_dragon(
     binary_loss: bool = False,
     mask: torch.Tensor | None = None,
     weight_decay: float = 1e-3,
+    scheduler: bool = True,
 ) -> torch.Tensor:
     """
     Optimize the parameters for Thin Plate Spline regression.
@@ -249,14 +253,15 @@ def tps_deep_opt_dragon(
     opt = torch.optim.Adam(
         list(net.parameters()) + [params], lr=lr, weight_decay=weight_decay
     )
-    sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        opt,
-        mode="min",
-        factor=0.9,
-        patience=plateau_patience,
-        verbose=verbose,
-        min_lr=1e-8,
-    )
+    if scheduler:
+        sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            opt,
+            mode="min",
+            factor=0.9,
+            patience=plateau_patience,
+            verbose=verbose,
+            min_lr=1e-4,
+        )
 
     # Run the optimizer
     it = 0
@@ -268,18 +273,19 @@ def tps_deep_opt_dragon(
         )
         loss.backward()
         opt.step()
-        sched.step(loss)
+        if scheduler:
+            sched.step(loss)
 
-        # Check for convergence
-        max_grad = params.grad.abs().max()
-        if max_grad < atol:
-            LOGGER.info(f"TPS converged after {it} iterations.")
-            break
+        # # Check for convergence
+        # max_grad = params.grad.abs().max()
+        # if max_grad < atol:
+        #     LOGGER.info(f"TPS converged after {it} iterations.")
+        #     break
 
         it += 1
 
-    if it == max_iter - 1:
-        LOGGER.warning(f"TPS did not converge after {max_iter} iterations.")
+    # if it == max_iter - 1:
+    #     LOGGER.warning(f"TPS did not converge after {max_iter} iterations.")
 
     return params.detach()
 
@@ -326,7 +332,7 @@ def tps_deep_loss_drnet(
 
     pred_loss = (pred_loss * mask).mean() if mask is not None else pred_loss.mean()
 
-    c = compute_phi(coords, cp_coords) @ params[-k:, None]  # vector of size k x 1
+    # c = compute_phi(coords, cp_coords) @ params[-k:, None]  # vector of size k x 1
     c = params[-k:, None]
     reg_loss = c.pow(2).sum()
 
@@ -350,6 +356,7 @@ def tps_deep_opt_drnet(
     binary_loss: bool = False,
     mask: torch.Tensor | None = None,
     weight_decay: float = 1e-3,
+    scheduler: bool = True,
 ) -> torch.Tensor:
     k = cp_coords.shape[0]
     d = coords.shape[1]
@@ -359,14 +366,15 @@ def tps_deep_opt_drnet(
     opt = torch.optim.Adam(
         list(net.parameters()) + [params], lr=lr, weight_decay=weight_decay
     )
-    sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        opt,
-        mode="min",
-        factor=0.9,
-        patience=plateau_patience,
-        verbose=verbose,
-        min_lr=1e-8,
-    )
+    if scheduler:
+        sched = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            opt,
+            mode="min",
+            factor=0.9,
+            patience=plateau_patience,
+            verbose=verbose,
+            min_lr=1e-4,
+        )
 
     # Run the optimizer
     it = 0
@@ -388,18 +396,19 @@ def tps_deep_opt_drnet(
         )
         loss.backward()
         opt.step()
-        sched.step(loss)
+        if scheduler:
+            sched.step(loss)
 
         # Check for convergence
-        max_grad = params.grad.abs().max()
-        if max_grad < atol:
-            LOGGER.info(f"TPS converged after {it} iterations.")
-            break
+        # max_grad = params.grad.abs().max()
+        # if max_grad < atol:
+        #     LOGGER.info(f"TPS converged after {it} iterations.")
+        #     break
 
         it += 1
 
-    if it == max_iter - 1:
-        LOGGER.warning(f"TPS did not converge after {max_iter} iterations.")
+    # if it == max_iter - 1:
+    #     LOGGER.warning(f"TPS did not converge after {max_iter} iterations.")
 
     return params.detach()
 
@@ -445,12 +454,15 @@ class MLPSpatial(SpaceAlgo):
 
     def fit(self, dataset: SpaceDataset):
         din = 1 + dataset.covariates.shape[1]
-        layers = [nn.Linear(din, self.hidden_dim)]
-        for _ in range(self.hidden_layers):
-            layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(self.dropout))
-        layers.append(nn.Linear(self.hidden_dim, 1))
+        if self.hidden_layers == 0:
+            layers = [nn.Linear(din, 1)]
+        else:
+            layers = [nn.Linear(din, self.hidden_dim)]
+            for _ in range(self.hidden_layers):
+                layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
+                layers.append(nn.ReLU())
+                layers.append(nn.Dropout(self.dropout))
+            layers.append(nn.Linear(self.hidden_dim, 1))
         self.nn = nn.Sequential(*layers)
 
         if self.spatial_split_kwargs is not None:
@@ -604,20 +616,26 @@ class MLPSpatialPlus(SpaceAlgo):
         self.dropout = dropout
 
     def fit(self, dataset: SpaceDataset):
-        layers = [nn.Linear(dataset.covariates.shape[1], self.hidden_dim)]
-        for _ in range(self.hidden_layers):
-            layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(self.dropout))
-        layers.append(nn.Linear(self.hidden_dim, 1))
+        if self.hidden_layers == 0:
+            layers = [nn.Linear(dataset.covariates.shape[1], 1)]
+        else:
+            layers = [nn.Linear(dataset.covariates.shape[1], self.hidden_dim)]
+            for _ in range(self.hidden_layers):
+                layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
+                layers.append(nn.ReLU())
+                layers.append(nn.Dropout(self.dropout))
+            layers.append(nn.Linear(self.hidden_dim, 1))
         self.nn_t = nn.Sequential(*layers)
 
-        layers = [nn.Linear(1 + dataset.covariates.shape[1], self.hidden_dim)]
-        for _ in range(self.hidden_layers):
-            layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(self.dropout))
-        layers.append(nn.Linear(self.hidden_dim, 1))
+        if self.hidden_layers == 0:
+            layers = [nn.Linear(1 + dataset.covariates.shape[1], 1)]
+        else:
+            layers = [nn.Linear(1 + dataset.covariates.shape[1], self.hidden_dim)]
+            for _ in range(self.hidden_layers):
+                layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
+                layers.append(nn.ReLU())
+                layers.append(nn.Dropout(self.dropout))
+            layers.append(nn.Linear(self.hidden_dim, 1))
         self.nn_y = nn.Sequential(*layers)
 
         if self.spatial_split_kwargs is not None:
@@ -847,12 +865,15 @@ class DragonSpatial(SpaceAlgo):
 
     def fit(self, dataset: SpaceDataset):
         din = dataset.covariates.shape[1]
-        layers = [nn.Linear(din, self.hidden_dim)]
-        for _ in range(self.hidden_layers):
-            layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(self.dropout))
-        layers.append(nn.Linear(self.hidden_dim, 3))
+        if self.hidden_layers == 0:
+            layers = [nn.Linear(din, 1)]
+        else:
+            layers = [nn.Linear(din, self.hidden_dim)]
+            for _ in range(self.hidden_layers):
+                layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
+                layers.append(nn.ReLU())
+                layers.append(nn.Dropout(self.dropout))
+            layers.append(nn.Linear(self.hidden_dim, 3))
         self.nn = nn.Sequential(*layers)
 
         if self.spatial_split_kwargs is not None:
@@ -901,8 +922,10 @@ class DragonSpatial(SpaceAlgo):
             lr=self.lr,
             weight_decay=self.weight_decay,
         )
-        # 0 coef is intercept, 1,2 are for coords, 3 is treatment
-        self.t_coef = (self.params[3] * self.y_std / self.inputs_std[0]).item()
+
+        # don't use dropout at eval time
+        self.nn.eval()
+
 
     def eval(self, dataset: SpaceDataset):
         coords = torch.FloatTensor(dataset.coordinates)
@@ -1010,12 +1033,15 @@ class DrnetSpatial(SpaceAlgo):
 
     def fit(self, dataset: SpaceDataset):
         din = dataset.covariates.shape[1]
-        layers = [nn.Linear(din, self.hidden_dim)]
-        for _ in range(self.hidden_layers):
-            layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
-            layers.append(nn.ReLU())
-            layers.append(nn.Dropout(self.dropout))
-        layers.append(nn.Linear(self.hidden_dim, self.n_cutpoints + 2))
+        if self.hidden_layers == 0:
+            layers = [nn.Linear(din, self.n_cutpoints + 2)]
+        else:
+            layers = [nn.Linear(din, self.hidden_dim)]
+            for _ in range(self.hidden_layers):
+                layers.append(nn.Linear(self.hidden_dim, self.hidden_dim))
+                layers.append(nn.ReLU())
+                layers.append(nn.Dropout(self.dropout))
+            layers.append(nn.Linear(self.hidden_dim, self.n_cutpoints + 2))
         self.nn = nn.Sequential(*layers)
 
         if self.spatial_split_kwargs is not None:
@@ -1033,7 +1059,7 @@ class DrnetSpatial(SpaceAlgo):
         t = torch.FloatTensor(dataset.treatment)
 
         # compute cutpoints from t
-        self.cutpoints = torch.linspace(-1.0, 1.0, self.n_cutpoints)
+        self.cutpoints = torch.linspace(-1.5, 1.5, self.n_cutpoints)
 
         # inputs = torch.cat([t[:, None], covars], dim=1)
         inputs = covars
@@ -1133,7 +1159,7 @@ class DrnetSpatial(SpaceAlgo):
         self.t = (t - self.t_mu) / self.t_std
         pred = tps_deep_pred_drnet(
             self.nn, t.unsqueeze(1), self.n_cutpoints, coords, self.cp_coords, inputs, self.params
-        )[0]
+        )
         loss = F.mse_loss(pred, y, reduction="none")
 
         if self.mask is not None:

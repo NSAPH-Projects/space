@@ -327,7 +327,7 @@ class SpaceEnv:
         # -- 5. graph, edges --
         ext = ".".join(glob(os.path.join(tgtdir, "graph.*"))[0].split(".")[1:])
         if ext in ("graphml", "graphml.gz"):
-            graph = nx.read_graphml(os.path.join(tgtdir, "graph.graphml"))
+            graph = nx.read_graphml(os.path.join(tgtdir, f"graph.{ext}"))
         elif ext == "tar.gz":
             with tarfile.open(os.path.join(tgtdir, "graph.tar.gz"), "r:gz") as tar:
                 edges = pd.read_parquet(tar.extractfile("graph/edges.parquet"))

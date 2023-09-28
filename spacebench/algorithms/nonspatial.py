@@ -66,18 +66,22 @@ class XGBoost(SpaceAlgo):
         max_depth: Optional[int] = None,
         learning_rate: Optional[float] = None,
         n_estimators: int = 100,
+        coords: bool = False,
     ) -> None:
         self.model_kwargs = {
             "max_depth": max_depth,
             "learning_rate": learning_rate,
             "n_estimators": n_estimators,
         }
+        self.coords = coords
 
     def fit(self, dataset: SpaceDataset):
         self.model = XGBRegressor(**self.model_kwargs)
         inputs = np.concatenate(
             [dataset.treatment[:, None], dataset.covariates], axis=1
         )
+        if self.coords:
+            inputs = np.concatenate([inputs, dataset.coordinates], axis=1)
         self.model.fit(inputs, dataset.outcome)
 
     def eval(self, dataset: SpaceDataset):
@@ -85,6 +89,8 @@ class XGBoost(SpaceAlgo):
         inputs = np.concatenate(
             [dataset.treatment[:, None], dataset.covariates], axis=1
         )
+        if self.coords:
+            inputs = np.concatenate([inputs, dataset.coordinates], axis=1)
         preds = self.model.predict(inputs)
         residuals = dataset.outcome - preds
 
@@ -92,6 +98,8 @@ class XGBoost(SpaceAlgo):
         for a in treatment_values:
             treatment_a = np.full((dataset.size(), 1), a)
             inputs_a = np.concatenate([treatment_a, dataset.covariates], axis=1)
+            if self.coords:
+                inputs_a = np.concatenate([inputs_a, dataset.coordinates], axis=1)
             pred_a = self.model.predict(inputs_a)
             mu_cf.append(pred_a)
         mu_cf = np.stack(mu_cf, axis=1)
@@ -113,6 +121,8 @@ class XGBoost(SpaceAlgo):
         inputs = np.concatenate(
             [dataset.treatment[:, None], dataset.covariates], axis=1
         )
+        if self.coords:
+            inputs = np.concatenate([inputs, dataset.coordinates], axis=1)
         preds = self.model.predict(inputs)
         return np.mean((dataset.outcome - preds) ** 2)
 
