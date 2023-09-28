@@ -174,11 +174,11 @@ def tps_opt(
         opt.step()
         sched.step(loss)
 
-        # Check for convergence
-        max_grad = params.grad.abs().max()
-        if max_grad < atol:
-            LOGGER.info(f"TPS converged after {it} iterations.")
-            break
+        # # Check for convergence
+        # max_grad = params.grad.abs().max()
+        # if max_grad < atol:
+        #     LOGGER.info(f"TPS converged after {it} iterations.")
+        #     break
 
         it += 1
 

@@ -511,6 +511,7 @@ class MLPSpatial(SpaceAlgo):
         )
         # 0 coef is intercept, 1,2 are for coords, 3 is treatment
         self.t_coef = (self.params[3] * self.y_std / self.inputs_std[0]).item()
+        self.nn.eval()
 
     def eval(self, dataset: SpaceDataset):
         coords = torch.FloatTensor(dataset.coordinates)
@@ -717,6 +718,8 @@ class MLPSpatialPlus(SpaceAlgo):
 
         # 0 coef is intercept, 1,2 are for coords, 3 is treatment
         self.t_coef = (self.y_params[3] * self.y_std / self.t_mu).item()
+        self.nn_t.eval()
+        self.nn_y.eval()
 
     def eval(self, dataset: SpaceDataset):
         coords = torch.FloatTensor(dataset.coordinates)
@@ -1098,6 +1101,7 @@ class DrnetSpatial(SpaceAlgo):
             weight_decay=self.weight_decay,
         )
         # 0 coef is intercept, 1,2 are for coords, 3 is treatment
+        self.nn.eval()
 
     def eval(self, dataset: SpaceDataset):
         coords = torch.FloatTensor(dataset.coordinates)
