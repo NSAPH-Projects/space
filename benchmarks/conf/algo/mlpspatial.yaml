@@ -15,11 +15,11 @@ tune:
     max_iter:
       _target_: ray.tune.choice
       _args_:
-        - [2_500, 5_000]
+        - [1_000, 5_000]
     hidden_dim:
       _target_: ray.tune.choice
       _args_:
-        - [16, 64]
+        - [16, 32]
     hidden_layers:
       _target_: ray.tune.choice
       _args_:
@@ -28,8 +28,8 @@ tune:
       _target_: ray.tune.loguniform
       _args_: [1e-5, 1e-1]
     dropout:
-      _target_: ray.tune.loguniform
-      _args_: [1e-3, 0.5]
+      _target_: ray.tune.uniform
+      _args_: [1e-2, 0.5]
     lam:
       _target_: ray.tune.loguniform
       _args_: [1e-5, 0.1]
