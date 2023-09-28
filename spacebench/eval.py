@@ -11,9 +11,20 @@ class DatasetEvaluator:
     in a specific SpaceDataset.
     """
 
-    def __init__(self, dataset: SpaceDataset) -> None:
+    def __init__(
+        self,
+        dataset: SpaceDataset,
+        tmin: float | None = None,
+        tmax: float | None = None,
+    ) -> None:
         self.dataset = dataset
         self.buffer = defaultdict(list)
+        self.tmin = tmin
+        self.tmax = tmax
+        self.mask = np.ones(len(dataset.treatment_values), dtype=bool)
+        if tmin is not None and tmax is not None:
+            assert tmin < tmax
+            self.mask = (dataset.treatment_values >= tmin) & (dataset.treatment_values <= tmax)
 
     def eval(
         self,
@@ -24,7 +35,9 @@ class DatasetEvaluator:
         erf: np.ndarray | None = None,
     ) -> dict[str, float]:
         errors = {}
-        cf_true = self.dataset.counterfactuals
+        cf_true = self.dataset.counterfactuals[:, self.mask]
+        if ite is not None:
+            ite = ite[:, self.mask]
         t = self.dataset.treatment
         scale = np.std(self.dataset.outcome)
 
@@ -50,7 +63,7 @@ class DatasetEvaluator:
         if ite is not None:
             # compute the precision at estimating heterogeneous effects (PEHE)
             cferr = (ite - cf_true) / scale
-            errors["ite_curve"] = np.sqrt((cferr ** 2).mean(0))
+            errors["ite_curve"] = np.sqrt((cferr**2).mean(0))
             errors["ite"] = errors["ite_curve"].mean()
 
         if erf is not None:
@@ -114,7 +127,7 @@ class EnvEvaluator:
         # pehe bias and variance
         if "ite_curve" in self.buffer:
             res["ite_curve"] = np.array(self.buffer["ite_curve"]).mean(0)
-            res["ite"] = np.array(self.buffer["ite"]).mean(0)   
+            res["ite"] = np.array(self.buffer["ite"]).mean(0)
 
         # response curve bias and variance
         if "erf_error" in self.buffer:
