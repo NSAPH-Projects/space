@@ -32,7 +32,7 @@ class GMError(SpaceAlgo):
         adjmat[np.diag_indices_from(adjmat)] = 0.0
         w = lp.weights.util.full2W(adjmat)
 
-        self.model = spreg.GM_Error(x=x, y=y, w=w)
+        self.model = spreg.GM_Error_Het(x=x, y=y, w=w)
         self.t_coef = self.model.betas[1, 0] * self.sig_y / self.sig_x[0]
 
     def eval(self, dataset: SpaceDataset):
