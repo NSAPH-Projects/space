@@ -90,6 +90,11 @@ dm.master.head()
 To learn more about the data collections and the environments see the [docs](https://nsaph-projects.github.io/space/). The data collections and environments are hosted at the [Harvard Dataverse](https://doi.org/10.7910/DVN/SYNPBS). "Data "nutrition labels" for the collections can be found [here](https://github.com/NSAPH-Projects/space-data/tree/main/data). The environments are produced using the [space-data](https://github.com/NSAPH-Projects/space-data) repository from a data collection with a [configuration file](https://github.com/NSAPH-Projects/space-data/tree/main/conf/spaceenv). Don't forget to read our paper.
 
 
+## Contributing
+
+We welcome contributions and feedback about `spacebench` project. Please see the [contributing guide](CONTRIBUTING.md) for more information.
+
+
 ## 🙉 Code of Conduct
 
 Please note that the SpaCE project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
