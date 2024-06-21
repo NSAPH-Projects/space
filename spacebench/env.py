@@ -297,7 +297,7 @@ class SpaceEnv:
         if ext == "csv":
             data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.csv"), index_col=0)
         elif ext in ("tab", "tsv"):
-            data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.tab"), sep="\t")
+            data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.tab"), sep="\t", index_col=0)
         elif ext == "parquet":
             data = pd.read_parquet(os.path.join(tgtdir, "synthetic_data.parquet"))
         else:
@@ -337,7 +337,7 @@ class SpaceEnv:
             graph.add_nodes_from(coords.index)
             graph.add_edges_from(edges.values)
        
-        node2id = {n: i for i, n in enumerate(graph.nodes)}
+        node2id = {n: i for i, n in enumerate(data.index)}
         self.edge_list = [(node2id[e[0]], node2id[e[1]]) for e in graph.edges]
         self.graph = nx.from_edgelist(self.edge_list)
 
