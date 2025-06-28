@@ -1,4 +1,5 @@
 """Module for defining the SpaceEnvironment class"""
+
 import itertools
 import json
 import os
@@ -170,7 +171,7 @@ class SpaceDataset:
         else:
             LOGGER.debug(f"Found {sum(islands)} islands. Removing them.")
             return self[~islands]
-        
+
     def unmask(self, inplace: bool = False) -> "SpaceDataset":
         """
         Returns a SpaceDataset with the masked covariate unmasked.
@@ -295,9 +296,11 @@ class SpaceEnv:
         # -- full data --
         ext = ".".join(glob(os.path.join(tgtdir, "synthetic_data.*"))[0].split(".")[1:])
         if ext == "csv":
-            data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.csv"), index_col=0)
+            path = os.path.join(tgtdir, "synthetic_data.csv")
+            data = pd.read_csv(path, index_col=0, dtype={0: str})
         elif ext in ("tab", "tsv"):
-            data = pd.read_csv(os.path.join(tgtdir, "synthetic_data.tab"), sep="\t", index_col=0)
+            path = os.path.join(tgtdir, "synthetic_data.tab")
+            data = pd.read_csv(path, sep="\t", index_col=0, dtype={0: str})
         elif ext == "parquet":
             data = pd.read_parquet(os.path.join(tgtdir, "synthetic_data.parquet"))
         else:
@@ -336,7 +339,7 @@ class SpaceEnv:
             graph = nx.Graph()
             graph.add_nodes_from(coords.index)
             graph.add_edges_from(edges.values)
-       
+
         node2id = {n: i for i, n in enumerate(data.index)}
         self.edge_list = [(node2id[e[0]], node2id[e[1]]) for e in graph.edges]
         self.graph = nx.from_edgelist(self.edge_list)
