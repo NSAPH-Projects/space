@@ -4,6 +4,7 @@
 
 - Use new covariate groups and confounding scores per metric. Confounding scores are now a dictionary with keys ate, erf, ite, and importance. The first three correspond to the error scores (absolute ate error, mean absolute erf error, mean root-mean-squared ite error) using a baseline model from autogluon. The importance scores correspond to the max of min(outcome_importance, treatment_importance), which are the previously used scores.
 - Updated `env.py` to allow for different data formats since data collections in `space-data` can now use `.parquets`, `.graphmlz` and other compressed formats to make read speed and storage more efficient.
+- Updated `env.py` to read index col as string for tab and csv files to avoid issues with integer indices.
 
 ### Changed
 
